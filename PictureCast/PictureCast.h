@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <GoogleCast/GoogleCast.h>
 
-@interface MainViewController : UIViewController<GCKDeviceManagerDelegate,
+@interface PictureCast : UIViewController<GCKDeviceManagerDelegate,
                                                  GCKDeviceScannerListener,
                                                  GCKMediaControlChannelDelegate,
                                                  UINavigationControllerDelegate,
@@ -18,7 +18,10 @@
                                                  UIActionSheetDelegate>
 
 @property (nonatomic, retain) GCKDeviceScanner *deviceScannerObject;
-@property (nonatomic, retain) GCKDeviceManager *deviceManager;
+@property (nonatomic, retain) GCKDeviceManager *deviceManagerObject;
+@property (nonatomic, retain) GCKMediaControlChannel *mediaControlChannel;
+@property (nonatomic, retain) GCKDevice *selectedDevice;
+@property (nonatomic, retain) NSString *session_id;
 @property (nonatomic, retain) UIButton *chromecastButton;
 @property (strong, nonatomic) IBOutlet UIImageView *imagePreview;
 

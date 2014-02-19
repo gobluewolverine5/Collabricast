@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@class MainViewController;
+@class PictureCast;
 @class HTTPServer;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
@@ -16,12 +16,12 @@
     HTTPServer *httpServer;
     
     UIWindow *window;
-    MainViewController *viewController;
+    PictureCast *viewController;
     UInt16 port_number;
 }
 
 @property (strong, nonatomic) IBOutlet UIWindow *window;
-@property (nonatomic) IBOutlet MainViewController *viewController;
+@property (nonatomic) IBOutlet PictureCast *viewController;
 @property (nonatomic) UInt16 port_number;
 
 - (void) setHostPath:(NSString *)path;

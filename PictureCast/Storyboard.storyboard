@@ -24,10 +24,10 @@
             </objects>
             <point key="canvasLocation" x="19" y="961"/>
         </scene>
-        <!--View Controller-->
+        <!--Main Menu-->
         <scene sceneID="QZk-ME-3Gn">
             <objects>
-                <viewController id="VWa-H0-YFa" sceneMemberID="viewController">
+                <viewController id="VWa-H0-YFa" customClass="MainMenu" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="aOp-kP-RQK">
                         <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -42,7 +42,7 @@
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <segue destination="p2K-UB-vtp" kind="push" id="njL-zt-cCu"/>
+                                    <action selector="toPictureCast:" destination="VWa-H0-YFa" eventType="touchUpInside" id="ZEB-Zn-Brs"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Pzb-LP-V5e">
@@ -54,7 +54,7 @@
                                     <color key="titleColor" red="0.20392156859999999" green="0.31372549020000001" blue="0.39607843139999999" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
                                 <connections>
-                                    <segue destination="pBP-A2-FAX" kind="push" id="DnX-7o-IKy"/>
+                                    <action selector="toSlideshowCast:" destination="VWa-H0-YFa" eventType="touchUpInside" id="peQ-GM-Jb8"/>
                                 </connections>
                             </button>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Media Cast" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="35v-XE-div">
@@ -68,25 +68,14 @@
                         <color key="backgroundColor" red="0.20392156862745098" green="0.31372549019607843" blue="0.396078431372549" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
                     <navigationItem key="navigationItem" id="nM5-U8-iBz"/>
+                    <connections>
+                        <segue destination="p2K-UB-vtp" kind="push" identifier="toPictureCast" id="zlw-sE-Fx5"/>
+                        <segue destination="pBP-A2-FAX" kind="push" identifier="toSlideshowCast" id="pNh-ZU-1GS"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="g9d-Cq-PLU" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="486" y="961"/>
-        </scene>
-        <!--View Controller-->
-        <scene sceneID="Vpn-9I-JJN">
-            <objects>
-                <viewController id="Jjg-BS-U12" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="Cqn-9S-Iha">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <color key="backgroundColor" red="0.81568627449999997" green="0.82745098039999998" blue="0.76078431369999999" alpha="1" colorSpace="deviceRGB"/>
-                    </view>
-                    <navigationItem key="navigationItem" id="lTq-CR-zWU"/>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="VS6-aO-qdJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="352" y="174"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="DW0-zx-Epz">
@@ -103,17 +92,17 @@
             </objects>
             <point key="canvasLocation" x="1026" y="1410"/>
         </scene>
-        <!--Main View Controller-->
+        <!--Picture Cast-->
         <scene sceneID="Mvq-Tg-f8O">
             <objects>
-                <viewController id="p2K-UB-vtp" customClass="MainViewController" sceneMemberID="viewController">
+                <viewController id="p2K-UB-vtp" customClass="PictureCast" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="jNC-AZ-V1h">
                         <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="TM3-Zj-o42">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="407"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES"/>
                             </imageView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="YsK-0T-Asx">
                                 <rect key="frame" x="0.0" y="460" width="320" height="44"/>

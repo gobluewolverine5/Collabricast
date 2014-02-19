@@ -6,29 +6,29 @@
 //  Copyright (c) 2014 EECS 441. All rights reserved.
 //
 
-#import "MainViewController.h"
+#import "PictureCast.h"
 #import "AppDelegate.h"
 #import "pictureOps.h"
 #import <GoogleCast/GoogleCast.h>
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 
-@interface MainViewController ()
+@interface PictureCast ()
 
 @end
 
-@implementation MainViewController {
-    GCKDevice *selectedDevice;
-    GCKMediaControlChannel *mediaControlChannel;
+@implementation PictureCast {
     UIImage *_cast_btn;
     UIImage *_connected_cast_btn;
-    NSString *webPath;
     pictureOps *picture_ops;
 }
 
 @synthesize deviceScannerObject;
-@synthesize deviceManager;
+@synthesize deviceManagerObject;
 @synthesize imagePreview;
+@synthesize selectedDevice;
+@synthesize mediaControlChannel;
+@synthesize session_id;
 
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -71,42 +71,18 @@
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_chromecastButton];
     
-    /* SCANNING FOR DEVICES */
-    deviceScannerObject = [[GCKDeviceScanner alloc] init];
-    [deviceScannerObject addListener:self];
-    [deviceScannerObject startScan];
-    
-    for (GCKDevice *device in deviceScannerObject.devices) {
-        NSLog(@"Device: %@", [device friendlyName]);
-    }
+    [self updateButtonStates];
     
 }
 
-- (void)updateButtonStates {
-  if (self.deviceScannerObject.devices.count == 0) {
-    //Hide the cast button
-    [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
-    _chromecastButton.hidden = YES;
-  } else {
-    if (self.deviceManager && self.deviceManager.isConnected) {
-      //Enabled state for cast button
-      [_chromecastButton setImage:_connected_cast_btn forState:UIControlStateNormal];
-      [_chromecastButton setTintColor:[UIColor blueColor]];
-      _chromecastButton.hidden = NO;
-    } else {
-      //Disabled state for cast button
-      [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
-      [_chromecastButton setTintColor:[UIColor grayColor]];
-      _chromecastButton.hidden = NO;
-    }
-  }
 
-}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+/*################ CHROME CAST CODE ###################*/
 
 #pragma mark - GCKDeviceScannerListner
 - (void)deviceDidComeOnline:(GCKDevice *)device
@@ -126,7 +102,7 @@
     NSLog(@"connected!!");
     
     [self updateButtonStates];
-    [self.deviceManager launchApplication:@"549D1581"];
+    [self.deviceManagerObject launchApplication:@"549D1581"];
 }
 
 #pragma mark - GCKDeviceManagerDelegate
@@ -137,6 +113,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     
     mediaControlChannel = [[GCKMediaControlChannel alloc] init];
     mediaControlChannel.delegate = self;
+    session_id = sessionID;
     [deviceManager addChannel:mediaControlChannel];
 }
 
@@ -150,30 +127,18 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     
 }
 
+#pragma mark - Device Manager Did Fail to Launch
 - (void)deviceManager:(GCKDeviceManager *)deviceManager
     didFailToLaunchCastApplicationWithError:(NSError *)error {
   [self showError:error];
 
 }
 
+#pragma mark - Device Manager Did Fail to Connect With Error
 - (void)deviceManager:(GCKDeviceManager *)deviceManager
     didFailToConnectWithError:(GCKError *)error {
   [self showError:error];
 
-}
-
-#pragma mark - Image Picker delegate
--(void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
-{
-    [self dismissViewControllerAnimated:YES completion:NULL];
-    if ([picture_ops clearCache]) {
-        NSLog(@"Cached Succesfully cleared");
-    } else {
-        NSLog(@"Error clearing cached");
-    }
-    imagePreview.image = [picture_ops saveImage:info];
-    
-    [self castCurrentImage:[picture_ops returnFileName]];
 }
 
 #pragma mark - misc
@@ -199,13 +164,15 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
             NSLog(@"Disconnecting device:%@", selectedDevice.friendlyName);
             // New way of doing things: We're not going to stop the applicaton. We're just going
             // to leave it.
-            [self.deviceManager leaveApplication];
+            [self.deviceManagerObject leaveApplication];
             // If you want to force application to stop, uncomment below
-            //[self.deviceManager stopApplicationWithSessionID:self.applicationMetadata.sessionID];
-            [self.deviceManager disconnect];
+            [self.deviceManagerObject stopApplicationWithSessionID:session_id];
+            [self.deviceManagerObject disconnect];
             
             [self deviceDisconnected];
             [self updateButtonStates];
+            
+            [self.navigationController popViewControllerAnimated:YES];
             
         } else if (buttonIndex == 0) {
             // Join the existing session.
@@ -219,61 +186,41 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
         return;
     
     NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
-    self.deviceManager =
+    self.deviceManagerObject =
     [[GCKDeviceManager alloc] initWithDevice:selectedDevice
                            clientPackageName:[info objectForKey:@"CFBundleIdentifier"]];
     
     NSLog(@"bunde id: %@", [info objectForKey:@"CFBundleIdentifier"]);
-    self.deviceManager.delegate = self;
-    [self.deviceManager connect];
+    self.deviceManagerObject.delegate = self;
+    [self.deviceManagerObject connect];
 }
 
 - (void)deviceDisconnected {
-  deviceManager = nil;
-  selectedDevice = nil;
-  NSLog(@"Device disconnected");
+    deviceManagerObject = nil;
+    selectedDevice = nil;
+      NSLog(@"Device disconnected");
 }
 
-- (void) castCurrentImage:(NSString*)filename
-{
-    GCKMediaMetadata *metadata = [[GCKMediaMetadata alloc]init];
-  
-    UInt16 port_number = [(AppDelegate *)[[UIApplication sharedApplication]delegate]port_number];
-    NSURL *url = [[NSURL alloc]initWithString:[NSString stringWithFormat:@"http://%@:%hu/%@",
-                                                                        [self getIPAddress], port_number, filename]];
-    NSLog(@"Absolute url: %@", [url absoluteString]);
-    GCKImage *gck_image = [[GCKImage alloc]initWithURL:url
-                                                 width:100
-                                                height:100];
-    
-    [metadata addImage:gck_image];
-    
-    GCKMediaInformation *mediaInformation = [[GCKMediaInformation alloc] initWithContentID:[url absoluteString]
-                                                                                streamType:GCKMediaStreamTypeNone
-                                                                               contentType:@"image/jpeg"
-                                                                                  metadata:metadata
-                                                                            streamDuration:123
-                                                                                customData:nil];
-    if ([mediaControlChannel loadMedia:mediaInformation autoplay:YES playPosition:0] == kGCKInvalidRequestID) {
-        NSLog(@"error loading media");
+- (void)updateButtonStates {
+  if (self.deviceScannerObject.devices.count == 0) {
+    //Hide the cast button
+    [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
+    _chromecastButton.hidden = YES;
+  } else {
+    if (self.deviceManagerObject && self.deviceManagerObject.isConnected) {
+      //Enabled state for cast button
+      [_chromecastButton setImage:_connected_cast_btn forState:UIControlStateNormal];
+      [_chromecastButton setTintColor:[UIColor blueColor]];
+      _chromecastButton.hidden = NO;
+    } else {
+      //Disabled state for cast button
+      [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
+      [_chromecastButton setTintColor:[UIColor grayColor]];
+      _chromecastButton.hidden = NO;
     }
-}
+  }
 
-- (IBAction)castImage:(id)sender
-{
-    [self castCurrentImage:[picture_ops returnFileName]];
 }
-
-- (IBAction)selectImage:(id)sender
-{
-    
-    UIImagePickerController *imagePicker = [[UIImagePickerController alloc]init];
-    [imagePicker setDelegate:self];
-    [imagePicker setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
-    
-    [self presentViewController:imagePicker animated:YES completion:NULL];
-}
-
 
 - (void)chooseDevice:(id)sender {
     //Choose device
@@ -314,6 +261,64 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
         //sheet.cancelButtonIndex = (mediaTitle != nil ? 2 : 1);
         
         [sheet showInView:_chromecastButton];
+    }
+}
+
+
+/*############### END OF CHROMECAST CODE ################*/
+
+- (IBAction)castImage:(id)sender
+{
+    [self castCurrentImage:[picture_ops returnFileName]];
+}
+
+- (IBAction)selectImage:(id)sender
+{
+    
+    UIImagePickerController *imagePicker = [[UIImagePickerController alloc]init];
+    [imagePicker setDelegate:self];
+    [imagePicker setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+    
+    [self presentViewController:imagePicker animated:YES completion:NULL];
+}
+
+#pragma mark - Image Picker delegate
+-(void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    [self dismissViewControllerAnimated:YES completion:NULL];
+    if ([picture_ops clearCache]) {
+        NSLog(@"Cached Succesfully cleared");
+    } else {
+        NSLog(@"Error clearing cached");
+    }
+    imagePreview.image = [picture_ops saveImage:info];
+    
+    [self castCurrentImage:[picture_ops returnFileName]];
+}
+
+- (void) castCurrentImage:(NSString*)filename
+{
+    GCKMediaMetadata *metadata = [[GCKMediaMetadata alloc]init];
+  
+    UInt16 port_number = [(AppDelegate *)[[UIApplication sharedApplication]delegate]port_number];
+    NSURL *url = [[NSURL alloc]initWithString:[NSString stringWithFormat:@"http://%@:%hu/%@",
+                                                                        [self getIPAddress], port_number, filename]];
+    NSLog(@"Absolute url: %@", [url absoluteString]);
+    GCKImage *gck_image = [[GCKImage alloc]initWithURL:url
+                                                 width:100
+                                                height:100];
+    
+    [metadata addImage:gck_image];
+    
+    GCKMediaInformation *mediaInformation = [[GCKMediaInformation alloc] initWithContentID:[url absoluteString]
+                                                                                streamType:GCKMediaStreamTypeNone
+                                                                               contentType:@"image/jpeg"
+                                                                                  metadata:metadata
+                                                                            streamDuration:123
+                                                                                customData:nil];
+    if ([mediaControlChannel loadMedia:mediaInformation
+                              autoplay:YES playPosition:0] == kGCKInvalidRequestID) {
+        NSLog(@"error loading media");
     }
 }
 

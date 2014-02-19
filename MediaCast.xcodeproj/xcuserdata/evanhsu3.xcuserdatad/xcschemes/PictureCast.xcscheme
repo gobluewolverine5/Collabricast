@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "991382C518A74638009862EA"
-               BuildableName = "PictureCast.app"
-               BlueprintName = "PictureCast"
-               ReferencedContainer = "container:PictureCast.xcodeproj">
+               BuildableName = "MediaCast.app"
+               BlueprintName = "MediaCast"
+               ReferencedContainer = "container:MediaCast.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "991382E018A74639009862EA"
-               BuildableName = "PictureCastTests.xctest"
-               BlueprintName = "PictureCastTests"
-               ReferencedContainer = "container:PictureCast.xcodeproj">
+               BuildableName = "MediaCastTests.xctest"
+               BlueprintName = "MediaCastTests"
+               ReferencedContainer = "container:MediaCast.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -43,9 +43,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "991382C518A74638009862EA"
-            BuildableName = "PictureCast.app"
-            BlueprintName = "PictureCast"
-            ReferencedContainer = "container:PictureCast.xcodeproj">
+            BuildableName = "MediaCast.app"
+            BlueprintName = "MediaCast"
+            ReferencedContainer = "container:MediaCast.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "991382C518A74638009862EA"
-            BuildableName = "PictureCast.app"
-            BlueprintName = "PictureCast"
-            ReferencedContainer = "container:PictureCast.xcodeproj">
+            BuildableName = "MediaCast.app"
+            BlueprintName = "MediaCast"
+            ReferencedContainer = "container:MediaCast.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -80,9 +80,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "991382C518A74638009862EA"
-            BuildableName = "PictureCast.app"
-            BlueprintName = "PictureCast"
-            ReferencedContainer = "container:PictureCast.xcodeproj">
+            BuildableName = "MediaCast.app"
+            BlueprintName = "MediaCast"
+            ReferencedContainer = "container:MediaCast.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
