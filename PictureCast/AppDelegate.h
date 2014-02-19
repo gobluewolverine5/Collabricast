@@ -8,8 +8,23 @@
 
 #import <UIKit/UIKit.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@class MainViewController;
+@class HTTPServer;
 
-@property (strong, nonatomic) UIWindow *window;
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
+{
+    HTTPServer *httpServer;
+    
+    UIWindow *window;
+    MainViewController *viewController;
+    UInt16 port_number;
+}
+
+@property (strong, nonatomic) IBOutlet UIWindow *window;
+@property (nonatomic) IBOutlet MainViewController *viewController;
+@property (nonatomic) UInt16 port_number;
+
+- (void) setHostPath:(NSString *)path;
+- (NSString *) cacheURL;
 
 @end
