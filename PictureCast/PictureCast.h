@@ -9,13 +9,16 @@
 #import <UIKit/UIKit.h>
 #import <GoogleCast/GoogleCast.h>
 
-@interface PictureCast : UIViewController<GCKDeviceManagerDelegate,
-                                                 GCKDeviceScannerListener,
-                                                 GCKMediaControlChannelDelegate,
-                                                 UINavigationControllerDelegate,
-                                                 UIImagePickerControllerDelegate,
-
-                                                 UIActionSheetDelegate>
+@interface PictureCast : UIViewController
+<
+    GCKDeviceManagerDelegate,
+    GCKDeviceScannerListener,
+    GCKMediaControlChannelDelegate,
+    UINavigationControllerDelegate,
+    UIImagePickerControllerDelegate,
+    UIActionSheetDelegate,
+    UIGestureRecognizerDelegate
+>
 
 @property (nonatomic, retain) GCKDeviceScanner *deviceScannerObject;
 @property (nonatomic, retain) GCKDeviceManager *deviceManagerObject;
@@ -27,5 +30,8 @@
 
 - (IBAction)castImage:(id)sender;
 - (IBAction)selectImage:(id)sender;
+
+- (void) castCurrentImage:(NSString *)filename;
+- (NSString *)getIPAddress;
 
 @end

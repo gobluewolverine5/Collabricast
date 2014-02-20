@@ -66,6 +66,9 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    if (!(self.deviceManagerObject && self.deviceManagerObject.isConnected)) {
+        selectedDevice = nil;
+    }
     [self updateButtonStates];
 }
 
@@ -86,6 +89,43 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+#pragma mark - IBAction
+- (IBAction)toPictureCast:(id)sender
+{
+    [self performSegueWithIdentifier:@"toPictureCast" sender:Nil];
+    
+    /* Uncomment this to prevent segue without Chromecast connection
+     
+    if (self.deviceManagerObject.isConnected && self.deviceManagerObject) {
+        [self performSegueWithIdentifier:@"toPictureCast" sender:Nil];
+    } else {
+        UIAlertView *alert = [[UIAlertView alloc]
+                              initWithTitle     :@"Error"
+                              message           :@"Please Connect to a Chromecast"
+                              delegate          :nil
+                              cancelButtonTitle :@"OK"
+                              otherButtonTitles :nil];
+        [alert show];
+    }
+     */
+}
+
+- (IBAction)toSlideshowCast:(id)sender
+{
+    if (self.deviceManagerObject.isConnected && self.deviceManagerObject) {
+        [self performSegueWithIdentifier:@"toSlideshowCast" sender:Nil];
+    } else {
+        UIAlertView *alert = [[UIAlertView alloc]
+                              initWithTitle     :@"Error"
+                              message           :@"Please Connect to a Chromecast"
+                              delegate          :nil
+                              cancelButtonTitle :@"OK"
+                              otherButtonTitles :nil];
+        [alert show];
+    }
+}
+
 
 /*################## CHOMECAST CODE ######################*/
 
@@ -110,7 +150,6 @@
     [self.deviceManagerObject launchApplication:@"549D1581"];
 }
 
-#pragma mark - GCKDeviceManagerDelegate
 - (void)deviceManager:(GCKDeviceManager *)deviceManager
 didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
             sessionID:(NSString *)sessionID
@@ -122,7 +161,6 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     [deviceManager addChannel:mediaControlChannel];
 }
 
-#pragma mark - Device Manager delegate
 - (void)deviceManager:(GCKDeviceManager *)deviceManager didDisconnectWithError:(GCKError *)error {
     NSLog(@"Received notification that device disconnected");
     
@@ -132,14 +170,12 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     
 }
 
-#pragma mark - Device Manager Did Fail to Launch
 - (void)deviceManager:(GCKDeviceManager *)deviceManager
     didFailToLaunchCastApplicationWithError:(NSError *)error {
   [self showError:error];
 
 }
 
-#pragma  mark - Device Manager Did Fail to Connect with Error
 - (void)deviceManager:(GCKDeviceManager *)deviceManager
     didFailToConnectWithError:(GCKError *)error {
   [self showError:error];
@@ -184,6 +220,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     }
 }
 
+#pragma mark - GCK Custom Functions
 - (void)connectToDevice {
     if (selectedDevice == nil)
         return;
@@ -269,33 +306,4 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 /*############# END OF CHROMECAST CODE #################*/
 
-- (IBAction)toPictureCast:(id)sender
-{
-    if (self.deviceManagerObject.isConnected && self.deviceManagerObject) {
-        [self performSegueWithIdentifier:@"toPictureCast" sender:Nil];
-    } else {
-        UIAlertView *alert = [[UIAlertView alloc]
-                              initWithTitle     :@"Error"
-                              message           :@"Please Connect to a Chromecast"
-                              delegate          :nil
-                              cancelButtonTitle :@"OK"
-                              otherButtonTitles :nil];
-        [alert show];
-    }
-}
-
-- (IBAction)toSlideshowCast:(id)sender
-{
-    if (self.deviceManagerObject.isConnected && self.deviceManagerObject) {
-        [self performSegueWithIdentifier:@"toSlideshowCast" sender:Nil];
-    } else {
-        UIAlertView *alert = [[UIAlertView alloc]
-                              initWithTitle     :@"Error"
-                              message           :@"Please Connect to a Chromecast"
-                              delegate          :nil
-                              cancelButtonTitle :@"OK"
-                              otherButtonTitles :nil];
-        [alert show];
-    }
-}
 @end

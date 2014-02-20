@@ -27,9 +27,7 @@
 		991382FC18A746BC009862EA /* PictureCast.m in Sources */ = {isa = PBXBuildFile; fileRef = 991382FB18A746BC009862EA /* PictureCast.m */; };
 		991382FE18A7473B009862EA /* GoogleCast.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 991382FD18A7473B009862EA /* GoogleCast.framework */; };
 		9913830018A74749009862EA /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 991382FF18A74749009862EA /* AVFoundation.framework */; };
-		9937249818B3315000733A89 /* imageLibraryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9937249718B3315000733A89 /* imageLibraryVC.m */; };
 		9937249B18B3D9D900733A89 /* pictureOps.m in Sources */ = {isa = PBXBuildFile; fileRef = 9937249A18B3D9D900733A89 /* pictureOps.m */; };
-		996CCD0C18B45DFA007E5548 /* castOps.m in Sources */ = {isa = PBXBuildFile; fileRef = 996CCD0B18B45DFA007E5548 /* castOps.m */; };
 		996CCD0F18B45F96007E5548 /* MainMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 996CCD0E18B45F96007E5548 /* MainMenu.m */; };
 		99F864CB18A9CDC900952004 /* images in Resources */ = {isa = PBXBuildFile; fileRef = 99F864CA18A9CDC900952004 /* images */; };
 		99F864F618A9D01100952004 /* DDData.m in Sources */ = {isa = PBXBuildFile; fileRef = 99F864D118A9D01100952004 /* DDData.m */; };
@@ -96,12 +94,8 @@
 		991382FB18A746BC009862EA /* PictureCast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PictureCast.m; sourceTree = "<group>"; };
 		991382FD18A7473B009862EA /* GoogleCast.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleCast.framework; sourceTree = "<group>"; };
 		991382FF18A74749009862EA /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		9937249618B3315000733A89 /* imageLibraryVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imageLibraryVC.h; sourceTree = "<group>"; };
-		9937249718B3315000733A89 /* imageLibraryVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = imageLibraryVC.m; sourceTree = "<group>"; };
 		9937249918B3D9D900733A89 /* pictureOps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pictureOps.h; sourceTree = "<group>"; };
 		9937249A18B3D9D900733A89 /* pictureOps.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = pictureOps.m; sourceTree = "<group>"; };
-		996CCD0A18B45DFA007E5548 /* castOps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = castOps.h; sourceTree = "<group>"; };
-		996CCD0B18B45DFA007E5548 /* castOps.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = castOps.m; sourceTree = "<group>"; };
 		996CCD0D18B45F96007E5548 /* MainMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainMenu.h; path = ../MainMenu.h; sourceTree = "<group>"; };
 		996CCD0E18B45F96007E5548 /* MainMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MainMenu.m; path = ../MainMenu.m; sourceTree = "<group>"; };
 		99F864CA18A9CDC900952004 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
@@ -241,14 +235,10 @@
 				991382F818A7464E009862EA /* Storyboard.storyboard */,
 				991382FA18A746BC009862EA /* PictureCast.h */,
 				991382FB18A746BC009862EA /* PictureCast.m */,
-				9937249618B3315000733A89 /* imageLibraryVC.h */,
-				9937249718B3315000733A89 /* imageLibraryVC.m */,
 				9937249918B3D9D900733A89 /* pictureOps.h */,
 				9937249A18B3D9D900733A89 /* pictureOps.m */,
 				996CCD0D18B45F96007E5548 /* MainMenu.h */,
 				996CCD0E18B45F96007E5548 /* MainMenu.m */,
-				996CCD0A18B45DFA007E5548 /* castOps.h */,
-				996CCD0B18B45DFA007E5548 /* castOps.m */,
 			);
 			path = PictureCast;
 			sourceTree = "<group>";
@@ -502,7 +492,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				99F8650518A9D01100952004 /* HTTPRedirectResponse.m in Sources */,
-				996CCD0C18B45DFA007E5548 /* castOps.m in Sources */,
 				99F8650618A9D01100952004 /* WebSocket.m in Sources */,
 				99F8651B18A9D16C00952004 /* DDFileLogger.m in Sources */,
 				991382DA18A74639009862EA /* AppDelegate.m in Sources */,
@@ -525,7 +514,6 @@
 				99F8651A18A9D16C00952004 /* DDASLLogger.m in Sources */,
 				99F8650118A9D01100952004 /* HTTPDataResponse.m in Sources */,
 				99F864FC18A9D01100952004 /* HTTPServer.m in Sources */,
-				9937249818B3315000733A89 /* imageLibraryVC.m in Sources */,
 				99F864FA18A9D01100952004 /* HTTPConnection.m in Sources */,
 				99F8651F18A9D16C00952004 /* DispatchQueueLogFormatter.m in Sources */,
 				99F864F918A9D01100952004 /* HTTPAuthenticationRequest.m in Sources */,

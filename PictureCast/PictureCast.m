@@ -21,6 +21,14 @@
     UIImage *_cast_btn;
     UIImage *_connected_cast_btn;
     pictureOps *picture_ops;
+    CGFloat firstX;
+    CGFloat firstY;
+    CGFloat imageTopBound;
+    CGFloat imageBottomBound;
+    CGFloat imageLeftBound;
+    CGFloat imageRightBound;
+    CGFloat minHeight;
+    CGFloat minWidth;
 }
 
 @synthesize deviceScannerObject;
@@ -48,6 +56,16 @@
     NSLog(@"view did load");
    
     picture_ops = [[pictureOps alloc]init];
+
+    [imagePreview setUserInteractionEnabled:YES];
+    UIPinchGestureRecognizer *pinch_gr = [[UIPinchGestureRecognizer alloc] initWithTarget:self
+                                                                              action:@selector(handlePinch:)];
+    pinch_gr.delegate = self;
+    UIPanGestureRecognizer *pan_gr = [[UIPanGestureRecognizer alloc] initWithTarget:self
+                                                                             action:@selector(handlePan:)];
+    pan_gr.delegate = self;
+    [imagePreview addGestureRecognizer:pinch_gr];
+    [imagePreview addGestureRecognizer:pan_gr];
     
     /* PRESENT UIIMAGE PICKER CONTROLLER FIRST */
     UIImagePickerController *imagePicker = [[UIImagePickerController alloc]init];
@@ -75,6 +93,20 @@
     
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+    firstX = 0;
+    firstY = 0;
+    imageTopBound    = imagePreview.center.y - imagePreview.bounds.size.height/2;
+    imageBottomBound = imagePreview.center.y + imagePreview.bounds.size.height/2;
+    imageLeftBound   = imagePreview.center.x - imagePreview.bounds.size.width/2;
+    imageRightBound  = imagePreview.center.x + imagePreview.bounds.size.width/2;
+    minHeight        = imageBottomBound - imageTopBound;
+    minWidth         = imageRightBound - imageLeftBound;
+    NSLog(@"minHeight: %f", minHeight);
+    NSLog(@"minWidth: %f", minWidth);
+}
+
 
 - (void)didReceiveMemoryWarning
 {
@@ -82,191 +114,7 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*################ CHROME CAST CODE ###################*/
-
-#pragma mark - GCKDeviceScannerListner
-- (void)deviceDidComeOnline:(GCKDevice *)device
-{
-    NSLog(@"Device Found: %@", [device friendlyName]);
-    [self updateButtonStates];
-}
-
-- (void)deviceDidGoOffline:(GCKDevice *)device
-{
-    NSLog(@"Device Went Offline");
-    [self updateButtonStates];
-}
-
-#pragma mark - GCKDeviceManagerDelegate
-- (void)deviceManagerDidConnect:(GCKDeviceManager *)deviceManager {
-    NSLog(@"connected!!");
-    
-    [self updateButtonStates];
-    [self.deviceManagerObject launchApplication:@"549D1581"];
-}
-
-#pragma mark - GCKDeviceManagerDelegate
-- (void)deviceManager:(GCKDeviceManager *)deviceManager
-didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
-            sessionID:(NSString *)sessionID
-  launchedApplication:(BOOL)launchedApp {
-    
-    mediaControlChannel = [[GCKMediaControlChannel alloc] init];
-    mediaControlChannel.delegate = self;
-    session_id = sessionID;
-    [deviceManager addChannel:mediaControlChannel];
-}
-
-#pragma mark - Device Manager delegate
-- (void)deviceManager:(GCKDeviceManager *)deviceManager didDisconnectWithError:(GCKError *)error {
-    NSLog(@"Received notification that device disconnected");
-    
-    if (error != nil) {
-        [self showError:error];
-    }
-    
-}
-
-#pragma mark - Device Manager Did Fail to Launch
-- (void)deviceManager:(GCKDeviceManager *)deviceManager
-    didFailToLaunchCastApplicationWithError:(NSError *)error {
-  [self showError:error];
-
-}
-
-#pragma mark - Device Manager Did Fail to Connect With Error
-- (void)deviceManager:(GCKDeviceManager *)deviceManager
-    didFailToConnectWithError:(GCKError *)error {
-  [self showError:error];
-
-}
-
-#pragma mark - misc
-- (void)showError:(NSError *)error {
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", nil)
-                                                    message:NSLocalizedString(error.description, nil)
-                                                   delegate:nil
-                                          cancelButtonTitle:NSLocalizedString(@"OK", nil)
-                                          otherButtonTitles:nil];
-    [alert show];
-}
-
-#pragma mark UIActionSheetDelegate
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (selectedDevice == nil) {
-        if (buttonIndex < self.deviceScannerObject.devices.count) {
-            selectedDevice = self.deviceScannerObject.devices[buttonIndex];
-            NSLog(@"Selecting device:%@", selectedDevice.friendlyName);
-            [self connectToDevice];
-        }
-    } else {
-        if (buttonIndex == 0) {  //Disconnect button
-            NSLog(@"Disconnecting device:%@", selectedDevice.friendlyName);
-            // New way of doing things: We're not going to stop the applicaton. We're just going
-            // to leave it.
-            [self.deviceManagerObject leaveApplication];
-            // If you want to force application to stop, uncomment below
-            [self.deviceManagerObject stopApplicationWithSessionID:session_id];
-            [self.deviceManagerObject disconnect];
-            
-            [self deviceDisconnected];
-            [self updateButtonStates];
-            
-            [self.navigationController popViewControllerAnimated:YES];
-            
-        } else if (buttonIndex == 0) {
-            // Join the existing session.
-            
-        }
-    }
-}
-
-- (void)connectToDevice {
-    if (selectedDevice == nil)
-        return;
-    
-    NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
-    self.deviceManagerObject =
-    [[GCKDeviceManager alloc] initWithDevice:selectedDevice
-                           clientPackageName:[info objectForKey:@"CFBundleIdentifier"]];
-    
-    NSLog(@"bunde id: %@", [info objectForKey:@"CFBundleIdentifier"]);
-    self.deviceManagerObject.delegate = self;
-    [self.deviceManagerObject connect];
-}
-
-- (void)deviceDisconnected {
-    deviceManagerObject = nil;
-    selectedDevice = nil;
-      NSLog(@"Device disconnected");
-}
-
-- (void)updateButtonStates {
-  if (self.deviceScannerObject.devices.count == 0) {
-    //Hide the cast button
-    [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
-    _chromecastButton.hidden = YES;
-  } else {
-    if (self.deviceManagerObject && self.deviceManagerObject.isConnected) {
-      //Enabled state for cast button
-      [_chromecastButton setImage:_connected_cast_btn forState:UIControlStateNormal];
-      [_chromecastButton setTintColor:[UIColor blueColor]];
-      _chromecastButton.hidden = NO;
-    } else {
-      //Disabled state for cast button
-      [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
-      [_chromecastButton setTintColor:[UIColor grayColor]];
-      _chromecastButton.hidden = NO;
-    }
-  }
-
-}
-
-- (void)chooseDevice:(id)sender {
-    //Choose device
-    if (selectedDevice == nil) {
-        //Device Selection List
-        UIActionSheet *sheet =
-        [[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"Connect to Device", nil)
-                                    delegate:self
-                           cancelButtonTitle:nil
-                      destructiveButtonTitle:nil
-                           otherButtonTitles:nil];
-        
-        for (GCKDevice *device in self.deviceScannerObject.devices) {
-            [sheet addButtonWithTitle:device.friendlyName];
-        }
-        
-        [sheet addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
-        sheet.cancelButtonIndex = sheet.numberOfButtons - 1;
-        
-        [sheet showInView:_chromecastButton];
-    } else {
-        //Already connected information
-        NSString *str = [NSString stringWithFormat:NSLocalizedString(@"Casting to %@", nil),
-                         selectedDevice.friendlyName];
-        //NSString *mediaTitle = [mediaInformation.metadata stringForKey:kGCKMetadataKeyTitle];
-        
-        UIActionSheet *sheet = [[UIActionSheet alloc] init];
-        sheet.title = str;
-        sheet.delegate = self;
-        /*
-        if (mediaTitle != nil) {
-            [sheet addButtonWithTitle:mediaTitle];
-        }
-         */
-        [sheet addButtonWithTitle:@"Disconnect"];
-        [sheet addButtonWithTitle:@"Cancel"];
-        //sheet.destructiveButtonIndex = (mediaTitle != nil ? 1 : 0);
-        //sheet.cancelButtonIndex = (mediaTitle != nil ? 2 : 1);
-        
-        [sheet showInView:_chromecastButton];
-    }
-}
-
-
-/*############### END OF CHROMECAST CODE ################*/
-
+#pragma mark - IBAction
 - (IBAction)castImage:(id)sender
 {
     [self castCurrentImage:[picture_ops returnFileName]];
@@ -282,19 +130,6 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     [self presentViewController:imagePicker animated:YES completion:NULL];
 }
 
-#pragma mark - Image Picker delegate
--(void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
-{
-    [self dismissViewControllerAnimated:YES completion:NULL];
-    if ([picture_ops clearCache]) {
-        NSLog(@"Cached Succesfully cleared");
-    } else {
-        NSLog(@"Error clearing cached");
-    }
-    imagePreview.image = [picture_ops saveImage:info];
-    
-    [self castCurrentImage:[picture_ops returnFileName]];
-}
 
 - (void) castCurrentImage:(NSString*)filename
 {
@@ -352,4 +187,273 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     return address;
     
 }
+
+#pragma mark - Image Gestures
+- (void)handlePinch:(UIPinchGestureRecognizer *)gestureRecognizer
+{
+    static CGRect initialBounds;
+    
+    UIView *view = gestureRecognizer.view;
+    CGFloat factor =[(UIPinchGestureRecognizer *)gestureRecognizer scale];
+    NSLog(@"factor: %f", factor);
+    
+    if(gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        initialBounds = view.bounds;
+    }
+   
+    [UIView beginAnimations:@"animate" context:nil];
+    [UIView setAnimationDuration:0.2];
+    CGAffineTransform transform = CGAffineTransformScale(CGAffineTransformIdentity, factor, factor);
+    CGRect rect = CGRectApplyAffineTransform(initialBounds, transform);
+    if (rect.size.width >= minWidth && rect.size.height >= minHeight) {
+        view.bounds = rect;
+        
+        if (imagePreview.center.x + imagePreview.bounds.size.width/2 < imageRightBound) {
+            CGFloat change = imageRightBound - (imagePreview.center.x + imagePreview.bounds.size.width/2);
+            NSLog(@"Shifting to the right by: %f", change);
+            view.center = CGPointMake(view.center.x + change, view.center.y);
+        }
+        if (imagePreview.center.x - imagePreview.bounds.size.width/2 > imageLeftBound) {
+            CGFloat change = (imagePreview.center.x - imagePreview.bounds.size.width/2) - imageLeftBound;
+            NSLog(@"Shifting to the left by: %f", change);
+            view.center = CGPointMake(view.center.x - change, view.center.y);
+        }
+        if (imagePreview.center.y - imagePreview.bounds.size.height/2 > imageTopBound) {
+            CGFloat change = (imagePreview.center.y - imagePreview.bounds.size.height/2) - imageTopBound;
+            NSLog(@"Shifting up by: %f", change);
+            view.center = CGPointMake(view.center.x, view.center.y - change);
+        }
+        if (imagePreview.center.y + imagePreview.bounds.size.height/2 < imageBottomBound) {
+            CGFloat change = imageBottomBound - (imagePreview.center.y + imagePreview.bounds.size.height/2);
+            NSLog(@"Shifting down by: %f", change);
+            view.center = CGPointMake(view.center.x, view.center.y + change);
+        }
+    } else {
+        rect.size.width = minWidth;
+        rect.size.height= minHeight;
+        
+        view.bounds = rect;
+        view.center = CGPointMake((imageLeftBound + imageRightBound) / 2, (imageTopBound + imageBottomBound)/2);
+        
+    }
+    [UIView commitAnimations];
+}
+
+- (void)handlePan:(UIPanGestureRecognizer *)gestureRecognizer
+{
+    
+    CGPoint translation = [gestureRecognizer translationInView:[imagePreview superview]];
+    
+    if ([(UIPanGestureRecognizer *)gestureRecognizer state] == UIGestureRecognizerStateBegan) {
+        firstX = [[gestureRecognizer view] center].x;
+        firstY = [[gestureRecognizer view] center].y;
+    }
+    
+    CGPoint newLocation = CGPointMake(firstX + translation.x, firstY + translation.y);
+    //NSLog(@"origin: (%f, %f)", imagePreview.bounds.origin.x, imagePreview.);
+    NSLog(@"right bound: %f", imagePreview.center.x + imagePreview.bounds.size.width/2);
+    CGPoint oldCenter = imagePreview.center;
+    [imagePreview setCenter:newLocation];
+    if (imagePreview.center.x + imagePreview.bounds.size.width/2 < imageRightBound ||
+        imagePreview.center.x - imagePreview.bounds.size.width/2 > imageLeftBound ||
+        imagePreview.center.y - imagePreview.bounds.size.height/2 > imageTopBound ||
+        imagePreview.center.y + imagePreview.bounds.size.height/2 < imageBottomBound) {
+        
+        [UIView beginAnimations:@"animate" context:nil];
+        [UIView setAnimationDuration:0.2];
+        [imagePreview setCenter:oldCenter];
+        [UIView commitAnimations];
+    }
+    
+}
+#pragma mark - Image Picker delegate
+-(void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    [self dismissViewControllerAnimated:YES completion:NULL];
+    if ([picture_ops clearCache]) {
+        NSLog(@"Cached Succesfully cleared");
+    } else {
+        NSLog(@"Error clearing cached");
+    }
+    imagePreview.image = [picture_ops saveImage:info];
+    
+    [self castCurrentImage:[picture_ops returnFileName]];
+}
+
+
+/*################ CHROME CAST CODE ###################*/
+
+#pragma mark - GCKDeviceScannerListner
+- (void)deviceDidComeOnline:(GCKDevice *)device {
+    NSLog(@"Device Found: %@", [device friendlyName]);
+    [self updateButtonStates];
+}
+
+- (void)deviceDidGoOffline:(GCKDevice *)device {
+    NSLog(@"Device Went Offline");
+    [self updateButtonStates];
+}
+
+#pragma mark - GCKDeviceManagerDelegate
+- (void)deviceManagerDidConnect:(GCKDeviceManager *)deviceManager {
+    NSLog(@"connected!!");
+    
+    [self updateButtonStates];
+    [self.deviceManagerObject launchApplication:@"549D1581"];
+}
+
+- (void)deviceManager:(GCKDeviceManager *)deviceManager
+didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
+            sessionID:(NSString *)sessionID
+  launchedApplication:(BOOL)launchedApp {
+    
+    mediaControlChannel = [[GCKMediaControlChannel alloc] init];
+    mediaControlChannel.delegate = self;
+    session_id = sessionID;
+    [deviceManager addChannel:mediaControlChannel];
+}
+
+- (void)deviceManager:(GCKDeviceManager *)deviceManager didDisconnectWithError:(GCKError *)error {
+    NSLog(@"Received notification that device disconnected");
+    
+    if (error != nil) {
+        [self showError:error];
+    }
+    
+}
+
+- (void)deviceManager:(GCKDeviceManager *)deviceManager
+    didFailToLaunchCastApplicationWithError:(NSError *)error {
+  [self showError:error];
+
+}
+
+- (void)deviceManager:(GCKDeviceManager *)deviceManager
+    didFailToConnectWithError:(GCKError *)error {
+  [self showError:error];
+
+}
+
+
+#pragma mark UIActionSheetDelegate
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (selectedDevice == nil) {
+        if (buttonIndex < self.deviceScannerObject.devices.count) {
+            selectedDevice = self.deviceScannerObject.devices[buttonIndex];
+            NSLog(@"Selecting device:%@", selectedDevice.friendlyName);
+            [self connectToDevice];
+        }
+    } else {
+        if (buttonIndex == 0) {  //Disconnect button
+            NSLog(@"Disconnecting device:%@", selectedDevice.friendlyName);
+            // New way of doing things: We're not going to stop the applicaton. We're just going
+            // to leave it.
+            [self.deviceManagerObject leaveApplication];
+            // If you want to force application to stop, uncomment below
+            [self.deviceManagerObject stopApplicationWithSessionID:session_id];
+            [self.deviceManagerObject disconnect];
+            
+            [self deviceDisconnected];
+            [self updateButtonStates];
+            
+            [self.navigationController popViewControllerAnimated:YES];
+            
+        } else if (buttonIndex == 0) {
+            // Join the existing session.
+            
+        }
+    }
+}
+
+#pragma mark - misc
+- (void)showError:(NSError *)error {
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", nil)
+                                                    message:NSLocalizedString(error.description, nil)
+                                                   delegate:nil
+                                          cancelButtonTitle:NSLocalizedString(@"OK", nil)
+                                          otherButtonTitles:nil];
+    [alert show];
+}
+- (void)connectToDevice {
+    if (selectedDevice == nil)
+        return;
+    
+    NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
+    self.deviceManagerObject =
+    [[GCKDeviceManager alloc] initWithDevice:selectedDevice
+                           clientPackageName:[info objectForKey:@"CFBundleIdentifier"]];
+    
+    NSLog(@"bunde id: %@", [info objectForKey:@"CFBundleIdentifier"]);
+    self.deviceManagerObject.delegate = self;
+    [self.deviceManagerObject connect];
+}
+- (void)deviceDisconnected {
+    deviceManagerObject = nil;
+    selectedDevice = nil;
+      NSLog(@"Device disconnected");
+}
+- (void)updateButtonStates {
+  if (self.deviceScannerObject.devices.count == 0) {
+    //Hide the cast button
+    [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
+    _chromecastButton.hidden = YES;
+  } else {
+    if (self.deviceManagerObject && self.deviceManagerObject.isConnected) {
+      //Enabled state for cast button
+      [_chromecastButton setImage:_connected_cast_btn forState:UIControlStateNormal];
+      [_chromecastButton setTintColor:[UIColor blueColor]];
+      _chromecastButton.hidden = NO;
+    } else {
+      //Disabled state for cast button
+      [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
+      [_chromecastButton setTintColor:[UIColor grayColor]];
+      _chromecastButton.hidden = NO;
+    }
+  }
+
+}
+- (void)chooseDevice:(id)sender {
+    //Choose device
+    if (selectedDevice == nil) {
+        //Device Selection List
+        UIActionSheet *sheet =
+        [[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"Connect to Device", nil)
+                                    delegate:self
+                           cancelButtonTitle:nil
+                      destructiveButtonTitle:nil
+                           otherButtonTitles:nil];
+        
+        for (GCKDevice *device in self.deviceScannerObject.devices) {
+            [sheet addButtonWithTitle:device.friendlyName];
+        }
+        
+        [sheet addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+        sheet.cancelButtonIndex = sheet.numberOfButtons - 1;
+        
+        [sheet showInView:_chromecastButton];
+    } else {
+        //Already connected information
+        NSString *str = [NSString stringWithFormat:NSLocalizedString(@"Casting to %@", nil),
+                         selectedDevice.friendlyName];
+        //NSString *mediaTitle = [mediaInformation.metadata stringForKey:kGCKMetadataKeyTitle];
+        
+        UIActionSheet *sheet = [[UIActionSheet alloc] init];
+        sheet.title = str;
+        sheet.delegate = self;
+        /*
+        if (mediaTitle != nil) {
+            [sheet addButtonWithTitle:mediaTitle];
+        }
+         */
+        [sheet addButtonWithTitle:@"Disconnect"];
+        [sheet addButtonWithTitle:@"Cancel"];
+        //sheet.destructiveButtonIndex = (mediaTitle != nil ? 1 : 0);
+        //sheet.cancelButtonIndex = (mediaTitle != nil ? 2 : 1);
+        
+        [sheet showInView:_chromecastButton];
+    }
+}
+
+
+/*############### END OF CHROMECAST CODE ################*/
 @end
