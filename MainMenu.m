@@ -113,6 +113,8 @@
 
 - (IBAction)toSlideshowCast:(id)sender
 {
+    [self performSegueWithIdentifier:@"toSlideshowCast" sender:Nil];
+    /*
     if (self.deviceManagerObject.isConnected && self.deviceManagerObject) {
         [self performSegueWithIdentifier:@"toSlideshowCast" sender:Nil];
     } else {
@@ -123,7 +125,7 @@
                               cancelButtonTitle :@"OK"
                               otherButtonTitles :nil];
         [alert show];
-    }
+    }*/
 }
 
 

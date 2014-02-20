@@ -29,14 +29,19 @@
     CGFloat imageRightBound;
     CGFloat minHeight;
     CGFloat minWidth;
+    BOOL drawing;
 }
 
 @synthesize deviceScannerObject;
 @synthesize deviceManagerObject;
+@synthesize containerView;
 @synthesize imagePreview;
+@synthesize imageDrawingProgress;
+@synthesize imageDrawing;
 @synthesize selectedDevice;
 @synthesize mediaControlChannel;
 @synthesize session_id;
+@synthesize drawModeButton;
 
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -57,15 +62,24 @@
    
     picture_ops = [[pictureOps alloc]init];
 
-    [imagePreview setUserInteractionEnabled:YES];
+    //Drawing
+    red     = 0.0 / 255.0;
+    green   = 0.0 / 255.0;
+    blue    = 0.0 / 255.0;
+    brush   = 3.0;
+    opacity = 1.0;
+    Mode    = 0;
+    drawing = FALSE;
+    
+    [imageDrawing setUserInteractionEnabled:YES];
     UIPinchGestureRecognizer *pinch_gr = [[UIPinchGestureRecognizer alloc] initWithTarget:self
                                                                               action:@selector(handlePinch:)];
     pinch_gr.delegate = self;
     UIPanGestureRecognizer *pan_gr = [[UIPanGestureRecognizer alloc] initWithTarget:self
                                                                              action:@selector(handlePan:)];
     pan_gr.delegate = self;
-    [imagePreview addGestureRecognizer:pinch_gr];
-    [imagePreview addGestureRecognizer:pan_gr];
+    [imageDrawing addGestureRecognizer:pinch_gr];
+    [imageDrawing addGestureRecognizer:pan_gr];
     
     /* PRESENT UIIMAGE PICKER CONTROLLER FIRST */
     UIImagePickerController *imagePicker = [[UIImagePickerController alloc]init];
@@ -128,6 +142,22 @@
     [imagePicker setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
     
     [self presentViewController:imagePicker animated:YES completion:NULL];
+}
+
+- (IBAction)drawMode:(id)sender
+{
+    if (drawing) {
+        [imageDrawing setUserInteractionEnabled:YES];
+        [drawModeButton setTintColor:[UIColor lightGrayColor]];
+        drawing = FALSE;
+    }
+    else {
+        [imageDrawing setUserInteractionEnabled:NO];
+        [self resetImagePosition];
+        UIColor *lightblue = [UIColor colorWithRed:0 green:222 blue:242 alpha:1];
+        [drawModeButton setTintColor:lightblue];
+        drawing = TRUE;
+    }
 }
 
 
@@ -207,26 +237,37 @@
     CGRect rect = CGRectApplyAffineTransform(initialBounds, transform);
     if (rect.size.width >= minWidth && rect.size.height >= minHeight) {
         view.bounds = rect;
+        imagePreview.bounds = rect;
+        imageDrawingProgress.bounds = rect;
+        //containerView.bounds = rect;
         
         if (imagePreview.center.x + imagePreview.bounds.size.width/2 < imageRightBound) {
             CGFloat change = imageRightBound - (imagePreview.center.x + imagePreview.bounds.size.width/2);
-            NSLog(@"Shifting to the right by: %f", change);
             view.center = CGPointMake(view.center.x + change, view.center.y);
+            imagePreview.center = CGPointMake(view.center.x + change, view.center.y);
+            imageDrawingProgress.center = CGPointMake(view.center.x + change, view.center.y);
+            //containerView.center = CGPointMake(view.center.x + change, view.center.y);
         }
         if (imagePreview.center.x - imagePreview.bounds.size.width/2 > imageLeftBound) {
             CGFloat change = (imagePreview.center.x - imagePreview.bounds.size.width/2) - imageLeftBound;
-            NSLog(@"Shifting to the left by: %f", change);
             view.center = CGPointMake(view.center.x - change, view.center.y);
+            imagePreview.center = CGPointMake(view.center.x - change, view.center.y);
+            imageDrawingProgress.center = CGPointMake(view.center.x - change, view.center.y);
+            //containerView.center = CGPointMake(view.center.x - change, view.center.y);
         }
         if (imagePreview.center.y - imagePreview.bounds.size.height/2 > imageTopBound) {
             CGFloat change = (imagePreview.center.y - imagePreview.bounds.size.height/2) - imageTopBound;
-            NSLog(@"Shifting up by: %f", change);
             view.center = CGPointMake(view.center.x, view.center.y - change);
+            imagePreview.center = CGPointMake(view.center.x, view.center.y - change);
+            imageDrawingProgress.center = CGPointMake(view.center.x, view.center.y - change);
+            //containerView.center = CGPointMake(view.center.x, view.center.y - change);
         }
         if (imagePreview.center.y + imagePreview.bounds.size.height/2 < imageBottomBound) {
             CGFloat change = imageBottomBound - (imagePreview.center.y + imagePreview.bounds.size.height/2);
-            NSLog(@"Shifting down by: %f", change);
             view.center = CGPointMake(view.center.x, view.center.y + change);
+            imagePreview.center = CGPointMake(view.center.x, view.center.y + change);
+            imageDrawingProgress.center = CGPointMake(view.center.x, view.center.y + change);
+            //containerView.center = CGPointMake(view.center.x, view.center.y + change);
         }
     } else {
         rect.size.width = minWidth;
@@ -235,6 +276,11 @@
         view.bounds = rect;
         view.center = CGPointMake((imageLeftBound + imageRightBound) / 2, (imageTopBound + imageBottomBound)/2);
         
+        imagePreview.bounds = rect;
+        imagePreview.center = CGPointMake((imageLeftBound + imageRightBound) / 2, (imageTopBound + imageBottomBound)/2);
+        
+        imageDrawingProgress.bounds = rect;
+        imageDrawingProgress.center = CGPointMake((imageLeftBound + imageRightBound) / 2, (imageTopBound + imageBottomBound)/2);
     }
     [UIView commitAnimations];
 }
@@ -242,7 +288,7 @@
 - (void)handlePan:(UIPanGestureRecognizer *)gestureRecognizer
 {
     
-    CGPoint translation = [gestureRecognizer translationInView:[imagePreview superview]];
+    CGPoint translation = [gestureRecognizer translationInView:[imageDrawing superview]];
     
     if ([(UIPanGestureRecognizer *)gestureRecognizer state] == UIGestureRecognizerStateBegan) {
         firstX = [[gestureRecognizer view] center].x;
@@ -251,19 +297,44 @@
     
     CGPoint newLocation = CGPointMake(firstX + translation.x, firstY + translation.y);
     //NSLog(@"origin: (%f, %f)", imagePreview.bounds.origin.x, imagePreview.);
-    NSLog(@"right bound: %f", imagePreview.center.x + imagePreview.bounds.size.width/2);
-    CGPoint oldCenter = imagePreview.center;
+    NSLog(@"right bound: %f", imageDrawing.center.x + imageDrawing.bounds.size.width/2);
+    CGPoint oldCenter = imageDrawing.center;
+    [imageDrawing setCenter:newLocation];
+    [imageDrawingProgress setCenter:newLocation];
     [imagePreview setCenter:newLocation];
-    if (imagePreview.center.x + imagePreview.bounds.size.width/2 < imageRightBound ||
-        imagePreview.center.x - imagePreview.bounds.size.width/2 > imageLeftBound ||
-        imagePreview.center.y - imagePreview.bounds.size.height/2 > imageTopBound ||
-        imagePreview.center.y + imagePreview.bounds.size.height/2 < imageBottomBound) {
+    //[containerView setCenter:newLocation];
+    if (imageDrawing.center.x + imageDrawing.bounds.size.width/2 < imageRightBound ||
+        imageDrawing.center.x - imageDrawing.bounds.size.width/2 > imageLeftBound ||
+        imageDrawing.center.y - imageDrawing.bounds.size.height/2 > imageTopBound ||
+        imageDrawing.center.y + imageDrawing.bounds.size.height/2 < imageBottomBound) {
         
         [UIView beginAnimations:@"animate" context:nil];
         [UIView setAnimationDuration:0.2];
+        [imageDrawing setCenter:oldCenter];
+        [imageDrawingProgress setCenter:oldCenter];
         [imagePreview setCenter:oldCenter];
+        //[containerView setCenter:oldCenter];
         [UIView commitAnimations];
     }
+    
+}
+
+- (void) resetImagePosition
+{
+    CGRect rect;
+    rect.origin.x = 0;
+    rect.origin.y = 0;
+    rect.size.width = minWidth;
+    rect.size.height= minHeight;
+    
+    imageDrawing.bounds = rect;
+    imageDrawing.center = CGPointMake((imageLeftBound + imageRightBound) / 2, (imageTopBound + imageBottomBound)/2);
+    
+    imagePreview.bounds = rect;
+    imagePreview.center = CGPointMake((imageLeftBound + imageRightBound) / 2, (imageTopBound + imageBottomBound)/2);
+    
+    imageDrawingProgress.bounds = rect;
+    imageDrawingProgress.center = CGPointMake((imageLeftBound + imageRightBound) / 2, (imageTopBound + imageBottomBound)/2);
     
 }
 #pragma mark - Image Picker delegate
@@ -280,6 +351,93 @@
     [self castCurrentImage:[picture_ops returnFileName]];
 }
 
+
+/*########### ANNOTATION #########*/
+#pragma mark - Annotation
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (drawing) {
+        mouseSwiped = NO;
+        UITouch *touch = [touches anyObject];
+        lastPoint = [touch locationInView:imageDrawingProgress];
+    }
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+
+    if (drawing) {
+        mouseSwiped = YES;
+        UITouch *touch = [touches anyObject];
+        CGPoint currentPoint = [touch locationInView:imageDrawingProgress];
+        
+        UIGraphicsBeginImageContext(imageDrawingProgress.frame.size);
+        CGFloat topLeftX = imageDrawing.center.x - imageDrawingProgress.frame.size.width/2;
+        CGFloat topLeftY = imageDrawing.center.y - imageDrawingProgress.frame.size.height/2;
+        NSLog(@"topLeftX; %f", topLeftX);
+        NSLog(@"topLeftY: %f", topLeftY);
+        CGFloat scale = imageDrawing.frame.size.height / containerView.frame.size.height;
+        //CGFloat widthProportion = (containerView.frame.size.width/imageDrawing.frame.size.width);
+        //CGFloat heightProportion = (containerView.frame.size.height/imageDrawing.frame.size.height);
+        [self.imageDrawing.image drawInRect:CGRectMake(0, 0, imageDrawingProgress.frame.size.width, imageDrawingProgress.frame.size.height)];
+        CGContextMoveToPoint(UIGraphicsGetCurrentContext(), lastPoint.x, lastPoint.y);
+        CGContextAddLineToPoint(UIGraphicsGetCurrentContext(), currentPoint.x, currentPoint.y);
+        CGContextSetLineCap(UIGraphicsGetCurrentContext(), kCGLineCapRound);
+        CGContextSetLineWidth(UIGraphicsGetCurrentContext(), brush * scale);
+        CGContextSetRGBStrokeColor(UIGraphicsGetCurrentContext(), red, green, blue, 1.0);
+        CGContextSetBlendMode(UIGraphicsGetCurrentContext(),kCGBlendModeNormal);
+        
+        CGContextStrokePath(UIGraphicsGetCurrentContext());
+        self.imageDrawing.image = UIGraphicsGetImageFromCurrentImageContext();
+        [self.imageDrawing setAlpha:opacity];
+        UIGraphicsEndImageContext();
+        
+        lastPoint = currentPoint;
+    }
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+   
+    if (drawing) {
+        if(!mouseSwiped) {
+            UIGraphicsBeginImageContext(imageDrawingProgress.frame.size);
+            CGFloat scale = imageDrawing.frame.size.height / containerView.frame.size.height;
+            [self.imageDrawing.image drawInRect:CGRectMake(0, 0, imageDrawingProgress.frame.size.width, imageDrawingProgress.frame.size.height)];
+            CGContextSetLineCap(UIGraphicsGetCurrentContext(), kCGLineCapRound);
+            CGContextSetLineWidth(UIGraphicsGetCurrentContext(), brush * scale);
+            CGContextSetRGBStrokeColor(UIGraphicsGetCurrentContext(), red, green, blue, opacity);
+            CGContextMoveToPoint(UIGraphicsGetCurrentContext(), lastPoint.x, lastPoint.y);
+            CGContextAddLineToPoint(UIGraphicsGetCurrentContext(), lastPoint.x, lastPoint.y);
+            CGContextStrokePath(UIGraphicsGetCurrentContext());
+            CGContextFlush(UIGraphicsGetCurrentContext());
+            self.imageDrawing.image = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+        }
+        [self applyChanges];
+    
+    }
+}
+
+-(IBAction)resetDrawingPressed:(id)sender
+{
+    [self resetDrawing];
+}
+
+-(void) resetDrawing
+{
+    self.imageDrawing.image = nil;
+}
+
+-(void) applyChanges
+{
+    
+    UIGraphicsBeginImageContext(self.imageDrawingProgress.frame.size);
+    [self.imageDrawingProgress.image drawInRect:CGRectMake(0, 0, imageDrawingProgress.frame.size.width, imageDrawingProgress.frame.size.height)
+                                      blendMode:kCGBlendModeNormal alpha:1.0];
+    [self.imageDrawing.image drawInRect:CGRectMake(0, 0, imageDrawingProgress.frame.size.width, imageDrawingProgress.frame.size.height)
+                              blendMode:kCGBlendModeNormal alpha:opacity];
+    self.imageDrawingProgress.image = UIGraphicsGetImageFromCurrentImageContext();
+    self.imageDrawing.image = nil;
+    UIGraphicsEndImageContext();
+}
 
 /*################ CHROME CAST CODE ###################*/
 
