@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 EECS 441. All rights reserved.
 //
 
+#import <AssetsLibrary/AssetsLibrary.h>
 #import "pictureOps.h"
 #import "AppDelegate.h"
 
@@ -42,24 +43,30 @@
     NSFileManager *file_manager = [NSFileManager defaultManager];
     AppDelegate *app_delegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     NSString *file_path = [[app_delegate cacheURL] stringByAppendingPathComponent:filename];
-    
-    UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-    image = [self fixOrientation:[image imageOrientation] imageFile:image];
-    if ([file_manager fileExistsAtPath:file_path]) {
-        NSLog(@"Image already exists");
-        return image;
+   
+    UIImage *image;
+    if ([[info objectForKey:@"UIImagePickerControllerMediaType"] isEqualToString:ALAssetTypePhoto]) {
+        ALAssetRepresentation *rep = [info objectForKey:@"assetRep"];
+        image = [UIImage imageWithCGImage:[rep fullResolutionImage]
+                                    scale:1.0f
+                              orientation:[rep orientation]];
+    } else {
+        image = [info objectForKey:UIImagePickerControllerOriginalImage];
     }
     
     NSData *imageData = UIImageJPEGRepresentation(image, 0.7);
-   
+    image = nil;
+    if ([file_manager fileExistsAtPath:file_path]) {
+        NSLog(@"Image already exists");
+        return [info objectForKey:UIImagePickerControllerOriginalImage];
+    }
     if ([file_manager createFileAtPath:file_path contents:imageData attributes:nil]) {
         NSLog(@"Successfully wrote image file");
     } else {
         NSLog(@"Failed write image file");
     }
-    
-    
-    return image;
+
+    return [info objectForKey:UIImagePickerControllerOriginalImage];
 }
 
 - (UIImage *)fixOrientation:(UIImageOrientation)orientation imageFile:(UIImage *)image

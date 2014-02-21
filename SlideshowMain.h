@@ -7,7 +7,39 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <GoogleCast/GoogleCast.h>
+#import "ELCImagePickerController.h"
+#import "ELCAlbumPickerController.h"
 
 @interface SlideshowMain : UIViewController
+<
+    GCKDeviceManagerDelegate,
+    GCKDeviceScannerListener,
+    GCKMediaControlChannelDelegate,
+    UINavigationControllerDelegate,
+    UIActionSheetDelegate,
+    ELCImagePickerControllerDelegate,
+    UINavigationControllerDelegate,
+    UIScrollViewDelegate
+>
+
+@property (nonatomic, retain) GCKDeviceScanner *deviceScannerObject;
+@property (nonatomic, retain) GCKDeviceManager *deviceManagerObject;
+@property (nonatomic, retain) GCKDevice *selectedDevice;
+@property (nonatomic, retain) GCKMediaControlChannel *mediaControlChannel;
+@property (nonatomic, retain) NSString *session_id;
+@property (nonatomic, retain) UIButton *chromecastButton;
+
+@property (strong, nonatomic) IBOutlet UIImageView *middleImage;
+@property (strong, nonatomic) IBOutlet UIImageView *rightImage;
+@property (strong, nonatomic) IBOutlet UIImageView *leftImage;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *deleteButtons;
+
+- (IBAction)addImages:(id)sender;
+- (IBAction)toSettings:(id)sender;
+- (IBAction)playSlideshow:(id)sender;
+- (IBAction)deleteImage:(id)sender;
+- (IBAction)shiftRight:(id)sender;
+- (IBAction)shiftLeft:(id)sender;
 
 @end

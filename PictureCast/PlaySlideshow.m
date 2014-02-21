@@ -1,30 +1,44 @@
 //
-//  MainMenu.m
-//  PictureCast
+//  PlaySlideshow.m
+//  MediaCast
 //
-//  Created by Evan Hsu on 2/18/14.
+//  Created by Evan Hsu on 2/20/14.
 //  Copyright (c) 2014 EECS 441. All rights reserved.
 //
 
-#import "MainMenu.h"
-#import "PictureCast.h"
-#import "SlideshowMain.h"
-#import <GoogleCast/GoogleCast.h>
+#import "PlaySlideshow.h"
+#import "AppDelegate.h"
+#include <ifaddrs.h>
+#include <arpa/inet.h>
 
-@interface MainMenu ()
+@interface PlaySlideshow ()
 
 @end
 
-@implementation MainMenu {
+@implementation PlaySlideshow {
+    
     UIImage *_cast_btn;
     UIImage *_connected_cast_btn;
+    NSTimer *timer;
+    NSTimeInterval *time_interval;
+    int index;
+    BOOL playing;
 }
 
-@synthesize deviceScannerObject;
 @synthesize deviceManagerObject;
+@synthesize deviceScannerObject;
 @synthesize selectedDevice;
 @synthesize mediaControlChannel;
 @synthesize session_id;
+
+@synthesize imagePreview;
+@synthesize previousButton;
+@synthesize playButton;
+@synthesize pauseButton;
+@synthesize nextButton;
+
+@synthesize images;
+@synthesize duration;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -40,8 +54,16 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
+    playing = TRUE;
+    UIColor *lightblue = [UIColor colorWithRed:0 green:222 blue:242 alpha:1];
+    playButton.tintColor = lightblue;
+    pauseButton.tintColor = [UIColor lightGrayColor];
+    previousButton.tintColor = [UIColor lightGrayColor];
+    nextButton.tintColor = [UIColor lightGrayColor];
+    imagePreview.contentMode = UIViewContentModeScaleAspectFit;
     
     /* CONFIGURE CAST BUTTON */
+    
     _connected_cast_btn = [UIImage imageNamed:@"icon-cast-connected.png"];
     _cast_btn = [UIImage imageNamed:@"icon-cast-identified.png"];
     
@@ -53,45 +75,24 @@
     [_chromecastButton setImage:nil forState:UIControlStateNormal];
     _chromecastButton.hidden = YES;
     
+    [self updateButtonStates];
+    
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_chromecastButton];
     
-    /* SCANNING FOR DEVICES */
-    deviceScannerObject = [[GCKDeviceScanner alloc] init];
-    [deviceScannerObject addListener:self];
-    [deviceScannerObject startScan];
+    timer = [NSTimer scheduledTimerWithTimeInterval:duration
+                                             target:self
+                                           selector:@selector(advancePicture)
+                                           userInfo:Nil
+                                            repeats:YES];
     
-    for (GCKDevice *device in deviceScannerObject.devices) {
-        NSLog(@"Device: %@", [device friendlyName]);
-    }
+    index = [images count] - 1;
+    [self advancePicture];
+    
 }
 
-- (void)viewDidAppear:(BOOL)animated
+- (void)viewWillDisappear:(BOOL)animated
 {
-    NSLog(@"Main Menu Appeared");
-    if (!(self.deviceManagerObject && self.deviceManagerObject.isConnected)) {
-        selectedDevice = nil;
-    }
-    [self updateButtonStates];
-}
-
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([segue.identifier isEqualToString:@"toPictureCast"]) {
-        PictureCast *picture_cast = (PictureCast *) segue.destinationViewController;
-        picture_cast.deviceScannerObject = deviceScannerObject;
-        picture_cast.deviceManagerObject = deviceManagerObject;
-        picture_cast.mediaControlChannel = mediaControlChannel;
-        picture_cast.selectedDevice = selectedDevice;
-        picture_cast.session_id = session_id;
-    }
-    else if ([segue.identifier isEqualToString:@"toSlideshowMain"]) {
-        SlideshowMain *slideshow_main = (SlideshowMain *) segue.destinationViewController;
-        slideshow_main.deviceScannerObject = deviceScannerObject;
-        slideshow_main.deviceManagerObject = deviceManagerObject;
-        slideshow_main.mediaControlChannel = mediaControlChannel;
-        slideshow_main.selectedDevice = selectedDevice;
-        slideshow_main.session_id = session_id;
-    }
+    [self stopTimer];
 }
 
 - (void)didReceiveMemoryWarning
@@ -101,43 +102,140 @@
 }
 
 #pragma mark - IBAction
-- (IBAction)toPictureCast:(id)sender
+- (IBAction)goToPrevious:(id)sender {
+}
+
+- (IBAction)goToNext:(id)sender {
+}
+
+- (IBAction)playSlideshow:(id)sender
 {
-    [self performSegueWithIdentifier:@"toPictureCast" sender:Nil];
-    
-    /* Uncomment this to prevent segue without Chromecast connection
-     
-    if (self.deviceManagerObject.isConnected && self.deviceManagerObject) {
-        [self performSegueWithIdentifier:@"toPictureCast" sender:Nil];
-    } else {
-        UIAlertView *alert = [[UIAlertView alloc]
-                              initWithTitle     :@"Error"
-                              message           :@"Please Connect to a Chromecast"
-                              delegate          :nil
-                              cancelButtonTitle :@"OK"
-                              otherButtonTitles :nil];
-        [alert show];
+    if (!playing) {
+        UIColor *lightblue = [UIColor colorWithRed:0 green:222 blue:242 alpha:1];
+        playButton.tintColor = lightblue;
+        pauseButton.tintColor = [UIColor lightGrayColor];
+        playing = !playing;
+        [self startTimer];
     }
-     */
 }
 
-- (IBAction)toSlideshowCast:(id)sender
+- (IBAction)pauseSlideshow:(id)sender {
+    if (playButton) {
+        UIColor *lightblue = [UIColor colorWithRed:0 green:222 blue:242 alpha:1];
+        playButton.tintColor = [UIColor lightGrayColor];
+        pauseButton.tintColor = lightblue;
+        playing = !playing;
+        [self stopTimer];
+    }
+}
+
+#pragma mark - Slideshow
+
+- (void) advancePicture
 {
-    [self performSegueWithIdentifier:@"toSlideshowMain" sender:Nil];
-    /*
-    if (self.deviceManagerObject.isConnected && self.deviceManagerObject) {
-        [self performSegueWithIdentifier:@"toSlideshowCast" sender:Nil];
-    } else {
-        UIAlertView *alert = [[UIAlertView alloc]
-                              initWithTitle     :@"Error"
-                              message           :@"Please Connect to a Chromecast"
-                              delegate          :nil
-                              cancelButtonTitle :@"OK"
-                              otherButtonTitles :nil];
-        [alert show];
-    }*/
+    index = (index + 1) % [images count];
+    AppDelegate *app_delegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
+    NSString *saveDirectory = [NSString stringWithFormat:@"%@/%@", [app_delegate cacheURL], [images objectAtIndex:index]];
+    CGSize size = imagePreview.frame.size;
+    NSData *data = [[NSFileManager defaultManager] contentsAtPath:saveDirectory];
+    imagePreview.image = [UIImage imageWithData:data];
+    GCKMediaMetadata *metadata = [[GCKMediaMetadata alloc]init];
+  
+    UInt16 port_number = [(AppDelegate *)[[UIApplication sharedApplication]delegate]port_number];
+    NSURL *url = [[NSURL alloc]initWithString:[NSString stringWithFormat:@"http://%@:%hu/%@",
+                                                                        [self getIPAddress], port_number,
+                                                                        [images objectAtIndex:index]]];
+    NSLog(@"Absolute url: %@", [url absoluteString]);
+    GCKImage *gck_image = [[GCKImage alloc]initWithURL:url
+                                                 width:100
+                                                height:100];
+    
+    [metadata addImage:gck_image];
+    
+    GCKMediaInformation *mediaInformation = [[GCKMediaInformation alloc] initWithContentID:[url absoluteString]
+                                                                                streamType:GCKMediaStreamTypeUnknown
+                                                                               contentType:@"image/jpeg"
+                                                                                  metadata:metadata
+                                                                            streamDuration:123
+                                                                                customData:nil];
+    if ([mediaControlChannel loadMedia:mediaInformation
+                              autoplay:YES playPosition:0] == kGCKInvalidRequestID) {
+        NSLog(@"error loading media");
+    }
+
 }
 
+- (UIImage *)resizeImage:(UIImage*)image newSize:(CGSize)newSize {
+    CGRect newRect = CGRectIntegral(CGRectMake(0, 0, newSize.width, newSize.height));
+    CGImageRef imageRef = image.CGImage;
+    
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    // Set the quality level to use when rescaling
+    CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
+    CGAffineTransform flipVertical = CGAffineTransformMake(1, 0, 0, -1, 0, newSize.height);
+    
+    CGContextConcatCTM(context, flipVertical);
+    // Draw into the context; this scales the image
+    CGContextDrawImage(context, newRect, imageRef);
+    
+    // Get the resized image from the context and a UIImage
+    CGImageRef newImageRef = CGBitmapContextCreateImage(context);
+    UIImage *newImage = [UIImage imageWithCGImage:newImageRef];
+    
+    CGImageRelease(newImageRef);
+    UIGraphicsEndImageContext();
+    
+    return newImage;
+}
+
+- (NSString *)getIPAddress {
+    
+    NSString *address = @"error";
+    struct ifaddrs *interfaces = NULL;
+    struct ifaddrs *temp_addr = NULL;
+    int success = 0;
+    // retrieve the current interfaces - returns 0 on success
+    success = getifaddrs(&interfaces);
+    if (success == 0) {
+        // Loop through linked list of interfaces
+        temp_addr = interfaces;
+        while(temp_addr != NULL) {
+            if(temp_addr->ifa_addr->sa_family == AF_INET) {
+                // Check if interface is en0 which is the wifi connection on the iPhone
+                if([[NSString stringWithUTF8String:temp_addr->ifa_name] isEqualToString:@"en0"]) {
+                    // Get NSString from C String
+                    address = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr)];
+                    
+                }
+                
+            }
+            
+            temp_addr = temp_addr->ifa_next;
+        }
+    }
+    // Free memory
+    freeifaddrs(interfaces);
+    return address;
+    
+}
+
+#pragma mark - NSTimer
+- (void) stopTimer
+{
+    [timer invalidate];
+    timer = Nil;
+}
+
+- (void) startTimer
+{
+    timer = [NSTimer scheduledTimerWithTimeInterval:2
+                                             target:self
+                                           selector:@selector(advancePicture)
+                                           userInfo:Nil
+                                            repeats:YES];
+}
 
 /*################## CHOMECAST CODE ######################*/
 
@@ -317,5 +415,4 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 }
 
 /*############# END OF CHROMECAST CODE #################*/
-
 @end

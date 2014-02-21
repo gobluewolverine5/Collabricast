@@ -88,14 +88,17 @@
             UIImageOrientation orientation = UIImageOrientationUp;
             
             if (_returnsOriginalImage) {
+                NSLog(@"returning full resolution image!");
                 imgRef = [assetRep fullResolutionImage];
                 orientation = [assetRep orientation];
             } else {
+                NSLog(@"Did not return full resolution image!");
                 imgRef = [assetRep fullScreenImage];
             }
             UIImage *img = [UIImage imageWithCGImage:imgRef
                                                scale:1.0f
                                          orientation:orientation];
+            [workingDictionary setObject:assetRep forKey:@"assetRep"];
             [workingDictionary setObject:img forKey:UIImagePickerControllerOriginalImage];
             [workingDictionary setObject:[[asset valueForProperty:ALAssetPropertyURLs] valueForKey:[[[asset valueForProperty:ALAssetPropertyURLs] allKeys] objectAtIndex:0]] forKey:UIImagePickerControllerReferenceURL];
             

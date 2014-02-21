@@ -176,7 +176,7 @@
     [metadata addImage:gck_image];
     
     GCKMediaInformation *mediaInformation = [[GCKMediaInformation alloc] initWithContentID:[url absoluteString]
-                                                                                streamType:GCKMediaStreamTypeNone
+                                                                                streamType:GCKMediaStreamTypeUnknown
                                                                                contentType:@"image/jpeg"
                                                                                   metadata:metadata
                                                                             streamDuration:123
@@ -340,6 +340,7 @@
 #pragma mark - Image Picker delegate
 -(void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
+    NSLog(@"info: %@", info);
     [self dismissViewControllerAnimated:YES completion:NULL];
     if ([picture_ops clearCache]) {
         NSLog(@"Cached Succesfully cleared");

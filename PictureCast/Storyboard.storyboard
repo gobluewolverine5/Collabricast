@@ -71,32 +71,94 @@
                     <navigationItem key="navigationItem" id="nM5-U8-iBz"/>
                     <connections>
                         <segue destination="p2K-UB-vtp" kind="push" identifier="toPictureCast" id="zlw-sE-Fx5"/>
-                        <segue destination="pBP-A2-FAX" kind="push" identifier="toSlideshowCast" id="pNh-ZU-1GS"/>
+                        <segue destination="pBP-A2-FAX" kind="push" identifier="toSlideshowMain" id="pNh-ZU-1GS"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="g9d-Cq-PLU" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="486" y="961"/>
         </scene>
-        <!--View Controller - Slideshow Queue-->
+        <!--Play Slideshow-->
+        <scene sceneID="M43-9w-igm">
+            <objects>
+                <viewController id="cfD-ay-h5R" customClass="PlaySlideshow" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="bXf-wq-E0q">
+                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="eta-DC-mWp">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="372"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            </imageView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="dlr-Ui-Wva">
+                                <rect key="frame" x="0.0" y="372" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <items>
+                                    <barButtonItem title="Previous" id="VuM-IU-8f2">
+                                        <color key="tintColor" red="0.0" green="0.87058823529999996" blue="0.94901960780000005" alpha="1" colorSpace="calibratedRGB"/>
+                                        <connections>
+                                            <action selector="goToPrevious:" destination="cfD-ay-h5R" id="jyt-Df-wzl"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem width="32" style="plain" systemItem="fixedSpace" id="34s-zo-gS0"/>
+                                    <barButtonItem systemItem="play" id="EGL-yP-AoH">
+                                        <color key="tintColor" red="0.0" green="0.87058823529999996" blue="0.94901960780000005" alpha="1" colorSpace="calibratedRGB"/>
+                                        <connections>
+                                            <action selector="playSlideshow:" destination="cfD-ay-h5R" id="voz-iz-6mn"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="znQ-1f-GLG"/>
+                                    <barButtonItem systemItem="pause" id="DVU-1U-IvO">
+                                        <color key="tintColor" red="0.0" green="0.87058823529999996" blue="0.94901960780000005" alpha="1" colorSpace="calibratedRGB"/>
+                                        <connections>
+                                            <action selector="pauseSlideshow:" destination="cfD-ay-h5R" id="MDz-lp-ER8"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem width="61" style="plain" systemItem="fixedSpace" id="k39-2J-jzq"/>
+                                    <barButtonItem title="Next" id="zKr-v2-FPb">
+                                        <color key="tintColor" red="0.0" green="0.87058823529999996" blue="0.94901960780000005" alpha="1" colorSpace="calibratedRGB"/>
+                                        <connections>
+                                            <action selector="goToNext:" destination="cfD-ay-h5R" id="N25-iA-UOu"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                                <color key="barTintColor" red="0.13725490200000001" green="0.21176470589999999" blue="0.27058823529999998" alpha="1" colorSpace="calibratedRGB"/>
+                            </toolbar>
+                        </subviews>
+                        <color key="backgroundColor" red="0.20392156859999999" green="0.31372549020000001" blue="0.39607843139999999" alpha="1" colorSpace="calibratedRGB"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="wsb-6P-Pcu"/>
+                    <connections>
+                        <outlet property="imagePreview" destination="eta-DC-mWp" id="Kl7-Z5-Z46"/>
+                        <outlet property="nextButton" destination="zKr-v2-FPb" id="sVe-Sl-26K"/>
+                        <outlet property="pauseButton" destination="DVU-1U-IvO" id="0jF-PF-Ge3"/>
+                        <outlet property="playButton" destination="EGL-yP-AoH" id="kjd-Rm-iOg"/>
+                        <outlet property="previousButton" destination="VuM-IU-8f2" id="6ek-ha-8tf"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ty1-HY-jWp" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1493" y="1410"/>
+        </scene>
+        <!--Slideshow Main - Slideshow Queue-->
         <scene sceneID="DW0-zx-Epz">
             <objects>
-                <viewController id="pBP-A2-FAX" sceneMemberID="viewController">
+                <viewController id="pBP-A2-FAX" customClass="SlideshowMain" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="u1i-Av-fPa">
                         <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="rjf-B8-Chp">
-                                <rect key="frame" x="95" y="25" width="131" height="92"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                <rect key="frame" x="95" y="0.0" width="131" height="117"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="tOr-50-7JT">
-                                <rect key="frame" x="234" y="25" width="131" height="92"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                <rect key="frame" x="234" y="0.0" width="131" height="117"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="gYV-V1-S3S">
-                                <rect key="frame" x="-44" y="25" width="131" height="92"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                <rect key="frame" x="-44" y="0.0" width="131" height="117"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="ZtN-Bx-Bi6">
                                 <rect key="frame" x="0.0" y="150" width="320" height="65"/>
@@ -106,6 +168,9 @@
                                 <state key="normal" title="Add Images">
                                     <color key="titleColor" red="0.20392156859999999" green="0.31372549020000001" blue="0.39607843139999999" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
+                                <connections>
+                                    <action selector="addImages:" destination="pBP-A2-FAX" eventType="touchUpInside" id="IUa-pW-txs"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="JvL-tZ-xOA">
                                 <rect key="frame" x="0.0" y="296" width="320" height="65"/>
@@ -115,6 +180,9 @@
                                 <state key="normal" title="Play">
                                     <color key="titleColor" red="0.20392156859999999" green="0.31372549020000001" blue="0.39607843139999999" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
+                                <connections>
+                                    <action selector="playSlideshow:" destination="pBP-A2-FAX" eventType="touchUpInside" id="3Rs-ZP-c28"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Fog-fh-hma">
                                 <rect key="frame" x="0.0" y="223" width="320" height="65"/>
@@ -124,25 +192,81 @@
                                 <state key="normal" title="Settings">
                                     <color key="titleColor" red="0.20392156859999999" green="0.31372549020000001" blue="0.39607843139999999" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
+                                <connections>
+                                    <action selector="toSettings:" destination="pBP-A2-FAX" eventType="touchUpInside" id="eZM-Zz-taR"/>
+                                </connections>
                             </button>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="IrN-9e-4vQ">
                                 <rect key="frame" x="0.0" y="372" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
-                                    <barButtonItem title="Delete" id="2vy-mP-gFA"/>
+                                    <barButtonItem title="Delete" id="2vy-mP-gFA">
+                                        <connections>
+                                            <action selector="deleteImage:" destination="pBP-A2-FAX" id="pM4-oU-OHu"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="yhB-Fz-4Jo"/>
                                 </items>
                                 <color key="tintColor" red="0.0" green="0.87058823529999996" blue="0.94901960780000005" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="barTintColor" red="0.13725490200000001" green="0.21176470589999999" blue="0.27058823529999998" alpha="1" colorSpace="calibratedRGB"/>
                             </toolbar>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="YRK-RP-Zg8">
+                                <rect key="frame" x="285" y="0.0" width="35" height="117"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.6705882352941176" green="0.80392156862745101" blue="0.81176470588235294" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="21"/>
+                                <state key="normal" title=">">
+                                    <color key="titleColor" red="0.20392156859999999" green="0.31372549020000001" blue="0.39607843139999999" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="shiftRight:" destination="pBP-A2-FAX" eventType="touchUpInside" id="VSB-Pe-BoO"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="R6X-Sl-eMX">
+                                <rect key="frame" x="0.0" y="0.0" width="35" height="117"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.6705882353" green="0.80392156859999997" blue="0.81176470590000005" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="21"/>
+                                <state key="normal" title="&lt;">
+                                    <color key="titleColor" red="0.20392156859999999" green="0.31372549020000001" blue="0.39607843139999999" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="shiftLeft:" destination="pBP-A2-FAX" eventType="touchUpInside" id="zuI-SI-SD0"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="0.20392156859999999" green="0.31372549020000001" blue="0.39607843139999999" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
                     <navigationItem key="navigationItem" title="Slideshow Queue" id="kJw-Xg-ohK"/>
+                    <connections>
+                        <outlet property="deleteButtons" destination="2vy-mP-gFA" id="7DC-lX-c7j"/>
+                        <outlet property="leftImage" destination="gYV-V1-S3S" id="5cU-Rg-shR"/>
+                        <outlet property="middleImage" destination="rjf-B8-Chp" id="74J-dd-oQa"/>
+                        <outlet property="rightImage" destination="tOr-50-7JT" id="9fc-YZ-dYO"/>
+                        <segue destination="cfD-ay-h5R" kind="push" identifier="toPlaySlideshow" id="5Sg-iD-Nch"/>
+                        <segue destination="rty-ei-DdW" kind="push" id="TJd-Xa-VTV"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gWZ-K6-vjW" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1026" y="1410"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="YxA-A4-HGT">
+            <objects>
+                <viewController id="rty-ei-DdW" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="9gl-yC-9Uq">
+                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <color key="backgroundColor" red="0.20392156859999999" green="0.31372549020000001" blue="0.39607843139999999" alpha="1" colorSpace="calibratedRGB"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="vaS-E9-jaP"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="X0B-Sl-dmm" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1493" y="2003"/>
         </scene>
         <!--Picture Cast-->
         <scene sceneID="Mvq-Tg-f8O">
@@ -177,6 +301,9 @@
                                 <items>
                                     <barButtonItem style="plain" systemItem="bookmarks" id="0ob-NF-cyG">
                                         <color key="tintColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                        <connections>
+                                            <action selector="selectImage:" destination="p2K-UB-vtp" id="PD8-vb-3Mi"/>
+                                        </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="woO-Yf-FcH"/>
                                     <barButtonItem systemItem="compose" id="9yd-7X-sde">
