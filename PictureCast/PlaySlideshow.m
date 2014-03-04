@@ -81,12 +81,12 @@
     
     timer = [NSTimer scheduledTimerWithTimeInterval:duration
                                              target:self
-                                           selector:@selector(advancePicture)
+                                           selector:@selector(advancePicture:)
                                            userInfo:Nil
                                             repeats:YES];
     
     index = [images count] - 1;
-    [self advancePicture];
+    [self advancePicture:YES];
     
 }
 
@@ -102,10 +102,14 @@
 }
 
 #pragma mark - IBAction
-- (IBAction)goToPrevious:(id)sender {
+- (IBAction)goToPrevious:(id)sender
+{
+    [self advancePicture:NO];
 }
 
-- (IBAction)goToNext:(id)sender {
+- (IBAction)goToNext:(id)sender
+{
+    [self advancePicture:YES];
 }
 
 - (IBAction)playSlideshow:(id)sender
@@ -131,14 +135,21 @@
 
 #pragma mark - Slideshow
 
-- (void) advancePicture
+- (void) advancePicture:(BOOL)forward
 {
-    index = (index + 1) % [images count];
+    if (forward) {
+        index = (index + 1) % [images count];
+    } else {
+        index = (index - 1) % [images count];
+    }
+    NSLog(@"index: %i", index);
     AppDelegate *app_delegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     NSString *saveDirectory = [NSString stringWithFormat:@"%@/%@", [app_delegate cacheURL], [images objectAtIndex:index]];
     CGSize size = imagePreview.frame.size;
     NSData *data = [[NSFileManager defaultManager] contentsAtPath:saveDirectory];
-    imagePreview.image = [UIImage imageWithData:data];
+    imagePreview.image  = [UIImage imageWithCGImage:[UIImage imageWithData:data].CGImage
+                                              scale:1.0f
+                                        orientation:UIImageOrientationUp];
     GCKMediaMetadata *metadata = [[GCKMediaMetadata alloc]init];
   
     UInt16 port_number = [(AppDelegate *)[[UIApplication sharedApplication]delegate]port_number];

@@ -82,10 +82,19 @@
     [imageDrawing addGestureRecognizer:pan_gr];
     
     /* PRESENT UIIMAGE PICKER CONTROLLER FIRST */
+    ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
+    imagePicker.maximumImagesCount = 1;
+    imagePicker.returnsOriginalImage = NO;
+    imagePicker.imagePickerDelegate = self;
+    
+    [self presentViewController:imagePicker animated:YES completion:Nil];
+    
+    /*
     UIImagePickerController *imagePicker = [[UIImagePickerController alloc]init];
     [imagePicker setDelegate:self];
     [imagePicker setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
     [self presentViewController:imagePicker animated:YES completion:NULL];
+     */
 
     /* CONFIGURE CAST BUTTON */
     _connected_cast_btn = [UIImage imageNamed:@"icon-cast-connected.png"];
@@ -131,15 +140,18 @@
 #pragma mark - IBAction
 - (IBAction)castImage:(id)sender
 {
+    [self applyToImage];
+    [picture_ops saveImageChange:imagePreview.image];
     [self castCurrentImage:[picture_ops returnFileName]];
 }
 
 - (IBAction)selectImage:(id)sender
 {
     
-    UIImagePickerController *imagePicker = [[UIImagePickerController alloc]init];
-    [imagePicker setDelegate:self];
-    [imagePicker setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+    ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
+    imagePicker.maximumImagesCount = 1;
+    imagePicker.returnsOriginalImage = NO;
+    imagePicker.imagePickerDelegate = self;
     
     [self presentViewController:imagePicker animated:YES completion:NULL];
 }
@@ -338,7 +350,8 @@
     
 }
 #pragma mark - Image Picker delegate
--(void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+
+- (void) elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info
 {
     NSLog(@"info: %@", info);
     [self dismissViewControllerAnimated:YES completion:NULL];
@@ -347,11 +360,21 @@
     } else {
         NSLog(@"Error clearing cached");
     }
-    imagePreview.image = [picture_ops saveImage:info];
+    imagePreview.image = [UIImage imageWithCGImage:[picture_ops saveImage:[info objectAtIndex:0]
+                                                              highQuality:YES].CGImage
+                                             scale:1.0f
+                                       orientation:UIImageOrientationUp];
     
+    [self applyToImage];
+    [picture_ops saveImageChange:imagePreview.image];
     [self castCurrentImage:[picture_ops returnFileName]];
+    
 }
 
+- (void) elcImagePickerControllerDidCancel:(ELCImagePickerController *)picker
+{
+    
+}
 
 /*########### ANNOTATION #########*/
 #pragma mark - Annotation
@@ -371,10 +394,6 @@
         CGPoint currentPoint = [touch locationInView:imageDrawingProgress];
         
         UIGraphicsBeginImageContext(imageDrawingProgress.frame.size);
-        CGFloat topLeftX = imageDrawing.center.x - imageDrawingProgress.frame.size.width/2;
-        CGFloat topLeftY = imageDrawing.center.y - imageDrawingProgress.frame.size.height/2;
-        NSLog(@"topLeftX; %f", topLeftX);
-        NSLog(@"topLeftY: %f", topLeftY);
         CGFloat scale = imageDrawing.frame.size.height / containerView.frame.size.height;
         //CGFloat widthProportion = (containerView.frame.size.width/imageDrawing.frame.size.width);
         //CGFloat heightProportion = (containerView.frame.size.height/imageDrawing.frame.size.height);
@@ -438,6 +457,113 @@
     self.imageDrawingProgress.image = UIGraphicsGetImageFromCurrentImageContext();
     self.imageDrawing.image = nil;
     UIGraphicsEndImageContext();
+}
+
+-(void) applyToImage
+{
+    /* Scaling drawing UIImage */
+    /*
+    UIImage *scaledImage = [UIImage imageWithCGImage:[imageDrawingProgress.image CGImage]
+                                               scale:([self contentScaleFactor])
+                                         orientation:(imageDrawingProgress.image.imageOrientation)];
+    
+    NSLog(@"scaledImage.width: %f", scaledImage.size.width);
+    NSLog(@"scaledImage.height: %f", scaledImage.size.height);
+    CGFloat topLeftX = (imageDrawingProgress.image.size.width*(1/[self contentScaleFactor]) - [picture_ops returnWidth])/2;
+    CGFloat topLeftY = (imageDrawingProgress.image.size.height*(1/[self contentScaleFactor]) - [picture_ops returnHeight])/2;
+    
+    NSLog(@"topLeftX; %f", topLeftX);
+    NSLog(@"topLeftY: %f", topLeftY);
+    CGRect adjusted_rect = CGRectMake(topLeftX, topLeftY, imagePreview.image.size.width, imagePreview.image.size.height);
+    CGImageRef drawImage = CGImageCreateWithImageInRect(scaledImage.CGImage, adjusted_rect);
+    scaledImage = [UIImage imageWithCGImage:drawImage scale:scaledImage.scale orientation:scaledImage.imageOrientation];
+    CGImageRelease(drawImage);
+    
+    NSLog(@"new image width: %f", [picture_ops returnWidth]);
+    NSLog(@"new image height: %f", [picture_ops returnHeight]);
+    NSLog(@"imageDrawingProgress Width: %f", imageDrawingProgress.frame.size.width*(1/[self contentScaleFactor]));
+    NSLog(@"imageDrawingProgress Height: %f", imageDrawingProgress.frame.size.height*(1/[self contentScaleFactor]));
+     */
+    /*Begin Merging Images */
+    /*
+    UIGraphicsBeginImageContext(self.imagePreview.image.size);
+    [self.imagePreview.image drawInRect:CGRectMake(0,0,imagePreview.image.size.width,imagePreview.image.size.height)];
+    
+    [scaledImage drawInRect:CGRectMake(0,0,imagePreview.image.size.width,imagePreview.image.size.height)
+                  blendMode:kCGBlendModeNormal
+                      alpha:opacity];
+    self.imagePreview.image = UIGraphicsGetImageFromCurrentImageContext();
+    self.imageDrawingProgress.image = nil;
+    UIGraphicsEndImageContext();
+    */
+    CGSize fullSize = self.imagePreview.image.size;
+    CGSize newSize = self.imageDrawingProgress.frame.size;
+    CGFloat scale, offset;
+    CGRect offsetRect;
+    if (self.imagePreview.image.size.height > self.imagePreview.image.size.width) {
+        
+        scale = newSize.height/fullSize.height;
+        offset = (newSize.width - fullSize.width*scale)/2;
+        offsetRect = CGRectMake(offset, 0, newSize.width-offset*2, newSize.height);
+        NSLog(@"offset = %@",NSStringFromCGRect(offsetRect));
+    } else {
+        scale = newSize.width/fullSize.width;
+        offset = (newSize.height - fullSize.height*scale)/2;
+        offsetRect = CGRectMake(0, offset, newSize.width, newSize.height-offset*2);
+    }
+    
+    UIGraphicsBeginImageContext(newSize);
+    [self.imagePreview.image drawInRect:offsetRect];
+    [self.imageDrawingProgress.image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
+    UIImage *combImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    self.imagePreview.image = combImage;
+    self.imageDrawingProgress.image = nil;
+    
+}
+
+- (UIImage *)resizeImage:(UIImage*)image newSize:(CGSize)newSize {
+    CGRect newRect = CGRectIntegral(CGRectMake(0, 0, newSize.width, newSize.height));
+    CGImageRef imageRef = image.CGImage;
+    
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    // Set the quality level to use when rescaling
+    CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
+    CGAffineTransform flipVertical = CGAffineTransformMake(1, 0, 0, -1, 0, newSize.height);
+    
+    CGContextConcatCTM(context, flipVertical);
+    // Draw into the context; this scales the image
+    CGContextDrawImage(context, newRect, imageRef);
+    
+    // Get the resized image from the context and a UIImage
+    CGImageRef newImageRef = CGBitmapContextCreateImage(context);
+    UIImage *newImage = [UIImage imageWithCGImage:newImageRef];
+    
+    CGImageRelease(newImageRef);
+    UIGraphicsEndImageContext();
+    
+    return newImage;
+}
+
+-(CGFloat)contentScaleFactor
+{
+    CGFloat widthScale = imagePreview.bounds.size.width / imagePreview.image.size.width;
+    CGFloat heightScale = imagePreview.bounds.size.height / imagePreview.image.size.height;
+    
+    if (imagePreview.contentMode == UIViewContentModeScaleToFill) {
+        return (widthScale==heightScale) ? widthScale : NAN;
+    }
+    if (imagePreview.contentMode == UIViewContentModeScaleAspectFit) {
+        return MIN(widthScale, heightScale);
+    }
+    if (imagePreview.contentMode == UIViewContentModeScaleAspectFill) {
+        return MAX(widthScale, heightScale);
+    }
+    return 1.0;
+    
 }
 
 /*################ CHROME CAST CODE ###################*/

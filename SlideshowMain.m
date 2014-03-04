@@ -10,6 +10,7 @@
 #import "pictureOps.h"
 #import "AppDelegate.h"
 #import "PlaySlideshow.h"
+#import "SettingsVC.h"
 
 #define LEFT 0
 #define MIDDLE 1
@@ -27,6 +28,9 @@
     NSMutableArray *image_files;
     int currentIndex;
 }
+
+@synthesize duration;
+@synthesize imageQuality;
 
 @synthesize deviceScannerObject;
 @synthesize deviceManagerObject;
@@ -59,6 +63,9 @@
     imagePicker.imagePickerDelegate = self;
 
     [self presentViewController:imagePicker animated:YES completion:Nil];
+    
+    duration = 10;
+    imageQuality = 0.7;
     
     picture_ops = [[pictureOps alloc] init];
     [picture_ops clearCache];
@@ -93,12 +100,18 @@
     if ([segue.identifier isEqualToString:@"toPlaySlideshow"]) {
         PlaySlideshow *play_slideshow = (PlaySlideshow *) segue.destinationViewController;
         play_slideshow.images = images;
-        play_slideshow.duration = 6;
+        play_slideshow.duration = duration;
         play_slideshow.deviceScannerObject = deviceScannerObject;
         play_slideshow.deviceManagerObject = deviceManagerObject;
         play_slideshow.mediaControlChannel = mediaControlChannel;
         play_slideshow.selectedDevice = selectedDevice;
         play_slideshow.session_id = session_id;
+    }
+    else if ([segue.identifier isEqualToString:@"toSettings"]) {
+        SettingsVC *settings_vc = (SettingsVC *) segue.destinationViewController;
+        settings_vc.delegate = self;
+        settings_vc.imageQuality = imageQuality;
+        settings_vc.duration  = duration;
     }
 }
 
@@ -106,6 +119,14 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - SettingsVC Delegate
+
+-(void)sendSettingsData:(CGFloat)iQ viewDuration:(int)time
+{
+    imageQuality = iQ;
+    duration = time;
 }
 
 #pragma mark - IBAction
@@ -131,7 +152,7 @@
 
 - (IBAction)toSettings:(id)sender
 {
-    
+    [self performSegueWithIdentifier:@"toSettings" sender:nil];
 }
 
 - (IBAction)playSlideshow:(id)sender
@@ -197,16 +218,24 @@
 
     switch (type) {
         case LEFT:
-            leftImage.image = [image_files objectAtIndex:index];
+            leftImage.image = [UIImage imageWithCGImage:((UIImage*)[image_files objectAtIndex:index]).CGImage
+                                                  scale:1.0f
+                                            orientation:UIImageOrientationUp];
             break;
         case MIDDLE:
-            middleImage.image = [image_files objectAtIndex:index];
+            middleImage.image = [UIImage imageWithCGImage:((UIImage*)[image_files objectAtIndex:index]).CGImage
+                                                  scale:1.0f
+                                            orientation:UIImageOrientationUp];
             break;
         case RIGHT:
-            rightImage.image = [image_files objectAtIndex:index];
+            rightImage.image = [UIImage imageWithCGImage:((UIImage*)[image_files objectAtIndex:index]).CGImage
+                                                  scale:1.0f
+                                            orientation:UIImageOrientationUp];
             break;
         default:
-            middleImage.image = [image_files objectAtIndex:index];
+            middleImage.image = [UIImage imageWithCGImage:((UIImage*)[image_files objectAtIndex:index]).CGImage
+                                                  scale:1.0f
+                                            orientation:UIImageOrientationUp];
             break;
     }
 }
@@ -246,8 +275,13 @@
     for (int i = 0; i < [info count]; i++) {
         NSDictionary *infoDict = [info objectAtIndex:i];
         
-        [image_files addObject:[self resizeImage:[UIImage imageWithData:UIImageJPEGRepresentation([picture_ops saveImage:infoDict], 0.1)]
+        /*
+        [image_files addObject:[self resizeImage:[UIImage imageWithData:UIImageJPEGRepresentation([picture_ops saveImage:infoDict highQuality:imageQuality], 0.1)]
                                          newSize:size]];
+         */
+        [image_files addObject:[UIImage imageWithData:UIImageJPEGRepresentation([picture_ops
+                                                                                 saveImage:infoDict
+                                                                                 highQuality:imageQuality], 0.1)]];
         //[image_files addObject:[picture_ops saveImage:infoDict]];
         [images addObject:[picture_ops returnFileName]];
     }

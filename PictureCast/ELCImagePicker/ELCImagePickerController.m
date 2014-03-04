@@ -94,6 +94,7 @@
             } else {
                 NSLog(@"Did not return full resolution image!");
                 imgRef = [assetRep fullScreenImage];
+                orientation = [assetRep orientation];
             }
             UIImage *img = [UIImage imageWithCGImage:imgRef
                                                scale:1.0f

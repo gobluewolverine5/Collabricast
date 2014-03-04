@@ -10,6 +10,7 @@
 #import <GoogleCast/GoogleCast.h>
 #import "ELCImagePickerController.h"
 #import "ELCAlbumPickerController.h"
+#import "SettingsVC.h"
 
 @interface SlideshowMain : UIViewController
 <
@@ -20,8 +21,12 @@
     UIActionSheetDelegate,
     ELCImagePickerControllerDelegate,
     UINavigationControllerDelegate,
-    UIScrollViewDelegate
+    UIScrollViewDelegate,
+    sendSettings
 >
+
+@property (nonatomic) int duration;
+@property (nonatomic) CGFloat imageQuality;
 
 @property (nonatomic, retain) GCKDeviceScanner *deviceScannerObject;
 @property (nonatomic, retain) GCKDeviceManager *deviceManagerObject;

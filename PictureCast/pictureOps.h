@@ -11,11 +11,19 @@
 @interface pictureOps : NSObject
 
 - (NSString *)getPictureID:(NSString *)urlString;
-- (UIImage *)saveImage:(NSDictionary *)info;
+
+- (UIImage *) saveImage:(NSDictionary *)info
+            highQuality:(CGFloat)imageQuality;
+
 - (UIImage *)fixOrientation:(UIImageOrientation)orientation
                   imageFile:(UIImage *)image;
+
+- (BOOL)saveImageChange:(UIImage *)image;
+
 - (NSString *)returnFileName;
 
 - (BOOL)clearCache;
+- (CGFloat)returnWidth;
+- (CGFloat)returnHeight;
 
 @end

@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <GoogleCast/GoogleCast.h>
+#import "ELCImagePickerController.h"
 
 @interface PictureCast : UIViewController
 <
@@ -17,7 +18,8 @@
     UINavigationControllerDelegate,
     UIImagePickerControllerDelegate,
     UIActionSheetDelegate,
-    UIGestureRecognizerDelegate
+    UIGestureRecognizerDelegate,
+    ELCImagePickerControllerDelegate
 >
 {
     CGPoint lastPoint;

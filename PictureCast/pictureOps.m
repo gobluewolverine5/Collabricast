@@ -12,6 +12,8 @@
 
 @implementation pictureOps {
     NSString *filename;
+    CGFloat width;
+    CGFloat height;
 }
 
 
@@ -19,6 +21,8 @@
 {
     if (self = [super init]) {
         filename = [[NSString alloc] init];
+        width = 0;
+        height = 0;
     }
     return self;
 }
@@ -31,9 +35,10 @@
     return [urlString substringWithRange:range];
 }
 
-- (UIImage *) saveImage:(NSDictionary *)info
+- (UIImage *) saveImage:(NSDictionary *)info highQuality:(CGFloat)imageQuality
 {
-  
+ 
+    NSLog(@"info: %@", info);
     NSURL *url = [info objectForKey:UIImagePickerControllerReferenceURL];
 
     filename = [NSString stringWithFormat:@"mediacast%@.%@",
@@ -45,20 +50,17 @@
     NSString *file_path = [[app_delegate cacheURL] stringByAppendingPathComponent:filename];
    
     UIImage *image;
-    if ([[info objectForKey:@"UIImagePickerControllerMediaType"] isEqualToString:ALAssetTypePhoto]) {
-        ALAssetRepresentation *rep = [info objectForKey:@"assetRep"];
-        image = [UIImage imageWithCGImage:[rep fullResolutionImage]
-                                    scale:1.0f
-                              orientation:[rep orientation]];
-    } else {
-        image = [info objectForKey:UIImagePickerControllerOriginalImage];
-    }
-    
-    NSData *imageData = UIImageJPEGRepresentation(image, 0.7);
-    image = nil;
+    ALAssetRepresentation *rep = [info objectForKey:@"assetRep"];
+    image = [UIImage imageWithCGImage:[rep fullScreenImage]
+                                scale:1.0f
+                          orientation:(UIImageOrientation)[rep orientation]];
+
+    NSData *imageData = UIImageJPEGRepresentation(image, imageQuality);
+    width   = image.size.width;
+    height  = image.size.height;
     if ([file_manager fileExistsAtPath:file_path]) {
         NSLog(@"Image already exists");
-        return [info objectForKey:UIImagePickerControllerOriginalImage];
+        return image;
     }
     if ([file_manager createFileAtPath:file_path contents:imageData attributes:nil]) {
         NSLog(@"Successfully wrote image file");
@@ -66,7 +68,22 @@
         NSLog(@"Failed write image file");
     }
 
-    return [info objectForKey:UIImagePickerControllerOriginalImage];
+    return image;
+}
+
+- (BOOL)saveImageChange:(UIImage *)image
+{
+    NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
+    AppDelegate *app_delegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
+    NSString *file_path = [[app_delegate cacheURL] stringByAppendingPathComponent:filename];
+    NSFileManager *file_manager = [NSFileManager defaultManager];
+    if ([file_manager createFileAtPath:file_path contents:imageData attributes:nil]) {
+        NSLog(@"Successfully wrote image file");
+        return TRUE;
+    } else {
+        NSLog(@"Failed write image file");
+        return FALSE;
+    }
 }
 
 - (UIImage *)fixOrientation:(UIImageOrientation)orientation imageFile:(UIImage *)image
@@ -97,5 +114,15 @@
         }
     }
     return allDeleted;
+}
+
+- (CGFloat)returnWidth
+{
+    return width;
+}
+
+- (CGFloat)returnHeight
+{
+    return height;
 }
 @end

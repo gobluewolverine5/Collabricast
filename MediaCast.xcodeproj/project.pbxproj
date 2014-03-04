@@ -41,6 +41,7 @@
 		9929E89F18B6F08E0078749E /* PlaySlideshow.m in Sources */ = {isa = PBXBuildFile; fileRef = 9929E89E18B6F08E0078749E /* PlaySlideshow.m */; };
 		9937249B18B3D9D900733A89 /* pictureOps.m in Sources */ = {isa = PBXBuildFile; fileRef = 9937249A18B3D9D900733A89 /* pictureOps.m */; };
 		996CCD0F18B45F96007E5548 /* MainMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 996CCD0E18B45F96007E5548 /* MainMenu.m */; };
+		99A3AB6518C0DA2C003E3F2B /* SettingsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 99A3AB6418C0DA2C003E3F2B /* SettingsVC.m */; };
 		99F864CB18A9CDC900952004 /* images in Resources */ = {isa = PBXBuildFile; fileRef = 99F864CA18A9CDC900952004 /* images */; };
 		99F864F618A9D01100952004 /* DDData.m in Sources */ = {isa = PBXBuildFile; fileRef = 99F864D118A9D01100952004 /* DDData.m */; };
 		99F864F718A9D01100952004 /* DDNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = 99F864D318A9D01100952004 /* DDNumber.m */; };
@@ -131,6 +132,8 @@
 		9937249A18B3D9D900733A89 /* pictureOps.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = pictureOps.m; sourceTree = "<group>"; };
 		996CCD0D18B45F96007E5548 /* MainMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainMenu.h; path = ../MainMenu.h; sourceTree = "<group>"; };
 		996CCD0E18B45F96007E5548 /* MainMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MainMenu.m; path = ../MainMenu.m; sourceTree = "<group>"; };
+		99A3AB6318C0DA2C003E3F2B /* SettingsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsVC.h; sourceTree = "<group>"; };
+		99A3AB6418C0DA2C003E3F2B /* SettingsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsVC.m; sourceTree = "<group>"; };
 		99F864CA18A9CDC900952004 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 		99F864D018A9D01100952004 /* DDData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDData.h; sourceTree = "<group>"; };
 		99F864D118A9D01100952004 /* DDData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDData.m; sourceTree = "<group>"; };
@@ -277,6 +280,8 @@
 				992044AB18B696C5005748DA /* SlideshowMain.m */,
 				9929E89D18B6F08E0078749E /* PlaySlideshow.h */,
 				9929E89E18B6F08E0078749E /* PlaySlideshow.m */,
+				99A3AB6318C0DA2C003E3F2B /* SettingsVC.h */,
+				99A3AB6418C0DA2C003E3F2B /* SettingsVC.m */,
 			);
 			path = PictureCast;
 			sourceTree = "<group>";
@@ -567,6 +572,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				99F8650518A9D01100952004 /* HTTPRedirectResponse.m in Sources */,
+				99A3AB6518C0DA2C003E3F2B /* SettingsVC.m in Sources */,
 				99F8650618A9D01100952004 /* WebSocket.m in Sources */,
 				99F8651B18A9D16C00952004 /* DDFileLogger.m in Sources */,
 				991382DA18A74639009862EA /* AppDelegate.m in Sources */,
