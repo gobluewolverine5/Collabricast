@@ -130,6 +130,17 @@
     NSLog(@"minWidth: %f", minWidth);
 }
 
+-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([segue.identifier isEqualToString:@"toBrushSettings"]) {
+        BrushSettings *brush_settings = (BrushSettings *) segue.destinationViewController;
+        [brush_settings setDelegate:self];
+        [brush_settings obtainColor:Mode];
+        [brush_settings obtainBrush:brush];
+        [brush_settings obtainOpacity:opacity];
+        [brush_settings obtainRGB:red Bl:blue Gr:green];
+    }
+}
 
 - (void)didReceiveMemoryWarning
 {
@@ -137,6 +148,16 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - BrushSettingsDelegate
+-(void)dissmissPop:(CGFloat)Opacity B:(CGFloat)Brush R:(CGFloat)Red Bl:(CGFloat)Blue Gr:(CGFloat)Green Color:(int)mode
+{
+    opacity = Opacity;
+    brush   = Brush;
+    red     = Red;
+    blue    = Blue;
+    green   = Green;
+    Mode    = mode;
+}
 #pragma mark - IBAction
 - (IBAction)castImage:(id)sender
 {
@@ -170,6 +191,11 @@
         [drawModeButton setTintColor:lightblue];
         drawing = TRUE;
     }
+}
+
+- (IBAction)toBrushSettings:(id)sender
+{
+    [self performSegueWithIdentifier:@"toBrushSettings" sender:Nil];
 }
 
 

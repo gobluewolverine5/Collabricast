@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <GoogleCast/GoogleCast.h>
 #import "ELCImagePickerController.h"
+#import "BrushSettings.h"
 
 @interface PictureCast : UIViewController
 <
@@ -19,7 +20,8 @@
     UIImagePickerControllerDelegate,
     UIActionSheetDelegate,
     UIGestureRecognizerDelegate,
-    ELCImagePickerControllerDelegate
+    ELCImagePickerControllerDelegate,
+    BrushSettingsDelegate
 >
 {
     CGPoint lastPoint;
@@ -47,6 +49,7 @@
 - (IBAction)castImage:(id)sender;
 - (IBAction)selectImage:(id)sender;
 - (IBAction)drawMode:(id)sender;
+- (IBAction)toBrushSettings:(id)sender;
 
 - (void) castCurrentImage:(NSString *)filename;
 - (NSString *)getIPAddress;
