@@ -145,17 +145,13 @@
     NSLog(@"index: %i", index);
     AppDelegate *app_delegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     NSString *saveDirectory = [NSString stringWithFormat:@"%@/%@", [app_delegate cacheURL], [images objectAtIndex:index]];
-    CGSize size = imagePreview.frame.size;
     NSData *data = [[NSFileManager defaultManager] contentsAtPath:saveDirectory];
     imagePreview.image  = [UIImage imageWithCGImage:[UIImage imageWithData:data].CGImage
                                               scale:1.0f
                                         orientation:UIImageOrientationUp];
     GCKMediaMetadata *metadata = [[GCKMediaMetadata alloc]init];
   
-    UInt16 port_number = [(AppDelegate *)[[UIApplication sharedApplication]delegate]port_number];
-    NSURL *url = [[NSURL alloc]initWithString:[NSString stringWithFormat:@"http://%@:%hu/%@",
-                                                                        [self getIPAddress], port_number,
-                                                                        [images objectAtIndex:index]]];
+    NSURL *url = [[NSURL alloc]initWithString:[images objectAtIndex:index]];
     NSLog(@"Absolute url: %@", [url absoluteString]);
     GCKImage *gck_image = [[GCKImage alloc]initWithURL:url
                                                  width:100
@@ -243,7 +239,7 @@
 {
     timer = [NSTimer scheduledTimerWithTimeInterval:2
                                              target:self
-                                           selector:@selector(advancePicture)
+                                           selector:@selector(advancePicture:)
                                            userInfo:Nil
                                             repeats:YES];
 }

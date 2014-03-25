@@ -41,8 +41,8 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
-    settingsTable.delegate = self;
-    settingsTable.dataSource = self;
+    //settingsTable.delegate = self;
+    //settingsTable.dataSource = self;
     [settingsTable reloadData];
     durationIndicator.text = [NSString stringWithFormat:@"%i", duration];
     durationStepper.value = (double) duration;

@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import <GoogleCast/GoogleCast.h>
+#import <MessageUI/MessageUI.h>
+#import <MessageUI/MFMailComposeViewController.h>
+#import <MultipeerConnectivity/MultipeerConnectivity.h>
 #import "ELCImagePickerController.h"
 #import "ELCAlbumPickerController.h"
 #import "SettingsVC.h"
@@ -22,7 +25,11 @@
     ELCImagePickerControllerDelegate,
     UINavigationControllerDelegate,
     UIScrollViewDelegate,
-    sendSettings
+    sendSettings,
+    MFMailComposeViewControllerDelegate,
+    MCNearbyServiceAdvertiserDelegate,
+    MCSessionDelegate,
+    UIAlertViewDelegate
 >
 
 @property (nonatomic) int duration;
@@ -40,11 +47,16 @@
 @property (strong, nonatomic) IBOutlet UIImageView *leftImage;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *deleteButtons;
 
+@property (strong, nonatomic) MCNearbyServiceAdvertiser *advertiser;
+@property (strong, nonatomic) MCPeerID *localPeerID;
+@property (strong, nonatomic) MCSession *session;
+
 - (IBAction)addImages:(id)sender;
 - (IBAction)toSettings:(id)sender;
 - (IBAction)playSlideshow:(id)sender;
 - (IBAction)deleteImage:(id)sender;
 - (IBAction)shiftRight:(id)sender;
 - (IBAction)shiftLeft:(id)sender;
+- (IBAction)shareSlides:(id)sender;
 
 @end

@@ -1,8 +1,8 @@
 //
-//  SettingsVC.h
+//  SettingsTableVC.h
 //  MediaCast
 //
-//  Created by Evan Hsu on 2/28/14.
+//  Created by Evan Hsu on 3/16/14.
 //  Copyright (c) 2014 EECS 441. All rights reserved.
 //
 
@@ -13,10 +13,8 @@
 -(void)sendSettingsData:(CGFloat)iQ viewDuration:(int)time;
 
 @end
-@interface SettingsVC : UITableViewController <
-    UITableViewDataSource,
-    UITableViewDelegate
->
+
+@interface SettingsTableVC : UITableViewController
 
 @property (nonatomic, assign) id delegate;
 
@@ -29,6 +27,7 @@
 @property (strong, nonatomic) IBOutlet UITableView *settingsTable;
 @property (strong, nonatomic) IBOutlet UITableViewCell *cellOne;
 @property (strong, nonatomic) IBOutlet UITableViewCell *cellTwo;
+
 
 - (IBAction)stepperPressed:(id)sender;
 - (IBAction)sliderChanged:(id)sender;

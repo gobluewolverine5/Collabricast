@@ -12,6 +12,7 @@
 #import "DDLog.h"
 #import "DDTTYLogger.h"
 
+
 //Log levels: off, error, warn, info, verbose
 static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 
@@ -71,6 +72,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
     // Add the view controller's view to the window and display.
     //[window addSubview:viewController.view];
     //[window makeKeyAndVisible];
+    
     return YES;
 }
 

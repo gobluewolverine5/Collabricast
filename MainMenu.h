@@ -25,6 +25,8 @@
 @property (nonatomic, retain) NSString *session_id;
 @property (nonatomic, retain) UIButton *chromecastButton;
 
+
+
 - (IBAction)toPictureCast:(id)sender;
 - (IBAction)toSlideshowCast:(id)sender;
 @end

@@ -11,6 +11,10 @@
 #import "AppDelegate.h"
 #import "PlaySlideshow.h"
 #import "SettingsVC.h"
+#import "SettingsTableVC.h"
+#import "CBAlertView.h"
+#import <CommonCrypto/CommonDigest.h>
+#import <CommonCrypto/CommonHMAC.h>
 
 #define LEFT 0
 #define MIDDLE 1
@@ -43,6 +47,11 @@
 @synthesize leftImage;
 @synthesize deleteButtons;
 
+@synthesize advertiser;
+@synthesize localPeerID;
+
+
+#pragma mark - View Controller Init
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -64,7 +73,7 @@
 
     [self presentViewController:imagePicker animated:YES completion:Nil];
     
-    duration = 10;
+    duration = 5;
     imageQuality = 0.7;
     
     picture_ops = [[pictureOps alloc] init];
@@ -93,6 +102,21 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_chromecastButton];
     [self updateButtonStates];
     
+    /* BROADCASTING PEER CONNECTION */
+    static NSString * const ServiceType = @"media-cast";
+    localPeerID = [[MCPeerID alloc] initWithDisplayName:[[UIDevice currentDevice] name]];
+    
+    advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:localPeerID
+                                                   discoveryInfo:Nil
+                                                     serviceType:ServiceType];
+    advertiser.delegate = self;
+    [advertiser startAdvertisingPeer];
+    NSLog(@"localPeerID: %@", localPeerID.displayName);
+    _session = [[MCSession alloc] initWithPeer:localPeerID
+                              securityIdentity:nil
+                          encryptionPreference:MCEncryptionNone];
+    _session.delegate = self;
+    
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -113,12 +137,23 @@
         settings_vc.imageQuality = imageQuality;
         settings_vc.duration  = duration;
     }
+    else if ([segue.identifier isEqualToString:@"toSettingsTableVC"]) {
+        SettingsTableVC *settings_table = (SettingsTableVC *) segue.destinationViewController;
+        settings_table.delegate = self;
+        settings_table.imageQuality = imageQuality;
+        settings_table.duration = duration;
+    }
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - MFMailComposeViewControllerDelegate
+-(void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult: (MFMailComposeResult)result error:(NSError*)error {
+    [self dismissViewControllerAnimated:NO completion:NULL];
 }
 
 #pragma mark - SettingsVC Delegate
@@ -152,7 +187,7 @@
 
 - (IBAction)toSettings:(id)sender
 {
-    [self performSegueWithIdentifier:@"toSettings" sender:nil];
+    [self performSegueWithIdentifier:@"toSettingsTableVC" sender:nil];
 }
 
 - (IBAction)playSlideshow:(id)sender
@@ -187,6 +222,38 @@
     if (!(currentIndex == 0 || [images count] == 0)) {
         currentIndex--;
         [self refreshSlideshowQueuePreview];
+    }
+}
+
+- (IBAction)shareSlides:(id)sender {
+   
+    NSLog(@"shareSlides selected");
+    if ([MFMailComposeViewController canSendMail]) {
+        
+        MFMailComposeViewController *mailViewController = [[MFMailComposeViewController alloc] init];
+        mailViewController.mailComposeDelegate  = self;
+        //[mailViewController setToRecipients :people];
+        [mailViewController setMessageBody:@"Created by MediaCast iOS\n------------\n" isHTML:NO];
+        [mailViewController setSubject:@"MediaCast Slideshow"];
+
+        for (UIImage *image in image_files) {
+            if (image) {
+                NSData *image_data = UIImageJPEGRepresentation(image, 1);
+                [mailViewController addAttachmentData:image_data  mimeType:@"image/jpeg" fileName:@"attached_image"];
+                
+            }
+        }
+        [self presentViewController:mailViewController animated:YES completion:NULL];
+    }
+    else {
+        NSLog(@"Could not open email");
+        UIAlertView *alert = [[UIAlertView alloc]
+                              initWithTitle     :@"Error"
+                              message           :@"Could not open email"
+                              delegate          :nil
+                              cancelButtonTitle :@"OK"
+                              otherButtonTitles :nil];
+        [alert show];
     }
 }
 
@@ -271,7 +338,6 @@
 {
     [self dismissViewControllerAnimated:YES completion:NULL];
     NSLog(@"info: %@",info);
-    CGSize size = middleImage.frame.size;
     for (int i = 0; i < [info count]; i++) {
         NSDictionary *infoDict = [info objectAtIndex:i];
         
@@ -283,7 +349,7 @@
                                                                                  saveImage:infoDict
                                                                                  highQuality:imageQuality], 0.1)]];
         //[image_files addObject:[picture_ops saveImage:infoDict]];
-        [images addObject:[picture_ops returnFileName]];
+        [images addObject:[picture_ops returnFileURL]];
     }
     [self refreshSlideshowQueuePreview];
 }
@@ -473,4 +539,117 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 /*############# END OF CHROMECAST CODE #################*/
 
+#pragma mark - MCNearbyServiceAdvertiserDelegate
+
+- (void) advertiser:(MCNearbyServiceAdvertiser *)advertiser
+    didReceiveInvitationFromPeer:(MCPeerID *)peerID
+        withContext:(NSData *)context
+  invitationHandler:(void (^)(BOOL, MCSession *))invitationHandler
+{
+    /*
+    if ([self.mutableBlockedPeers containsObject:peerID]) {
+        invitationHandler(NO, nil);
+        return;
+    }
+   
+    [[UIActionSheet actionSheetWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Received Invitation from %@", @"Received Invitation from {Peer}"), peerID.displayName]
+                       cancelButtonTitle:NSLocalizedString(@"Reject", nil)
+                  destructiveButtonTitle:NSLocalizedString(@"Block", nil)
+                       otherButtonTitles:@[NSLocalizedString(@"Accept", nil)]
+                                   block:^(UIActionSheet *actionSheet, NSInteger buttonIndex)
+      {
+          BOOL acceptedInvitation = (buttonIndex == [actionSheet firstOtherButtonIndex]);
+          
+          if (buttonIndex == [actionSheet destructiveButtonIndex]) {
+              [self.mutableBlockedPeers addObject:peerID];
+          }*
+          
+          MCSession *session = [[MCSession alloc] initWithPeer:localPeerID
+                                              securityIdentity:nil
+                                          encryptionPreference:MCEncryptionNone];
+          session.delegate = self;
+          
+          invitationHandler(acceptedInvitation, (acceptedInvitation ? session : nil));
+      }] showInView:self.view];
+     */
+    NSString *msg = [NSString stringWithFormat:@"%@ would like to join your slideshow", peerID.displayName];
+    CBAlertView *alert = [[CBAlertView alloc] initWithTitle:@"Invitation Request"
+                                                    message:msg
+                                          cancelButtonTitle:@"Decline"
+                                          otherButtonTitles:@"Accept", nil];
+    alert.completion = ^(BOOL canceled, NSInteger buttonIndex) {
+        if (canceled) {
+            NSLog(@"User Declined Invitation");
+            invitationHandler(NO, Nil);
+        }
+        else {
+            NSLog(@"User Accepted Invitation");
+            invitationHandler(YES, _session);
+        }
+    };
+    [alert show];
+    NSLog(@"peerID.displayName: %@", peerID);
+}
+
+#pragma mark - MCSession Delegate
+-(void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didNotStartAdvertisingPeer:(NSError *)error
+{
+    NSLog(@"Error: %@", [error userInfo]);
+}
+
+-(void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
+{
+    NSLog(@"Session::didReceiveData");
+    NSString *message   = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSURL *url          = [NSURL URLWithString:message];
+    dispatch_async(dispatch_get_global_queue(0, 0), ^ {
+        NSData * imageData  = [[NSData alloc] initWithContentsOfURL:url];
+        if (imageData) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [image_files addObject:[UIImage imageWithData:UIImageJPEGRepresentation([UIImage imageWithData:imageData],0.1)]];
+                [images addObject:url];
+                [self refreshSlideshowQueuePreview];
+            });
+        }
+    });
+    
+}
+
+-(void)session:(MCSession *)session didReceiveStream:(NSInputStream *)stream withName:(NSString *)streamName fromPeer:(MCPeerID *)peerID
+{
+    NSLog(@"Session::didReceiveStream");
+}
+
+-(void)session:(MCSession *)session
+didFinishReceivingResourceWithName:(NSString *)resourceName
+      fromPeer:(MCPeerID *)peerID
+         atURL:(NSURL *)localURL
+     withError:(NSError *)error
+{
+    NSLog(@"Session::didFinishReceivingResourceWith Name");
+}
+
+-(void)session:(MCSession *)session didStartReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID withProgress:(NSProgress *)progress
+{
+    NSLog(@"Session::didStartReceivingResourceWithName");
+}
+
+-(void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state
+{
+    switch (state) {
+        case MCSessionStateNotConnected:
+            NSLog(@"Session::didChangeState: MCSessionStateNotConnect");
+            break;
+        case MCSessionStateConnecting:
+            NSLog(@"Session::didChangeState: MCSessionStateConnecting");
+            break;
+        case MCSessionStateConnected:
+            NSLog(@"Session::didChangeState: MCSessionStateConnected");
+            break;
+            
+        default:
+            NSLog(@"Session::didChangeState: default");
+            break;
+    }
+}
 @end

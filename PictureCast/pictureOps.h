@@ -21,6 +21,7 @@
 - (BOOL)saveImageChange:(UIImage *)image;
 
 - (NSString *)returnFileName;
+- (NSString *)returnFileURL;
 
 - (BOOL)clearCache;
 - (CGFloat)returnWidth;
