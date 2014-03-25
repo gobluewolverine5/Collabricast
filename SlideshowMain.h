@@ -51,6 +51,8 @@
 @property (strong, nonatomic) MCPeerID *localPeerID;
 @property (strong, nonatomic) MCSession *session;
 
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *menuButton;
+
 - (IBAction)addImages:(id)sender;
 - (IBAction)toSettings:(id)sender;
 - (IBAction)playSlideshow:(id)sender;

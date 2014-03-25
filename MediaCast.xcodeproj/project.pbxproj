@@ -39,6 +39,11 @@
 		992044A918B69310005748DA /* Overlay@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9920449F18B69310005748DA /* Overlay@2x.png */; };
 		992044AC18B696C5005748DA /* SlideshowMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 992044AB18B696C5005748DA /* SlideshowMain.m */; };
 		9929E89F18B6F08E0078749E /* PlaySlideshow.m in Sources */ = {isa = PBXBuildFile; fileRef = 9929E89E18B6F08E0078749E /* PlaySlideshow.m */; };
+		9932D8A218E11D7D0061A90E /* SWRevealViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9932D8A118E11D7D0061A90E /* SWRevealViewController.m */; };
+		9932D8A518E12C990061A90E /* RearMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 9932D8A418E12C990061A90E /* RearMenu.m */; };
+		9932D8A818E12F730061A90E /* Home.m in Sources */ = {isa = PBXBuildFile; fileRef = 9932D8A718E12F730061A90E /* Home.m */; };
+		9932D8AE18E156D40061A90E /* reveal-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9932D8AC18E156D40061A90E /* reveal-icon.png */; };
+		9932D8AF18E156D40061A90E /* reveal-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9932D8AD18E156D40061A90E /* reveal-icon@2x.png */; };
 		9937249B18B3D9D900733A89 /* pictureOps.m in Sources */ = {isa = PBXBuildFile; fileRef = 9937249A18B3D9D900733A89 /* pictureOps.m */; };
 		996CCD0F18B45F96007E5548 /* MainMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 996CCD0E18B45F96007E5548 /* MainMenu.m */; };
 		9987E56E18D25D4E001E4601 /* BrushSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 9987E56D18D25D4E001E4601 /* BrushSettings.m */; };
@@ -137,6 +142,14 @@
 		992044AB18B696C5005748DA /* SlideshowMain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SlideshowMain.m; path = ../SlideshowMain.m; sourceTree = "<group>"; };
 		9929E89D18B6F08E0078749E /* PlaySlideshow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaySlideshow.h; sourceTree = "<group>"; };
 		9929E89E18B6F08E0078749E /* PlaySlideshow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaySlideshow.m; sourceTree = "<group>"; };
+		9932D8A018E11D7D0061A90E /* SWRevealViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWRevealViewController.h; sourceTree = "<group>"; };
+		9932D8A118E11D7D0061A90E /* SWRevealViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWRevealViewController.m; sourceTree = "<group>"; };
+		9932D8A318E12C990061A90E /* RearMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RearMenu.h; sourceTree = "<group>"; };
+		9932D8A418E12C990061A90E /* RearMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RearMenu.m; sourceTree = "<group>"; };
+		9932D8A618E12F730061A90E /* Home.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Home.h; sourceTree = "<group>"; };
+		9932D8A718E12F730061A90E /* Home.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Home.m; sourceTree = "<group>"; };
+		9932D8AC18E156D40061A90E /* reveal-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "reveal-icon.png"; sourceTree = "<group>"; };
+		9932D8AD18E156D40061A90E /* reveal-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "reveal-icon@2x.png"; sourceTree = "<group>"; };
 		9937249918B3D9D900733A89 /* pictureOps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pictureOps.h; sourceTree = "<group>"; };
 		9937249A18B3D9D900733A89 /* pictureOps.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = pictureOps.m; sourceTree = "<group>"; };
 		996CCD0D18B45F96007E5548 /* MainMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainMenu.h; path = ../MainMenu.h; sourceTree = "<group>"; };
@@ -306,9 +319,8 @@
 		991382CF18A74639009862EA /* PictureCast */ = {
 			isa = PBXGroup;
 			children = (
+				9932D89E18E11D330061A90E /* Library */,
 				9987E57318D25FE9001E4601 /* Images */,
-				9920448D18B69310005748DA /* ELCImagePicker */,
-				99F864CE18A9D01100952004 /* CocoaHTTPServerCore */,
 				9902003218A93E080039AFCC /* Cast_Icons */,
 				991382D818A74639009862EA /* AppDelegate.h */,
 				991382D918A74639009862EA /* AppDelegate.m */,
@@ -322,6 +334,10 @@
 				998DEDAA18DF69B800CD1719 /* CBAlertView.m */,
 				9937249918B3D9D900733A89 /* pictureOps.h */,
 				9937249A18B3D9D900733A89 /* pictureOps.m */,
+				9932D8A318E12C990061A90E /* RearMenu.h */,
+				9932D8A418E12C990061A90E /* RearMenu.m */,
+				9932D8A618E12F730061A90E /* Home.h */,
+				9932D8A718E12F730061A90E /* Home.m */,
 			);
 			path = PictureCast;
 			sourceTree = "<group>";
@@ -386,6 +402,25 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		9932D89E18E11D330061A90E /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				9932D89F18E11D4E0061A90E /* SWRevealViewController */,
+				99F864CE18A9D01100952004 /* CocoaHTTPServerCore */,
+				9920448D18B69310005748DA /* ELCImagePicker */,
+			);
+			name = Library;
+			sourceTree = "<group>";
+		};
+		9932D89F18E11D4E0061A90E /* SWRevealViewController */ = {
+			isa = PBXGroup;
+			children = (
+				9932D8A018E11D7D0061A90E /* SWRevealViewController.h */,
+				9932D8A118E11D7D0061A90E /* SWRevealViewController.m */,
+			);
+			name = SWRevealViewController;
+			sourceTree = "<group>";
+		};
 		9987E56F18D25D5B001E4601 /* Picture Cast */ = {
 			isa = PBXGroup;
 			children = (
@@ -400,6 +435,8 @@
 		9987E57318D25FE9001E4601 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				9932D8AC18E156D40061A90E /* reveal-icon.png */,
+				9932D8AD18E156D40061A90E /* reveal-icon@2x.png */,
 				9987E57A18D2603E001E4601 /* Black.png */,
 				9987E57418D25FE9001E4601 /* Blue.png */,
 				9987E57518D25FE9001E4601 /* Green.png */,
@@ -617,6 +654,7 @@
 				991382D418A74639009862EA /* InfoPlist.strings in Resources */,
 				99F8652018A9D16C00952004 /* README.txt in Resources */,
 				991382DC18A74639009862EA /* Images.xcassets in Resources */,
+				9932D8AE18E156D40061A90E /* reveal-icon.png in Resources */,
 				992044A918B69310005748DA /* Overlay@2x.png in Resources */,
 				9902003918A93E080039AFCC /* icon-cast-identified.png in Resources */,
 				992044A718B69310005748DA /* ELCAssetTablePicker.xib in Resources */,
@@ -627,6 +665,7 @@
 				992044A818B69310005748DA /* Overlay.png in Resources */,
 				9987E57718D25FE9001E4601 /* Blue.png in Resources */,
 				9987E57818D25FE9001E4601 /* Green.png in Resources */,
+				9932D8AF18E156D40061A90E /* reveal-icon@2x.png in Resources */,
 				9902003818A93E080039AFCC /* icon-cast-connected@2x.png in Resources */,
 				9902003718A93E080039AFCC /* icon-cast-connected.png in Resources */,
 			);
@@ -665,6 +704,7 @@
 				99F864F618A9D01100952004 /* DDData.m in Sources */,
 				99F8652418A9D17100952004 /* GCDAsyncSocket.m in Sources */,
 				99F8651D18A9D16C00952004 /* DDTTYLogger.m in Sources */,
+				9932D8A518E12C990061A90E /* RearMenu.m in Sources */,
 				991382FC18A746BC009862EA /* PictureCast.m in Sources */,
 				9937249B18B3D9D900733A89 /* pictureOps.m in Sources */,
 				992044A218B69310005748DA /* ELCAssetCell.m in Sources */,
@@ -675,10 +715,12 @@
 				99F8651A18A9D16C00952004 /* DDASLLogger.m in Sources */,
 				99F8650118A9D01100952004 /* HTTPDataResponse.m in Sources */,
 				9987E56E18D25D4E001E4601 /* BrushSettings.m in Sources */,
+				9932D8A818E12F730061A90E /* Home.m in Sources */,
 				99F864FC18A9D01100952004 /* HTTPServer.m in Sources */,
 				99F864FA18A9D01100952004 /* HTTPConnection.m in Sources */,
 				992044A118B69310005748DA /* ELCAsset.m in Sources */,
 				99FC209518D67285006ADEB2 /* SettingsTableVC.m in Sources */,
+				9932D8A218E11D7D0061A90E /* SWRevealViewController.m in Sources */,
 				99F8651F18A9D16C00952004 /* DispatchQueueLogFormatter.m in Sources */,
 				998DEDA318DF4A2600CD1719 /* joinSlideshow.m in Sources */,
 				998DEDAB18DF69B800CD1719 /* CBAlertView.m in Sources */,

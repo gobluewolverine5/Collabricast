@@ -9,6 +9,7 @@
 #import "PictureCast.h"
 #import "AppDelegate.h"
 #import "pictureOps.h"
+#import "SWRevealViewController.h"
 #import <GoogleCast/GoogleCast.h>
 #include <ifaddrs.h>
 #include <arpa/inet.h>
@@ -57,6 +58,18 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    _menuButton.tintColor = [UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1];
+    _menuButton.target = self.revealViewController;
+    _menuButton.action = @selector(revealToggle:);
+    
+    _sidebarButton.tintColor = [UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1];
+    _sidebarButton.target = self.revealViewController;
+    _sidebarButton.action = @selector(rightRevealToggle:);
+    
+    BrushSettings *brushSettings = (BrushSettings *) self.revealViewController.rightViewController;
+    brushSettings.delegate = self;
+   
+    [self.view addGestureRecognizer:self.revealViewController.panGestureRecognizer];
     
     NSLog(@"view did load");
    
@@ -72,6 +85,7 @@
     drawing = FALSE;
     
     [imageDrawing setUserInteractionEnabled:YES];
+    /*
     UIPinchGestureRecognizer *pinch_gr = [[UIPinchGestureRecognizer alloc] initWithTarget:self
                                                                               action:@selector(handlePinch:)];
     pinch_gr.delegate = self;
@@ -80,6 +94,7 @@
     pan_gr.delegate = self;
     [imageDrawing addGestureRecognizer:pinch_gr];
     [imageDrawing addGestureRecognizer:pan_gr];
+     */
     
     /* PRESENT UIIMAGE PICKER CONTROLLER FIRST */
     ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
@@ -110,7 +125,7 @@
     [_chromecastButton setImage:nil forState:UIControlStateNormal];
     _chromecastButton.hidden = YES;
     
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_chromecastButton];
+    //self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_chromecastButton];
     
     [self updateButtonStates];
     
@@ -183,6 +198,7 @@
         [imageDrawing setUserInteractionEnabled:YES];
         [drawModeButton setTintColor:[UIColor lightGrayColor]];
         drawing = FALSE;
+        [self.view addGestureRecognizer:self.revealViewController.panGestureRecognizer];
     }
     else {
         [imageDrawing setUserInteractionEnabled:NO];
@@ -190,6 +206,7 @@
         UIColor *lightblue = [UIColor colorWithRed:0 green:222 blue:242 alpha:1];
         [drawModeButton setTintColor:lightblue];
         drawing = TRUE;
+        [self.view removeGestureRecognizer:self.revealViewController.panGestureRecognizer];
     }
 }
 
@@ -386,25 +403,30 @@
     } else {
         NSLog(@"Error clearing cached");
     }
-    imagePreview.image = [UIImage imageWithCGImage:[picture_ops saveImage:[info objectAtIndex:0]
-                                                              highQuality:YES].CGImage
-                                             scale:1.0f
-                                       orientation:UIImageOrientationUp];
+    imageDrawing.image = nil;
+    imagePreview.image = nil;
+    if ([info count] > 0) {
+        imagePreview.image = [UIImage imageWithCGImage:[picture_ops saveImage:[info objectAtIndex:0]
+                                                                  highQuality:YES].CGImage
+                                                 scale:1.0f
+                                           orientation:UIImageOrientationUp];
+        [self applyToImage];
+        [picture_ops saveImageChange:imagePreview.image];
+        [self castCurrentImage:[picture_ops returnFileName]];
+    }
     
-    [self applyToImage];
-    [picture_ops saveImageChange:imagePreview.image];
-    [self castCurrentImage:[picture_ops returnFileName]];
     
 }
 
 - (void) elcImagePickerControllerDidCancel:(ELCImagePickerController *)picker
 {
-    
+    [self dismissViewControllerAnimated:YES completion:NULL];
 }
 
 /*########### ANNOTATION #########*/
 #pragma mark - Annotation
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    NSLog(@"touches Began");
     if (drawing) {
         mouseSwiped = NO;
         UITouch *touch = [touches anyObject];

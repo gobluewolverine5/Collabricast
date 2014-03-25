@@ -40,7 +40,6 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
-    
     /* CONFIGURE CAST BUTTON */
     _connected_cast_btn = [UIImage imageNamed:@"icon-cast-connected.png"];
     _cast_btn = [UIImage imageNamed:@"icon-cast-identified.png"];
@@ -103,7 +102,7 @@
 #pragma mark - IBAction
 - (IBAction)toPictureCast:(id)sender
 {
-    [self performSegueWithIdentifier:@"toPictureCast" sender:Nil];
+    //[self performSegueWithIdentifier:@"toPictureCast" sender:Nil];
     
     /* Uncomment this to prevent segue without Chromecast connection
      

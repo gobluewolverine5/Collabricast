@@ -13,6 +13,7 @@
 #import "SettingsVC.h"
 #import "SettingsTableVC.h"
 #import "CBAlertView.h"
+#import "SWRevealViewController.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonHMAC.h>
 
@@ -65,6 +66,9 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    _menuButton.tintColor = [UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1];
+    _menuButton.target = self.revealViewController;
+    _menuButton.action = @selector(revealToggle:);
     
     ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
     imagePicker.maximumImagesCount = 20;

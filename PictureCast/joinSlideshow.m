@@ -9,6 +9,7 @@
 #import "joinSlideshow.h"
 #import "PeerSlideshow.h"
 #import "User.h"
+#import "SWRevealViewController.h"
 
 @interface joinSlideshow ()
 
@@ -38,6 +39,10 @@
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    _menuButton.tintColor = [UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1];
+    _menuButton.target = self.revealViewController;
+    _menuButton.action = @selector(revealToggle:);
+    
     _userArray = [[NSMutableArray alloc] init];
     
     static NSString * const XXServiceType = @"media-cast";
@@ -50,12 +55,14 @@
     
     loading_wheel = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     [loading_wheel removeFromSuperview];
-    
+   
+    /*
     NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:2
                                                       target:self
                                                     selector:@selector(printStatus)
                                                     userInfo:nil
                                                      repeats:YES];
+     */
 }
 
 - (void)printStatus

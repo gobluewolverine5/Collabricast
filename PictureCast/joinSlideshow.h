@@ -20,4 +20,6 @@
 @property (nonatomic, retain) NSMutableArray *userArray;
 @property (nonatomic, retain) MCSession *session;
 
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *menuButton;
+
 @end

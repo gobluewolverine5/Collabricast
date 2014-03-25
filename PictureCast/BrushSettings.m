@@ -39,6 +39,12 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
+    red     = 0.0 / 255.0;
+    green   = 0.0 / 255.0;
+    blue    = 0.0 / 255.0;
+    insideBrush   = 3.0;
+    insideOpacity = 1.0;
+    color_mode    = 0;
     [brushSlider setValue:(insideBrush/10.0)];
     [self obtainColor:color_mode];
 }
@@ -84,11 +90,13 @@
         default:
             break;
     }
+    [delegate dissmissPop:insideOpacity B:insideBrush R:red Bl:blue Gr:green Color:color_mode];
 }
 
 
 - (IBAction)sizeChanged:(id)sender {
     insideBrush = 10.0 * [brushSlider value];
+    [delegate dissmissPop:insideOpacity B:insideBrush R:red Bl:blue Gr:green Color:color_mode];
 }
 
 -(void)obtainBrush:(CGFloat)brush

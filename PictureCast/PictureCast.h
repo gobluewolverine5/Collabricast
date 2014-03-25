@@ -45,6 +45,8 @@
 @property (strong, nonatomic) IBOutlet UIImageView *imageDrawingProgress;
 @property (strong, nonatomic) IBOutlet UIImageView *imageDrawing;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *drawModeButton;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *sidebarButton;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *menuButton;
 
 - (IBAction)castImage:(id)sender;
 - (IBAction)selectImage:(id)sender;
