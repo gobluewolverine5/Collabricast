@@ -7,8 +7,23 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <GoogleCast/GoogleCast.h>
 
-@interface Home : UIViewController
+@interface Home : UIViewController <
+    GCKDeviceManagerDelegate,
+    GCKDeviceScannerListener,
+    GCKMediaControlChannelDelegate,
+    UINavigationControllerDelegate,
+    UIActionSheetDelegate
+>
 
-@property (strong, nonatomic) IBOutlet UIBarButtonItem *menuButton;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *menuButton;
+/*
+@property (nonatomic, retain) GCKDeviceScanner *deviceScannerObject;
+@property (nonatomic, retain) GCKDeviceManager *deviceManagerObject;
+@property (nonatomic, retain) GCKDevice *selectedDevice;
+@property (nonatomic, retain) GCKMediaControlChannel *mediaControlChannel;
+ */
+@property (nonatomic, retain) UIButton *chromecastButton;
+
 @end

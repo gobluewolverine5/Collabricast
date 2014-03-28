@@ -18,7 +18,10 @@
 
 @end
 
-@implementation RearMenu
+@implementation RearMenu {
+    UIImage *_cast_btn;
+    UIImage *_connected_cast_btn;
+}
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -38,6 +41,29 @@
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    /* CONFIGURE CAST BUTTON */
+    _connected_cast_btn = [UIImage imageNamed:@"icon-cast-connected.png"];
+    _cast_btn = [UIImage imageNamed:@"icon-cast-identified.png"];
+    
+    _chromecastButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [_chromecastButton addTarget:self
+                          action:@selector(chooseDevice:)
+                forControlEvents:UIControlEventTouchDown];
+    _chromecastButton.frame = CGRectMake(0, 0, _cast_btn.size.width, _cast_btn.size.height);
+    [_chromecastButton setImage:nil forState:UIControlStateNormal];
+    _chromecastButton.hidden = YES;
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_chromecastButton];
+    
+    /* SCANNING FOR DEVICES */
+    _deviceScannerObject = [[GCKDeviceScanner alloc] init];
+    [_deviceScannerObject addListener:self];
+    [_deviceScannerObject startScan];
+    
+    for (GCKDevice *device in _deviceScannerObject.devices) {
+        NSLog(@"Device: %@", [device friendlyName]);
+    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -50,17 +76,6 @@
 {
     
     // configure the destination view controller:
-    /*
-    if ( [segue.destinationViewController isKindOfClass: [ColorViewController class]] &&
-        [sender isKindOfClass:[UITableViewCell class]] )
-    {
-        UILabel* c = [(SWUITableViewCell *)sender label];
-        ColorViewController* cvc = segue.destinationViewController;
-        
-        cvc.color = c.textColor;
-        cvc.text = c.text;
-    }
-     */
 
     // configure the segue.
     if ( [segue isKindOfClass: [SWRevealViewControllerSegue class]] )
@@ -77,8 +92,11 @@
             
             UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Storyboard" bundle:nil];
             UINavigationController *sbnc = [storyboard instantiateViewControllerWithIdentifier:@"mainNav"];
+            svc = nil;
             [sbnc popToRootViewControllerAnimated:NO];
-            [sbnc pushViewController:dvc animated:YES];
+            UIViewController *temp = sbnc.topViewController;
+            [sbnc setViewControllers:@[dvc] animated:YES];
+            temp = nil;
             //UINavigationController* nc = [[UINavigationController alloc] initWithRootViewController:dvc];
             //nc.navigationBar.barTintColor   = [UIColor colorWithRed:35.0/255.0 green:54.0/255.0 blue:69.0/255.0 alpha:1];
             [sbnc.navigationBar setTintColor:[UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1]];
@@ -185,5 +203,184 @@
     // Pass the selected object to the new view controller.
 }
 */
+
+/*################## CHOMECAST CODE ######################*/
+
+#pragma mark - GCKDeviceScannerListner
+- (void)deviceDidComeOnline:(GCKDevice *)device
+{
+    NSLog(@"Device Found: %@", [device friendlyName]);
+    [self updateButtonStates];
+}
+
+- (void)deviceDidGoOffline:(GCKDevice *)device
+{
+    NSLog(@"Device Went Offline");
+    [self updateButtonStates];
+}
+
+#pragma mark - GCKDeviceManagerDelegate
+- (void)deviceManagerDidConnect:(GCKDeviceManager *)deviceManager {
+    NSLog(@"connected!!");
+    
+    [self updateButtonStates];
+    [self.deviceManagerObject launchApplication:@"549D1581"];
+}
+
+- (void)deviceManager:(GCKDeviceManager *)deviceManager
+didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
+            sessionID:(NSString *)sessionID
+  launchedApplication:(BOOL)launchedApp {
+    
+    _mediaControlChannel = [[GCKMediaControlChannel alloc] init];
+    _mediaControlChannel.delegate = self;
+    _session_id = sessionID;
+    [deviceManager addChannel:_mediaControlChannel];
+}
+
+- (void)deviceManager:(GCKDeviceManager *)deviceManager didDisconnectWithError:(GCKError *)error {
+    NSLog(@"Received notification that device disconnected");
+    
+    if (error != nil) {
+        [self showError:error];
+    }
+    
+}
+
+- (void)deviceManager:(GCKDeviceManager *)deviceManager
+    didFailToLaunchCastApplicationWithError:(NSError *)error {
+  [self showError:error];
+
+}
+
+- (void)deviceManager:(GCKDeviceManager *)deviceManager
+    didFailToConnectWithError:(GCKError *)error {
+  [self showError:error];
+
+}
+
+#pragma mark - misc
+- (void)showError:(NSError *)error {
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error", nil)
+                                                    message:NSLocalizedString(error.description, nil)
+                                                   delegate:nil
+                                          cancelButtonTitle:NSLocalizedString(@"OK", nil)
+                                          otherButtonTitles:nil];
+    [alert show];
+}
+
+#pragma mark UIActionSheetDelegate
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (_selectedDevice == nil) {
+        if (buttonIndex < self.deviceScannerObject.devices.count) {
+            _selectedDevice = self.deviceScannerObject.devices[buttonIndex];
+            NSLog(@"Selecting device:%@", _selectedDevice.friendlyName);
+            [self connectToDevice];
+        }
+    } else {
+        if (buttonIndex == 0) {  //Disconnect button
+            NSLog(@"Disconnecting device:%@", _selectedDevice.friendlyName);
+            // New way of doing things: We're not going to stop the applicaton. We're just going
+            // to leave it.
+            [self.deviceManagerObject leaveApplication];
+            // If you want to force application to stop, uncomment below
+            [self.deviceManagerObject stopApplicationWithSessionID:_session_id];
+            [self.deviceManagerObject disconnect];
+            
+            [self deviceDisconnected];
+            [self updateButtonStates];
+            
+        } else if (buttonIndex == 0) {
+            // Join the existing session.
+            
+        }
+    }
+}
+
+#pragma mark - GCK Custom Functions
+- (void)connectToDevice {
+    if (_selectedDevice == nil)
+        return;
+    
+    NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
+    self.deviceManagerObject =
+    [[GCKDeviceManager alloc] initWithDevice:_selectedDevice
+                           clientPackageName:[info objectForKey:@"CFBundleIdentifier"]];
+    
+    NSLog(@"bunde id: %@", [info objectForKey:@"CFBundleIdentifier"]);
+    self.deviceManagerObject.delegate = self;
+    [self.deviceManagerObject connect];
+}
+
+- (void)deviceDisconnected {
+  _deviceManagerObject  = nil;
+  _selectedDevice       = nil;
+  NSLog(@"Device disconnected");
+}
+
+- (void)updateButtonStates {
+  if (self.deviceScannerObject.devices.count == 0) {
+    //Hide the cast button
+    [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
+    _chromecastButton.hidden = YES;
+  } else {
+    if (self.deviceManagerObject && self.deviceManagerObject.isConnected) {
+      //Enabled state for cast button
+      [_chromecastButton setImage:_connected_cast_btn forState:UIControlStateNormal];
+      [_chromecastButton setTintColor:[UIColor blueColor]];
+      _chromecastButton.hidden = NO;
+    } else {
+      //Disabled state for cast button
+      [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
+      [_chromecastButton setTintColor:[UIColor grayColor]];
+      _chromecastButton.hidden = NO;
+    }
+  }
+
+}
+
+- (void)chooseDevice:(id)sender {
+    //Choose device
+    if (_selectedDevice == nil) {
+        //Device Selection List
+        UIActionSheet *sheet =
+        [[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"Connect to Device", nil)
+                                    delegate:self
+                           cancelButtonTitle:nil
+                      destructiveButtonTitle:nil
+                           otherButtonTitles:nil];
+        
+        for (GCKDevice *device in self.deviceScannerObject.devices) {
+            [sheet addButtonWithTitle:device.friendlyName];
+        }
+        
+        [sheet addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+        sheet.cancelButtonIndex = sheet.numberOfButtons - 1;
+        
+        [sheet showInView:_chromecastButton];
+    } else {
+        //Already connected information
+        NSString *str = [NSString stringWithFormat:NSLocalizedString(@"Casting to %@", nil),
+                         _selectedDevice.friendlyName];
+        //NSString *mediaTitle = [mediaInformation.metadata stringForKey:kGCKMetadataKeyTitle];
+        
+        UIActionSheet *sheet = [[UIActionSheet alloc] init];
+        sheet.title = str;
+        sheet.delegate = self;
+        /*
+        if (mediaTitle != nil) {
+            [sheet addButtonWithTitle:mediaTitle];
+        }
+         */
+        [sheet addButtonWithTitle:@"Disconnect"];
+        [sheet addButtonWithTitle:@"Cancel"];
+        //sheet.destructiveButtonIndex = (mediaTitle != nil ? 1 : 0);
+        //sheet.cancelButtonIndex = (mediaTitle != nil ? 2 : 1);
+        
+        [sheet showInView:_chromecastButton];
+    }
+}
+
+/*############# END OF CHROMECAST CODE #################*/
 
 @end

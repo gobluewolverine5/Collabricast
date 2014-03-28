@@ -8,6 +8,8 @@
 
 #import "PlaySlideshow.h"
 #import "AppDelegate.h"
+#import "RearMenu.h"
+#import "SWRevealViewController.h"
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 
@@ -23,6 +25,7 @@
     NSTimeInterval *time_interval;
     int index;
     BOOL playing;
+    RearMenu *rearMenu;
 }
 
 @synthesize deviceManagerObject;
@@ -53,13 +56,14 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     
     playing = TRUE;
     UIColor *lightblue = [UIColor colorWithRed:0 green:222 blue:242 alpha:1];
     playButton.tintColor = lightblue;
-    pauseButton.tintColor = [UIColor lightGrayColor];
-    previousButton.tintColor = [UIColor lightGrayColor];
-    nextButton.tintColor = [UIColor lightGrayColor];
+    pauseButton.tintColor = [UIColor whiteColor];
+    previousButton.tintColor = [UIColor whiteColor];
+    nextButton.tintColor = [UIColor whiteColor];
     imagePreview.contentMode = UIViewContentModeScaleAspectFit;
     
     /* CONFIGURE CAST BUTTON */
@@ -87,7 +91,16 @@
     
     index = [images count] - 1;
     [self advancePicture:YES];
+    [self.navigationController.navigationBar setTranslucent:NO];
+    [self.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
     
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    rearMenu.deviceManagerObject.delegate = self;
+    rearMenu.mediaControlChannel.delegate = self;
+    [rearMenu.deviceScannerObject addListener:self];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -117,7 +130,7 @@
     if (!playing) {
         UIColor *lightblue = [UIColor colorWithRed:0 green:222 blue:242 alpha:1];
         playButton.tintColor = lightblue;
-        pauseButton.tintColor = [UIColor lightGrayColor];
+        pauseButton.tintColor = [UIColor whiteColor];
         playing = !playing;
         [self startTimer];
     }
@@ -126,7 +139,7 @@
 - (IBAction)pauseSlideshow:(id)sender {
     if (playButton) {
         UIColor *lightblue = [UIColor colorWithRed:0 green:222 blue:242 alpha:1];
-        playButton.tintColor = [UIColor lightGrayColor];
+        playButton.tintColor = [UIColor whiteColor];
         pauseButton.tintColor = lightblue;
         playing = !playing;
         [self stopTimer];
@@ -143,10 +156,12 @@
         index = (index - 1) % [images count];
     }
     NSLog(@"index: %i", index);
+    /*
     AppDelegate *app_delegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     NSString *saveDirectory = [NSString stringWithFormat:@"%@/%@", [app_delegate cacheURL], [images objectAtIndex:index]];
     NSData *data = [[NSFileManager defaultManager] contentsAtPath:saveDirectory];
-    imagePreview.image  = [UIImage imageWithCGImage:[UIImage imageWithData:data].CGImage
+     */
+    imagePreview.image  = [UIImage imageWithCGImage:((UIImage*)[_image_files objectAtIndex:index]).CGImage
                                               scale:1.0f
                                         orientation:UIImageOrientationUp];
     GCKMediaMetadata *metadata = [[GCKMediaMetadata alloc]init];
@@ -165,7 +180,7 @@
                                                                                   metadata:metadata
                                                                             streamDuration:123
                                                                                 customData:nil];
-    if ([mediaControlChannel loadMedia:mediaInformation
+    if ([rearMenu.mediaControlChannel loadMedia:mediaInformation
                               autoplay:YES playPosition:0] == kGCKInvalidRequestID) {
         NSLog(@"error loading media");
     }
@@ -264,7 +279,7 @@
     NSLog(@"connected!!");
     
     [self updateButtonStates];
-    [self.deviceManagerObject launchApplication:@"549D1581"];
+    [rearMenu.deviceManagerObject launchApplication:@"549D1581"];
 }
 
 - (void)deviceManager:(GCKDeviceManager *)deviceManager
@@ -272,10 +287,10 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
             sessionID:(NSString *)sessionID
   launchedApplication:(BOOL)launchedApp {
     
-    mediaControlChannel = [[GCKMediaControlChannel alloc] init];
-    mediaControlChannel.delegate = self;
-    session_id = sessionID;
-    [deviceManager addChannel:mediaControlChannel];
+    rearMenu.mediaControlChannel = [[GCKMediaControlChannel alloc] init];
+    rearMenu.mediaControlChannel.delegate = self;
+    rearMenu.session_id = sessionID;
+    [deviceManager addChannel:rearMenu.mediaControlChannel];
 }
 
 - (void)deviceManager:(GCKDeviceManager *)deviceManager didDisconnectWithError:(GCKError *)error {
@@ -311,21 +326,21 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 #pragma mark UIActionSheetDelegate
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (selectedDevice == nil) {
-        if (buttonIndex < self.deviceScannerObject.devices.count) {
-            selectedDevice = self.deviceScannerObject.devices[buttonIndex];
-            NSLog(@"Selecting device:%@", selectedDevice.friendlyName);
+    if (rearMenu.selectedDevice == nil) {
+        if (buttonIndex < rearMenu.deviceScannerObject.devices.count) {
+            rearMenu.selectedDevice = rearMenu.deviceScannerObject.devices[buttonIndex];
+            NSLog(@"Selecting device:%@", rearMenu.selectedDevice.friendlyName);
             [self connectToDevice];
         }
     } else {
         if (buttonIndex == 0) {  //Disconnect button
-            NSLog(@"Disconnecting device:%@", selectedDevice.friendlyName);
+            NSLog(@"Disconnecting device:%@", rearMenu.selectedDevice.friendlyName);
             // New way of doing things: We're not going to stop the applicaton. We're just going
             // to leave it.
-            [self.deviceManagerObject leaveApplication];
+            [rearMenu.deviceManagerObject leaveApplication];
             // If you want to force application to stop, uncomment below
-            [self.deviceManagerObject stopApplicationWithSessionID:session_id];
-            [self.deviceManagerObject disconnect];
+            [rearMenu.deviceManagerObject stopApplicationWithSessionID:rearMenu.session_id];
+            [rearMenu.deviceManagerObject disconnect];
             
             [self deviceDisconnected];
             [self updateButtonStates];
@@ -339,35 +354,35 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 #pragma mark - GCK Custom Functions
 - (void)connectToDevice {
-    if (selectedDevice == nil)
+    if (rearMenu.selectedDevice == nil)
         return;
     
     NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
-    self.deviceManagerObject =
-    [[GCKDeviceManager alloc] initWithDevice:selectedDevice
+    rearMenu.deviceManagerObject =
+    [[GCKDeviceManager alloc] initWithDevice:rearMenu.selectedDevice
                            clientPackageName:[info objectForKey:@"CFBundleIdentifier"]];
     
     NSLog(@"bunde id: %@", [info objectForKey:@"CFBundleIdentifier"]);
-    self.deviceManagerObject.delegate = self;
-    [self.deviceManagerObject connect];
+    rearMenu.deviceManagerObject.delegate = self;
+    [rearMenu.deviceManagerObject connect];
 }
 
 - (void)deviceDisconnected {
-  deviceManagerObject = nil;
-  selectedDevice = nil;
+  rearMenu.deviceManagerObject  = nil;
+  rearMenu.selectedDevice       = nil;
   NSLog(@"Device disconnected");
 }
 
 - (void)updateButtonStates {
-  if (self.deviceScannerObject.devices.count == 0) {
+  if (rearMenu.deviceScannerObject.devices.count == 0) {
     //Hide the cast button
     [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
     _chromecastButton.hidden = YES;
   } else {
-    if (self.deviceManagerObject && self.deviceManagerObject.isConnected) {
+    if (rearMenu.deviceManagerObject && rearMenu.deviceManagerObject.isConnected) {
       //Enabled state for cast button
       [_chromecastButton setImage:_connected_cast_btn forState:UIControlStateNormal];
-      [_chromecastButton setTintColor:[UIColor blueColor]];
+      [_chromecastButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1]];
       _chromecastButton.hidden = NO;
     } else {
       //Disabled state for cast button
@@ -381,7 +396,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 - (void)chooseDevice:(id)sender {
     //Choose device
-    if (selectedDevice == nil) {
+    if (rearMenu.selectedDevice == nil) {
         //Device Selection List
         UIActionSheet *sheet =
         [[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"Connect to Device", nil)
@@ -390,7 +405,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
                       destructiveButtonTitle:nil
                            otherButtonTitles:nil];
         
-        for (GCKDevice *device in self.deviceScannerObject.devices) {
+        for (GCKDevice *device in rearMenu.deviceScannerObject.devices) {
             [sheet addButtonWithTitle:device.friendlyName];
         }
         
@@ -401,7 +416,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     } else {
         //Already connected information
         NSString *str = [NSString stringWithFormat:NSLocalizedString(@"Casting to %@", nil),
-                         selectedDevice.friendlyName];
+                         rearMenu.selectedDevice.friendlyName];
         //NSString *mediaTitle = [mediaInformation.metadata stringForKey:kGCKMetadataKeyTitle];
         
         UIActionSheet *sheet = [[UIActionSheet alloc] init];

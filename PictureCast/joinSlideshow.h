@@ -17,7 +17,7 @@
 
 @property (nonatomic, retain) MCNearbyServiceBrowser *browser;
 @property (nonatomic, retain) MCPeerID *localPeerID;
-@property (nonatomic, retain) NSMutableArray *userArray;
+@property (nonatomic, retain) NSMutableSet *userArray;
 @property (nonatomic, retain) MCSession *session;
 
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *menuButton;

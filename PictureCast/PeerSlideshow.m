@@ -36,7 +36,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    [_peerDeviceLabel setText:_remotePeerID.displayName];
+    [_peerDeviceLabel setText:@"NOT CONNECTED"];
+    [_statusImg setImage:[UIImage imageNamed:@"OffIcon.png"]];
     
     image_files = [[NSMutableArray alloc] init];
     images      = [[NSMutableArray alloc] init];
@@ -45,8 +46,28 @@
     _imageTable.delegate    = self;
     _imageTable.dataSource  = self;
     
+    _localPeerID = [[MCPeerID alloc] initWithDisplayName:[[UIDevice currentDevice] name]];
+    _session     = [[MCSession alloc] initWithPeer:_localPeerID];
     _session.delegate = self;
     
+    static NSString * const XXServiceType = @"media-cast";
+    
+    _browser = [[MCNearbyServiceBrowser alloc] initWithPeer:_localPeerID
+                                                serviceType:XXServiceType];
+    MCBrowserViewController *mcb = [[MCBrowserViewController alloc] initWithBrowser:_browser
+                                                                            session:_session];
+    mcb.delegate = self;
+    [self presentViewController:mcb
+                       animated:YES
+                     completion:^{
+                         [_browser startBrowsingForPeers];
+                     }];
+    
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [pic_ops clearCache];
 }
 
 - (void)didReceiveMemoryWarning
@@ -66,6 +87,7 @@
 }
 */
 
+#pragma mark - IBAction
 - (IBAction)selectImage:(id)sender {
     ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
     imagePicker.maximumImagesCount      = 5;
@@ -74,10 +96,30 @@
     [self presentViewController:imagePicker animated:YES completion:Nil];
 }
 
+- (IBAction)endSession:(id)sender {
+    [_session disconnect];
+    [_peerDeviceLabel setText:@"NOT CONNECTED"];
+    [_statusImg setImage:[UIImage imageNamed:@"OffIcon.png"]];
+    
+}
+
+#pragma mark - MCNearbyBrowser Delegate
+-(void)browserViewControllerDidFinish:(MCBrowserViewController *)browserViewController
+{
+    [self dismissViewControllerAnimated:YES completion:Nil];
+}
+
+-(void)browserViewControllerWasCancelled:(MCBrowserViewController *)browserViewController
+{
+    [self dismissViewControllerAnimated:YES completion:Nil];
+}
+
+
+#pragma mark - ELCImage Picker Delegate
 - (void)elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info
 {
     [picker dismissViewControllerAnimated:YES completion:NULL];
-    if (info) {
+    if (info.count > 0) {
         for (int i = 0; i < [info count]; i++) {
             NSDictionary *infoDict = [info objectAtIndex:i];
             
@@ -172,17 +214,40 @@
 -(void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state
 {
     switch (state) {
-        case MCSessionStateNotConnected:
-            NSLog(@"Session::didChangeState: MCSessionStateNotConnect");
+        case MCSessionStateNotConnected: {
+            dispatch_queue_t backgroundQueue = dispatch_queue_create("peerslideshow.queue", 0);
+            
+            dispatch_async(backgroundQueue, ^{
+                NSLog(@"Session::didChangeState: MCSessionStateNotConnect");
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Session Ended"
+                                                                    message:[NSString stringWithFormat:@"%@ has disconnected", peerID.displayName]
+                                                                   delegate:self
+                                                          cancelButtonTitle:@"Ok"
+                                                          otherButtonTitles:nil];
+                    [alert show];
+                });
+            });
             break;
+        }
         case MCSessionStateConnecting:
             NSLog(@"Session::didChangeState: MCSessionStateConnecting");
             
             break;
-        case MCSessionStateConnected:
-            NSLog(@"Session::didChangeState: MCSessionStateConnected");
-            break;
+        case MCSessionStateConnected: {
+            dispatch_queue_t backgroundQueue = dispatch_queue_create("peerslideshow.queue", 0);
             
+            dispatch_async(backgroundQueue, ^{
+                NSLog(@"Session::didChangeState: MCSessionStateConnected");
+                _remotePeerID = peerID;
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [_peerDeviceLabel setText:peerID.displayName];
+                    [_statusImg setImage:[UIImage imageNamed:@"OnIcon.png"]];
+                });
+            });
+            break;
+        }
         default:
             NSLog(@"Session::didChangeState: default");
             break;

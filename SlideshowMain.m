@@ -10,9 +10,9 @@
 #import "pictureOps.h"
 #import "AppDelegate.h"
 #import "PlaySlideshow.h"
-#import "SettingsVC.h"
 #import "SettingsTableVC.h"
 #import "CBAlertView.h"
+#import "RearMenu.h"
 #import "SWRevealViewController.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonHMAC.h>
@@ -32,6 +32,7 @@
     NSMutableArray *images;
     NSMutableArray *image_files;
     int currentIndex;
+    RearMenu *rearMenu;
 }
 
 @synthesize duration;
@@ -66,7 +67,10 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
-    _menuButton.tintColor = [UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1];
+    rearMenu = (RearMenu *) self.revealViewController.rearViewController;
+    
+    //_menuButton.tintColor = [UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1];
+    _menuButton.tintColor = [UIColor whiteColor];
     _menuButton.target = self.revealViewController;
     _menuButton.action = @selector(revealToggle:);
     
@@ -77,7 +81,7 @@
 
     [self presentViewController:imagePicker animated:YES completion:Nil];
     
-    duration = 5;
+    duration = 10;
     imageQuality = 0.7;
     
     picture_ops = [[pictureOps alloc] init];
@@ -120,26 +124,42 @@
                               securityIdentity:nil
                           encryptionPreference:MCEncryptionNone];
     _session.delegate = self;
+    _peerHostLookup = [[NSMutableDictionary alloc] init];
     
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    rearMenu.deviceManagerObject.delegate = self;
+    rearMenu.mediaControlChannel.delegate = self;
+    [rearMenu.deviceScannerObject addListener:self];
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [advertiser stopAdvertisingPeer];
+    if ([picture_ops clearCache]) NSLog(@"Cleared Cache");
+}
+
+-(void)dealloc
+{
+    while ([image_files count] > 0) {
+        [image_files removeLastObject];
+    }
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     if ([segue.identifier isEqualToString:@"toPlaySlideshow"]) {
         PlaySlideshow *play_slideshow = (PlaySlideshow *) segue.destinationViewController;
-        play_slideshow.images = images;
-        play_slideshow.duration = duration;
+        play_slideshow.images       = images;
+        play_slideshow.image_files  = image_files;
+        play_slideshow.duration     = duration;
         play_slideshow.deviceScannerObject = deviceScannerObject;
         play_slideshow.deviceManagerObject = deviceManagerObject;
         play_slideshow.mediaControlChannel = mediaControlChannel;
         play_slideshow.selectedDevice = selectedDevice;
         play_slideshow.session_id = session_id;
-    }
-    else if ([segue.identifier isEqualToString:@"toSettings"]) {
-        SettingsVC *settings_vc = (SettingsVC *) segue.destinationViewController;
-        settings_vc.delegate = self;
-        settings_vc.imageQuality = imageQuality;
-        settings_vc.duration  = duration;
     }
     else if ([segue.identifier isEqualToString:@"toSettingsTableVC"]) {
         SettingsTableVC *settings_table = (SettingsTableVC *) segue.destinationViewController;
@@ -364,6 +384,7 @@
     NSLog(@"Canceled Image Picker");
 }
 
+
 /*################## CHOMECAST CODE ######################*/
 
 #pragma mark - GCKDeviceScannerListner
@@ -384,7 +405,7 @@
     NSLog(@"connected!!");
     
     [self updateButtonStates];
-    [self.deviceManagerObject launchApplication:@"549D1581"];
+    [rearMenu.deviceManagerObject launchApplication:@"549D1581"];
 }
 
 - (void)deviceManager:(GCKDeviceManager *)deviceManager
@@ -392,10 +413,10 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
             sessionID:(NSString *)sessionID
   launchedApplication:(BOOL)launchedApp {
     
-    mediaControlChannel = [[GCKMediaControlChannel alloc] init];
-    mediaControlChannel.delegate = self;
-    session_id = sessionID;
-    [deviceManager addChannel:mediaControlChannel];
+    rearMenu.mediaControlChannel = [[GCKMediaControlChannel alloc] init];
+    rearMenu.mediaControlChannel.delegate = self;
+    rearMenu.session_id = sessionID;
+    [deviceManager addChannel:rearMenu.mediaControlChannel];
 }
 
 - (void)deviceManager:(GCKDeviceManager *)deviceManager didDisconnectWithError:(GCKError *)error {
@@ -431,21 +452,21 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 #pragma mark UIActionSheetDelegate
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (selectedDevice == nil) {
-        if (buttonIndex < self.deviceScannerObject.devices.count) {
-            selectedDevice = self.deviceScannerObject.devices[buttonIndex];
-            NSLog(@"Selecting device:%@", selectedDevice.friendlyName);
+    if (rearMenu.selectedDevice == nil) {
+        if (buttonIndex < rearMenu.deviceScannerObject.devices.count) {
+            rearMenu.selectedDevice = rearMenu.deviceScannerObject.devices[buttonIndex];
+            NSLog(@"Selecting device:%@", rearMenu.selectedDevice.friendlyName);
             [self connectToDevice];
         }
     } else {
         if (buttonIndex == 0) {  //Disconnect button
-            NSLog(@"Disconnecting device:%@", selectedDevice.friendlyName);
+            NSLog(@"Disconnecting device:%@", rearMenu.selectedDevice.friendlyName);
             // New way of doing things: We're not going to stop the applicaton. We're just going
             // to leave it.
-            [self.deviceManagerObject leaveApplication];
+            [rearMenu.deviceManagerObject leaveApplication];
             // If you want to force application to stop, uncomment below
-            [self.deviceManagerObject stopApplicationWithSessionID:session_id];
-            [self.deviceManagerObject disconnect];
+            [rearMenu.deviceManagerObject stopApplicationWithSessionID:rearMenu.session_id];
+            [rearMenu.deviceManagerObject disconnect];
             
             [self deviceDisconnected];
             [self updateButtonStates];
@@ -459,35 +480,35 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 #pragma mark - GCK Custom Functions
 - (void)connectToDevice {
-    if (selectedDevice == nil)
+    if (rearMenu.selectedDevice == nil)
         return;
     
     NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
-    self.deviceManagerObject =
-    [[GCKDeviceManager alloc] initWithDevice:selectedDevice
+    rearMenu.deviceManagerObject =
+    [[GCKDeviceManager alloc] initWithDevice:rearMenu.selectedDevice
                            clientPackageName:[info objectForKey:@"CFBundleIdentifier"]];
     
     NSLog(@"bunde id: %@", [info objectForKey:@"CFBundleIdentifier"]);
-    self.deviceManagerObject.delegate = self;
-    [self.deviceManagerObject connect];
+    rearMenu.deviceManagerObject.delegate = self;
+    [rearMenu.deviceManagerObject connect];
 }
 
 - (void)deviceDisconnected {
-  deviceManagerObject = nil;
-  selectedDevice = nil;
+  rearMenu.deviceManagerObject  = nil;
+  rearMenu.selectedDevice       = nil;
   NSLog(@"Device disconnected");
 }
 
 - (void)updateButtonStates {
-  if (self.deviceScannerObject.devices.count == 0) {
+  if (rearMenu.deviceScannerObject.devices.count == 0) {
     //Hide the cast button
     [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
     _chromecastButton.hidden = YES;
   } else {
-    if (self.deviceManagerObject && self.deviceManagerObject.isConnected) {
+    if (rearMenu.deviceManagerObject && rearMenu.deviceManagerObject.isConnected) {
       //Enabled state for cast button
       [_chromecastButton setImage:_connected_cast_btn forState:UIControlStateNormal];
-      [_chromecastButton setTintColor:[UIColor blueColor]];
+      [_chromecastButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1]];
       _chromecastButton.hidden = NO;
     } else {
       //Disabled state for cast button
@@ -501,7 +522,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 - (void)chooseDevice:(id)sender {
     //Choose device
-    if (selectedDevice == nil) {
+    if (rearMenu.selectedDevice == nil) {
         //Device Selection List
         UIActionSheet *sheet =
         [[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"Connect to Device", nil)
@@ -510,7 +531,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
                       destructiveButtonTitle:nil
                            otherButtonTitles:nil];
         
-        for (GCKDevice *device in self.deviceScannerObject.devices) {
+        for (GCKDevice *device in rearMenu.deviceScannerObject.devices) {
             [sheet addButtonWithTitle:device.friendlyName];
         }
         
@@ -521,7 +542,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     } else {
         //Already connected information
         NSString *str = [NSString stringWithFormat:NSLocalizedString(@"Casting to %@", nil),
-                         selectedDevice.friendlyName];
+                         rearMenu.selectedDevice.friendlyName];
         //NSString *mediaTitle = [mediaInformation.metadata stringForKey:kGCKMetadataKeyTitle];
         
         UIActionSheet *sheet = [[UIActionSheet alloc] init];
@@ -542,7 +563,6 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 }
 
 /*############# END OF CHROMECAST CODE #################*/
-
 #pragma mark - MCNearbyServiceAdvertiserDelegate
 
 - (void) advertiser:(MCNearbyServiceAdvertiser *)advertiser
@@ -606,12 +626,13 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     NSLog(@"Session::didReceiveData");
     NSString *message   = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSURL *url          = [NSURL URLWithString:message];
+    _peerHostLookup[peerID.displayName] = [url host];
     dispatch_async(dispatch_get_global_queue(0, 0), ^ {
         NSData * imageData  = [[NSData alloc] initWithContentsOfURL:url];
         if (imageData) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [image_files addObject:[UIImage imageWithData:UIImageJPEGRepresentation([UIImage imageWithData:imageData],0.1)]];
-                [images addObject:url];
+                [images addObject:[url absoluteString]];
                 [self refreshSlideshowQueuePreview];
             });
         }
@@ -641,9 +662,33 @@ didFinishReceivingResourceWithName:(NSString *)resourceName
 -(void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state
 {
     switch (state) {
-        case MCSessionStateNotConnected:
-            NSLog(@"Session::didChangeState: MCSessionStateNotConnect");
+        case MCSessionStateNotConnected: {
+            
+            dispatch_queue_t backgroundQueue = dispatch_queue_create("slideshowmain.queue", 0);
+            
+            dispatch_async(backgroundQueue, ^{
+                NSLog(@"Session::didChangeState: MCSessionStateNotConnect");
+                NSString *hostString = _peerHostLookup[peerID.displayName];
+                for (int i = images.count-1; i >= 0; i--) {
+                    NSURL *tempUrl = [NSURL URLWithString:[images objectAtIndex:i]];
+                    if ([[tempUrl host] isEqualToString:hostString]) {
+                        [images removeObjectAtIndex:i];
+                        [image_files removeObjectAtIndex:i];
+                    }
+                }
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self refreshSlideshowQueuePreview];
+                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Peer"
+                                                                    message:[NSString stringWithFormat:@"%@ has left the session",peerID.displayName]
+                                                                   delegate:self
+                                                          cancelButtonTitle:@"OK"
+                                                          otherButtonTitles: nil];
+                    [alert show];
+                });
+            });
             break;
+        }
         case MCSessionStateConnecting:
             NSLog(@"Session::didChangeState: MCSessionStateConnecting");
             break;

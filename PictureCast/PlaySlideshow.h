@@ -26,6 +26,7 @@
 @property (nonatomic, retain) UIButton *chromecastButton;
 
 @property (nonatomic, retain) NSMutableArray *images;
+@property (nonatomic, retain) NSMutableArray *image_files;
 @property (nonatomic) int duration;
 
 @property (strong, nonatomic) IBOutlet UIImageView *imagePreview;

@@ -15,17 +15,22 @@
     MCSessionDelegate,
     ELCImagePickerControllerDelegate,
     UITableViewDataSource,
-    UITableViewDelegate
+    UITableViewDelegate,
+    MCNearbyServiceBrowserDelegate,
+    MCBrowserViewControllerDelegate
 >
 
 @property (strong, nonatomic) IBOutlet UILabel *peerDeviceLabel;
 @property (strong, nonatomic) IBOutlet UITableView *imageTable;
+@property (strong, nonatomic) IBOutlet UIImageView *statusImg;
 
 
+@property (nonatomic, retain) MCNearbyServiceBrowser *browser;
 @property (nonatomic, retain) MCPeerID *localPeerID;
 @property (nonatomic, retain) MCPeerID *remotePeerID;
 @property (nonatomic, retain) MCSession *session;
 
 - (IBAction)selectImage:(id)sender;
+- (IBAction)endSession:(id)sender;
 
 @end

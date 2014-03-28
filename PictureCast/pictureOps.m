@@ -110,10 +110,10 @@
 - (BOOL) clearCache
 {
     BOOL allDeleted = TRUE;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    AppDelegate *app_delegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
-    NSString *saveDirectory = [app_delegate cacheURL];
-    NSArray *cacheFiles = [fileManager contentsOfDirectoryAtPath:saveDirectory error:nil];
+    NSFileManager *fileManager  = [NSFileManager defaultManager];
+    AppDelegate *app_delegate   = (AppDelegate *) [[UIApplication sharedApplication] delegate];
+    NSString *saveDirectory     = [app_delegate cacheURL];
+    NSArray *cacheFiles         = [fileManager contentsOfDirectoryAtPath:saveDirectory error:nil];
     for (NSString *file in cacheFiles) {
         if ([file rangeOfString:@"mediacast"].location != NSNotFound) {
             NSLog(@"images being deleted: %@", file);
@@ -124,6 +124,7 @@
             }
         }
     }
+    
     return allDeleted;
 }
 

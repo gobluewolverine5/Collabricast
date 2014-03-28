@@ -7,10 +7,25 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <GoogleCast/GoogleCast.h>
 
 @interface customCell : UITableViewCell
 @property (nonatomic) IBOutlet UILabel *label;
 @end
-@interface RearMenu : UITableViewController
+
+@interface RearMenu : UITableViewController <
+    GCKDeviceManagerDelegate,
+    GCKDeviceScannerListener,
+    GCKMediaControlChannelDelegate,
+    UINavigationControllerDelegate,
+    UIActionSheetDelegate
+>
+
+@property (nonatomic, retain) GCKDeviceScanner *deviceScannerObject;
+@property (nonatomic, retain) GCKDeviceManager *deviceManagerObject;
+@property (nonatomic, retain) GCKDevice *selectedDevice;
+@property (nonatomic, retain) GCKMediaControlChannel *mediaControlChannel;
+@property (nonatomic, retain) NSString *session_id;
+@property (nonatomic, retain) UIButton *chromecastButton;
 
 @end

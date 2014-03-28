@@ -43,7 +43,7 @@
     _menuButton.target = self.revealViewController;
     _menuButton.action = @selector(revealToggle:);
     
-    _userArray = [[NSMutableArray alloc] init];
+    _userArray = [[NSMutableSet alloc] init];
     
     static NSString * const XXServiceType = @"media-cast";
     _localPeerID = [[MCPeerID alloc] initWithDisplayName:[[UIDevice currentDevice] name]];
@@ -103,12 +103,11 @@
 -(void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID
 {
     NSLog(@"Lost Peer: %@", peerID.displayName);
-    for (int i=0; i<[_userArray count]; i++) {
-        if ([[[_userArray objectAtIndex:i] name] isEqualToString:peerID.displayName]) {
-            [_userArray removeObjectAtIndex:i];
-            break;
-        }
-    }
+    NSPredicate *predicate	= [NSPredicate predicateWithFormat:@"peerID != %@", peerID];
+	NSSet *cleanedSet		= [_userArray filteredSetUsingPredicate:predicate];
+    
+	_userArray				= [cleanedSet mutableCopy];
+    
     [self.tableView reloadData];
 }
 
@@ -168,6 +167,7 @@
             [loading_wheel removeFromSuperview];
             self.view.userInteractionEnabled = YES;
             [self performSegueWithIdentifier:@"toPeerSlideshow" sender:Nil];
+            NSLog(@"performSegue called");
             break;
             
         default:
@@ -177,6 +177,13 @@
 }
 
 #pragma mark - Table view data source
+- (NSArray *)sortedUsers
+{
+	NSSortDescriptor *descriptor	= [NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES];
+	NSArray *results				= [[_userArray allObjects] sortedArrayUsingDescriptors:@[descriptor]];
+    
+	return results;
+}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -187,16 +194,21 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return [_userArray count];
+    return [[self sortedUsers] count];
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-
-    [self.browser invitePeer:selectedPeerID toSession:_session withContext:Nil timeout:20];
-    loading_wheel.frame = CGRectMake(0, 0, 50, 50);
-    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-    cell.accessoryView = loading_wheel;
+    User *user      = [[self sortedUsers] objectAtIndex:indexPath.row];
+    selectedPeerID  = [user peerID];
+    [self.browser invitePeer:[user peerID]
+                   toSession:_session
+                 withContext:Nil
+                     timeout:20];
+    
+    loading_wheel.frame     = CGRectMake(0, 0, 50, 50);
+    UITableViewCell *cell   = [self.tableView cellForRowAtIndexPath:indexPath];
+    cell.accessoryView      = loading_wheel;
     [loading_wheel startAnimating];
     self.view.userInteractionEnabled = NO;
     _session.delegate = self;
@@ -213,10 +225,8 @@
     }
     
     // Configure the cell...
-    User *user = [_userArray objectAtIndex:indexPath.row];
+    User *user = [[self sortedUsers] objectAtIndex:indexPath.row];
     cell.textLabel.text = user.name;
-    
-    selectedPeerID = user.peerID;
     
     return cell;
 }

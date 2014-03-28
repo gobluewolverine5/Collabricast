@@ -15,6 +15,7 @@
     if (self ==  [super init]) {
         _peerID     = peerID;
         _identifier = identifier;
+        _name       = peerID.displayName;
     }
     return self;
 }

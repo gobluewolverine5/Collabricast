@@ -13,6 +13,7 @@
 
 @property (nonatomic, retain) NSString *identifier;
 @property (nonatomic, retain) MCPeerID *peerID;
+@property (nonatomic, retain) NSString *name;
 
 - (id) initWithPeerID:(MCPeerID *)peerID identifier:(NSString *)identifier;
 - (NSString *) name;

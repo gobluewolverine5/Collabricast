@@ -45,9 +45,11 @@
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
-    durationIndicator.text = [NSString stringWithFormat:@"%i", duration];
-    durationStepper.value = (double) duration;
-    qualitySlider.value = imageQuality;
+    durationIndicator.text  = [NSString stringWithFormat:@"%i", duration];
+    durationStepper.value   = (double) duration;
+    qualitySlider.value     = imageQuality;
+    [self.navigationController.navigationBar setTranslucent:NO];
+    [self.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
 }
 
 - (void)didReceiveMemoryWarning
@@ -83,10 +85,23 @@
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
     if (section == 0) {
-        return @"Slideshow Duration";
+        return @"SLIDESHOW DURATION";
     } else {
-        return @"Image Quality";
+        return @"IMAGE QUALITY";
     }
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    CGFloat dist = (section == 0) ? 20.0 : 5.0;
+    UIView *headerView  = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.bounds.size.width, 30)];
+    UILabel *label      = [[UILabel alloc] initWithFrame:CGRectMake(10, dist, tableView.bounds.size.width - 10, 18)];
+    label.text              = (section == 0) ? @"SLIDESHOW DURATION" : @"IMAGE QUALITY";
+    label.textColor         = [UIColor whiteColor];
+    label.backgroundColor   = [UIColor clearColor];
+    [headerView addSubview:label];
+    
+    return headerView;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -106,11 +121,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {  
-    static NSString *CellIdOne = @"CellOne";
-    static NSString *CellIdTwo = @"CellTwo";
     UITableViewCell *cell;
-    NSLog(@"Hi");
-    
     if (indexPath.section == 0) {
         cell = cellOne;
     }

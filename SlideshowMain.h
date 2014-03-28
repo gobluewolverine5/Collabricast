@@ -13,7 +13,6 @@
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 #import "ELCImagePickerController.h"
 #import "ELCAlbumPickerController.h"
-#import "SettingsVC.h"
 
 @interface SlideshowMain : UIViewController
 <
@@ -25,7 +24,6 @@
     ELCImagePickerControllerDelegate,
     UINavigationControllerDelegate,
     UIScrollViewDelegate,
-    sendSettings,
     MFMailComposeViewControllerDelegate,
     MCNearbyServiceAdvertiserDelegate,
     MCSessionDelegate,
@@ -35,12 +33,12 @@
 @property (nonatomic) int duration;
 @property (nonatomic) CGFloat imageQuality;
 
-@property (nonatomic, retain) GCKDeviceScanner *deviceScannerObject;
-@property (nonatomic, retain) GCKDeviceManager *deviceManagerObject;
-@property (nonatomic, retain) GCKDevice *selectedDevice;
-@property (nonatomic, retain) GCKMediaControlChannel *mediaControlChannel;
-@property (nonatomic, retain) NSString *session_id;
-@property (nonatomic, retain) UIButton *chromecastButton;
+@property (nonatomic, assign) GCKDeviceScanner *deviceScannerObject;
+@property (nonatomic, assign) GCKDeviceManager *deviceManagerObject;
+@property (nonatomic, assign) GCKDevice *selectedDevice;
+@property (nonatomic, assign) GCKMediaControlChannel *mediaControlChannel;
+@property (nonatomic, assign) NSString *session_id;
+@property (nonatomic, assign) UIButton *chromecastButton;
 
 @property (strong, nonatomic) IBOutlet UIImageView *middleImage;
 @property (strong, nonatomic) IBOutlet UIImageView *rightImage;
@@ -50,8 +48,9 @@
 @property (strong, nonatomic) MCNearbyServiceAdvertiser *advertiser;
 @property (strong, nonatomic) MCPeerID *localPeerID;
 @property (strong, nonatomic) MCSession *session;
+@property (nonatomic) NSMutableDictionary *peerHostLookup;
 
-@property (strong, nonatomic) IBOutlet UIBarButtonItem *menuButton;
+@property (assign, nonatomic) IBOutlet UIBarButtonItem *menuButton;
 
 - (IBAction)addImages:(id)sender;
 - (IBAction)toSettings:(id)sender;
