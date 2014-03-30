@@ -17,7 +17,6 @@
 @implementation Home {
     UIImage *_cast_btn;
     UIImage *_connected_cast_btn;
-    RearMenu *rearMenu;
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -33,7 +32,6 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     //_menuButton.tintColor = [UIColor colorWithRed:199.0/255.0 green:244.0/255.0 blue:100.0/255.0 alpha:1];
     _menuButton.tintColor = [UIColor whiteColor];
     _menuButton.target = self.revealViewController;
@@ -58,6 +56,7 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     NSLog(@"Main Menu Appeared");
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     rearMenu.deviceManagerObject.delegate = self;
     [rearMenu.deviceScannerObject addListener:self];
     if (!(rearMenu.deviceManagerObject && rearMenu.deviceManagerObject.isConnected)) {
@@ -70,6 +69,17 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
+    [rearMenu.deviceScannerObject removeListener:self];
+}
+-(void)dealloc
+{
+    NSLog(@"goodbyte");
 }
 
 /*################## CHOMECAST CODE ######################*/
@@ -92,6 +102,7 @@
     NSLog(@"connected!!");
     
     [self updateButtonStates];
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     [rearMenu.deviceManagerObject launchApplication:@"549D1581"];
 }
 
@@ -100,6 +111,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
             sessionID:(NSString *)sessionID
   launchedApplication:(BOOL)launchedApp {
     
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     rearMenu.mediaControlChannel = [[GCKMediaControlChannel alloc] init];
     rearMenu.mediaControlChannel.delegate = self;
     rearMenu.session_id = sessionID;
@@ -139,6 +151,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 #pragma mark UIActionSheetDelegate
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     if (rearMenu.selectedDevice == nil) {
         if (buttonIndex < rearMenu.deviceScannerObject.devices.count) {
             rearMenu.selectedDevice = rearMenu.deviceScannerObject.devices[buttonIndex];
@@ -167,6 +180,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 #pragma mark - GCK Custom Functions
 - (void)connectToDevice {
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     if (rearMenu.selectedDevice == nil)
         return;
     
@@ -181,12 +195,14 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 }
 
 - (void)deviceDisconnected {
-  rearMenu.deviceManagerObject  = nil;
-  rearMenu.selectedDevice       = nil;
-  NSLog(@"Device disconnected");
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
+    rearMenu.deviceManagerObject  = nil;
+    rearMenu.selectedDevice       = nil;
+    NSLog(@"Device disconnected");
 }
 
 - (void)updateButtonStates {
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
   if (rearMenu.deviceScannerObject.devices.count == 0) {
     //Hide the cast button
     [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
@@ -209,6 +225,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 - (void)chooseDevice:(id)sender {
     //Choose device
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     if (rearMenu.selectedDevice == nil) {
         //Device Selection List
         UIActionSheet *sheet =

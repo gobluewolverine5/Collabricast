@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <GoogleCast/GoogleCast.h>
+#import <MultipeerConnectivity/MultipeerConnectivity.h>
 
 @interface PlaySlideshow : UIViewController
 <
@@ -15,7 +16,8 @@
     GCKDeviceScannerListener,
     GCKMediaControlChannelDelegate,
     UINavigationControllerDelegate,
-    UIActionSheetDelegate
+    UIActionSheetDelegate,
+    MCSessionDelegate
 >
 
 @property (nonatomic, retain) GCKDeviceScanner *deviceScannerObject;
@@ -28,6 +30,10 @@
 @property (nonatomic, retain) NSMutableArray *images;
 @property (nonatomic, retain) NSMutableArray *image_files;
 @property (nonatomic) int duration;
+
+@property (nonatomic, retain) NSMutableArray *peers;
+@property (nonatomic, retain) MCSession *session;
+@property (nonatomic, retain) MCPeerID *localPeerID;
 
 @property (strong, nonatomic) IBOutlet UIImageView *imagePreview;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *previousButton;

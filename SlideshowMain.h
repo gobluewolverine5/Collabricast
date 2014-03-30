@@ -59,5 +59,6 @@
 - (IBAction)shiftRight:(id)sender;
 - (IBAction)shiftLeft:(id)sender;
 - (IBAction)shareSlides:(id)sender;
+- (IBAction)toSlideshowReorder:(id)sender;
 
 @end

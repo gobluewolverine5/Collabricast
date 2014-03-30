@@ -16,6 +16,7 @@
     NSString *filename;
     CGFloat width;
     CGFloat height;
+    NSString *letters;
 }
 
 
@@ -23,8 +24,9 @@
 {
     if (self = [super init]) {
         filename = [[NSString alloc] init];
-        width = 0;
-        height = 0;
+        width    = 0;
+        height   = 0;
+        letters  = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     }
     return self;
 }
@@ -72,6 +74,38 @@
 
     return image;
 }
+
+- (UIImage *)saveOriginalImage:(NSDictionary *)info highQuality:(CGFloat)imageQuality
+{
+    NSString *randomID = [self randStringWithLength:13];
+    filename = [NSString stringWithFormat:@"mediacast%@.%@", randomID, @"jpg"];
+    
+    NSFileManager *file_manager = [NSFileManager defaultManager];
+    AppDelegate *app_delegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
+    NSString *file_path = [[app_delegate cacheURL] stringByAppendingPathComponent:filename];
+    
+    UIImage *returnImage;
+    returnImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+    
+    NSData *imageData = UIImageJPEGRepresentation(returnImage, imageQuality);
+    width   = returnImage.size.width;
+    height  = returnImage.size.height;
+    if ([file_manager fileExistsAtPath:file_path]) {
+        NSLog(@"Image already exists");
+        return returnImage;
+    }
+    if ([file_manager createFileAtPath:file_path contents:imageData attributes:nil]) {
+        NSLog(@"Successfully wrote image file");
+    } else {
+        NSLog(@"Failed write image file");
+    }
+
+    return returnImage;
+    
+    
+}
+
+
 
 - (BOOL)saveImageChange:(UIImage *)image
 {
@@ -167,5 +201,17 @@
     freeifaddrs(interfaces);
     return address;
     
+}
+
+
+-(NSString *) randStringWithLength: (int) len {
+    
+    NSMutableString *randomString = [NSMutableString stringWithCapacity: len];
+    
+    for (int i=0; i<len; i++) {
+        [randomString appendFormat: @"%C", [letters characterAtIndex: arc4random() % [letters length]]];
+    }
+    
+    return randomString;
 }
 @end

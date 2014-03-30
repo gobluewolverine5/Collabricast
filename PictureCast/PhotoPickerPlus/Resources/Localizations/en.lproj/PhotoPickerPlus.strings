@@ -1,0 +1,16 @@
+/* 
+  PhotoPickerPlus.strings
+  PhotoPickerPlus-SampleApp
+
+  Created by Aleksandar Trpeski on 1/9/14.
+  Copyright (c) 2014 Chute. All rights reserved.
+*/
+
+"picker.title" = "Photo Picker";
+"picker.logout" = "Logout";
+
+"picker.local_services" = "Local Services";
+"picker.online_services" = "Online Services";
+"picker.take_photo" = "Take Photo";
+"picker.last_photo_taken" = "Last Photo Taken";
+"picker.choose_photo" = "Choose Photo";

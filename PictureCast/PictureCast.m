@@ -102,19 +102,11 @@
      */
     
     /* PRESENT UIIMAGE PICKER CONTROLLER FIRST */
-    ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
-    imagePicker.maximumImagesCount = 1;
-    imagePicker.returnsOriginalImage = NO;
-    imagePicker.imagePickerDelegate = self;
+    PhotoPickerViewController *picker = [PhotoPickerViewController new];
+    [picker setDelegate:self];
+    [picker setIsMultipleSelectionEnabled:NO];
     
-    [self presentViewController:imagePicker animated:YES completion:Nil];
-    
-    /*
-    UIImagePickerController *imagePicker = [[UIImagePickerController alloc]init];
-    [imagePicker setDelegate:self];
-    [imagePicker setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
-    [self presentViewController:imagePicker animated:YES completion:NULL];
-     */
+    [self presentViewController:picker animated:YES completion:Nil];
 
     /* CONFIGURE CAST BUTTON */
     _connected_cast_btn = [UIImage imageNamed:@"icon-cast-connected.png"];
@@ -152,6 +144,11 @@
     minWidth         = imageRightBound - imageLeftBound;
     NSLog(@"minHeight: %f", minHeight);
     NSLog(@"minWidth: %f", minWidth);
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [rearMenu.deviceScannerObject removeListener:self];
 }
 
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -192,13 +189,20 @@
 
 - (IBAction)selectImage:(id)sender
 {
-    
+    /*
     ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
     imagePicker.maximumImagesCount = 1;
     imagePicker.returnsOriginalImage = NO;
     imagePicker.imagePickerDelegate = self;
     
     [self presentViewController:imagePicker animated:YES completion:NULL];
+     */
+    
+    PhotoPickerViewController *picker = [PhotoPickerViewController new];
+    [picker setDelegate:self];
+    [picker setIsMultipleSelectionEnabled:NO];
+    
+    [self presentViewController:picker animated:YES completion:Nil];
 }
 
 - (IBAction)drawMode:(id)sender
@@ -222,6 +226,18 @@
 {
     [self performSegueWithIdentifier:@"toBrushSettings" sender:Nil];
 }
+
+- (IBAction)showFacebook:(id)sender
+{
+    
+    PhotoPickerViewController *picker = [PhotoPickerViewController new];
+    [picker setDelegate:self];
+    [picker setIsMultipleSelectionEnabled:NO];
+    
+    [self presentViewController:picker animated:YES completion:Nil];
+}
+
+
 
 
 - (void) castCurrentImage:(NSString*)filename
@@ -423,8 +439,6 @@
         [picture_ops saveImageChange:imagePreview.image];
         [self castCurrentImage:[picture_ops returnFileName]];
     }
-    
-    
 }
 
 - (void) elcImagePickerControllerDidCancel:(ELCImagePickerController *)picker
@@ -432,6 +446,40 @@
     [self dismissViewControllerAnimated:YES completion:NULL];
 }
 
+#pragma mark - imagePickerController Delegate
+-(void)imagePickerControllerDidCancel:(PhotoPickerViewController *)picker
+{
+    [self dismissViewControllerAnimated:YES completion:Nil];
+}
+
+-(void)imagePickerController:(PhotoPickerViewController *)picker didFinishPickingArrayOfMediaWithInfo:(NSArray *)info
+{
+    
+    [self dismissViewControllerAnimated:YES completion:NULL];
+}
+
+-(void)imagePickerController:(PhotoPickerViewController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    
+    NSLog(@"info: %@", info);
+    [self dismissViewControllerAnimated:YES completion:NULL];
+    if ([picture_ops clearCache]) {
+        NSLog(@"Cached Succesfully cleared");
+    } else {
+        NSLog(@"Error clearing cached");
+    }
+    imageDrawing.image = nil;
+    imagePreview.image = nil;
+    if (info) {
+        imagePreview.image = [UIImage imageWithCGImage:[picture_ops saveOriginalImage:info
+                                                                          highQuality:YES].CGImage
+                                                 scale:1.0f
+                                           orientation:UIImageOrientationUp];
+        [self applyToImage];
+        [picture_ops saveImageChange:imagePreview.image];
+        [self castCurrentImage:[picture_ops returnFileName]];
+    }
+}
 /*########### ANNOTATION #########*/
 #pragma mark - Annotation
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {

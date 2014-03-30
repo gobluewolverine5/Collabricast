@@ -9,6 +9,8 @@
 #import "PeerSlideshow.h"
 #import "pictureOps.h"
 #import "AppDelegate.h"
+#import "PeerController.h"
+#include "SWRevealViewController.h"
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 
@@ -35,6 +37,10 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    _menuButton.tintColor = [UIColor whiteColor];
+    _menuButton.target = self.revealViewController;
+    _menuButton.action = @selector(revealToggle:);
     
     [_peerDeviceLabel setText:@"NOT CONNECTED"];
     [_statusImg setImage:[UIImage imageNamed:@"OffIcon.png"]];
@@ -63,11 +69,13 @@
                          [_browser startBrowsingForPeers];
                      }];
     
+    [self.navigationItem.rightBarButtonItem setTintColor:[UIColor whiteColor]];
+    
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
-    [pic_ops clearCache];
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -89,21 +97,59 @@
 
 #pragma mark - IBAction
 - (IBAction)selectImage:(id)sender {
-    ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
-    imagePicker.maximumImagesCount      = 5;
-    imagePicker.returnsOriginalImage    = NO;
-    imagePicker.imagePickerDelegate     = self;
-    [self presentViewController:imagePicker animated:YES completion:Nil];
+    
+    if (_peerDeviceLabel) {
+        ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
+        imagePicker.maximumImagesCount      = 5;
+        imagePicker.returnsOriginalImage    = NO;
+        imagePicker.imagePickerDelegate     = self;
+        [self presentViewController:imagePicker animated:YES completion:Nil];
+    } else {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                        message:@"Please Connect to a device"
+                                                       delegate:self
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+    }
 }
 
 - (IBAction)endSession:(id)sender {
     [_session disconnect];
     [_peerDeviceLabel setText:@"NOT CONNECTED"];
     [_statusImg setImage:[UIImage imageNamed:@"OffIcon.png"]];
+    image_files = Nil;
+    images      = Nil;
+    _peerDeviceLabel = Nil;
+    [_imageTable reloadData];
     
 }
 
 #pragma mark - MCNearbyBrowser Delegate
+-(void)browser:(MCNearbyServiceBrowser *)browser didNotStartBrowsingForPeers:(NSError *)error
+{
+    NSLog(@"Browser Error: %@", error.userInfo);
+}
+
+-(void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info
+{
+    NSLog(@"Found Peer: %@", peerID.displayName);
+}
+
+-(void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID
+{
+    NSLog(@"Lost Peer: %@", peerID.displayName);
+}
+
+-(BOOL)browserViewController:(MCBrowserViewController *)browserViewController shouldPresentNearbyPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info
+{
+    NSLog(@"Should Present Nearby Peer %@", peerID.displayName);
+    if ([peerID.displayName isEqualToString:_localPeerID.displayName])
+        return NO;
+    else
+        return YES;
+}
+
 -(void)browserViewControllerDidFinish:(MCBrowserViewController *)browserViewController
 {
     [self dismissViewControllerAnimated:YES completion:Nil];
@@ -175,9 +221,9 @@
     
     // Configure the cell...
     cell.imageView.image = [image_files objectAtIndex:indexPath.row];
-    cell.backgroundColor = [UIColor colorWithRed:171.0/255.0
-                                           green:205.0/255.0
-                                            blue:207.0/255.0
+    cell.backgroundColor = [UIColor colorWithRed:195.0/255.0
+                                           green:77.0/255.0
+                                            blue:88.0/255.0
                                            alpha:1];
     
     return cell;
@@ -194,6 +240,25 @@
 -(void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
 {
     NSLog(@"Session::didReceiveData");
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:Nil];
+    NSLog(@"Received json: %@", json);
+    
+    /* HOST IS PLAYING SLIDESHOW */
+    if ([json[@"type"] isEqualToNumber:[NSNumber numberWithInt:0]]) {
+        
+        dispatch_queue_t backgroundQueue = dispatch_queue_create("peerslideshow.queue", 0);
+        dispatch_async(backgroundQueue, ^{
+            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Storyboard" bundle:nil];
+            PeerController *pc = [storyboard instantiateViewControllerWithIdentifier:@"peerController"];
+            [pc initWithSession:_session localPeer:_localPeerID remotePeer:_remotePeerID];
+            pc.delegate = self;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.navigationController pushViewController:pc animated:YES];
+                    
+                });
+        });
+        
+    }
 }
 
 -(void)session:(MCSession *)session didReceiveStream:(NSInputStream *)stream withName:(NSString *)streamName fromPeer:(MCPeerID *)peerID
@@ -216,10 +281,16 @@
     switch (state) {
         case MCSessionStateNotConnected: {
             dispatch_queue_t backgroundQueue = dispatch_queue_create("peerslideshow.queue", 0);
+            image_files = Nil;
+            images      = Nil;
+            _peerDeviceLabel = Nil;
             
             dispatch_async(backgroundQueue, ^{
                 NSLog(@"Session::didChangeState: MCSessionStateNotConnect");
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    [_peerDeviceLabel setText:@"NOT CONNECTED"];
+                    [_statusImg setImage:[UIImage imageNamed:@"OffIcon.png"]];
+                    [_imageTable reloadData];
                     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Session Ended"
                                                                     message:[NSString stringWithFormat:@"%@ has disconnected", peerID.displayName]
                                                                    delegate:self
@@ -284,5 +355,13 @@
     freeifaddrs(interfaces);
     return address;
     
+}
+
+#pragma mark - PeerController Delegate
+-(void)peerControllerDidDismiss
+{
+    NSLog(@"PeerController is Dismissed");
+    [self.navigationController popViewControllerAnimated:YES];
+    _session.delegate = self;
 }
 @end

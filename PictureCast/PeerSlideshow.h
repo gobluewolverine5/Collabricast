@@ -10,6 +10,7 @@
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 #import "ELCImagePickerController.h"
 #import "ELCAlbumPickerController.h"
+#import "PeerController.h"
 
 @interface PeerSlideshow : UIViewController <
     MCSessionDelegate,
@@ -17,7 +18,8 @@
     UITableViewDataSource,
     UITableViewDelegate,
     MCNearbyServiceBrowserDelegate,
-    MCBrowserViewControllerDelegate
+    MCBrowserViewControllerDelegate,
+    PeerControllerDelegate
 >
 
 @property (strong, nonatomic) IBOutlet UILabel *peerDeviceLabel;
@@ -29,6 +31,7 @@
 @property (nonatomic, retain) MCPeerID *localPeerID;
 @property (nonatomic, retain) MCPeerID *remotePeerID;
 @property (nonatomic, retain) MCSession *session;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *menuButton;
 
 - (IBAction)selectImage:(id)sender;
 - (IBAction)endSession:(id)sender;

@@ -96,6 +96,8 @@
             [sbnc popToRootViewControllerAnimated:NO];
             UIViewController *temp = sbnc.topViewController;
             [sbnc setViewControllers:@[dvc] animated:YES];
+            _deviceManagerObject.delegate =self;
+            _mediaControlChannel.delegate =self;
             temp = nil;
             //UINavigationController* nc = [[UINavigationController alloc] initWithRootViewController:dvc];
             //nc.navigationBar.barTintColor   = [UIColor colorWithRed:35.0/255.0 green:54.0/255.0 blue:69.0/255.0 alpha:1];

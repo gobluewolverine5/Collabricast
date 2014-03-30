@@ -94,6 +94,9 @@
     [self.navigationController.navigationBar setTranslucent:NO];
     [self.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
     
+    /* MC SESSION */
+    _session.delegate = self;
+    
 }
 
 -(void)viewDidAppear:(BOOL)animated
@@ -106,6 +109,7 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     [self stopTimer];
+    [self broadcastStopSlideshow];
 }
 
 - (void)didReceiveMemoryWarning
@@ -184,6 +188,8 @@
                               autoplay:YES playPosition:0] == kGCKInvalidRequestID) {
         NSLog(@"error loading media");
     }
+    [self broadcastPictureUrl:[images objectAtIndex:index]
+                        index:[NSNumber numberWithInt:index]];
 
 }
 
@@ -324,6 +330,22 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     [alert show];
 }
 
+- (void)broadcastPictureUrl:(NSString*)url index:(NSNumber *)ind
+{
+    NSDictionary *msgpkt = @{@"type"  : [NSNumber numberWithInt:1],
+                             @"url"   : url,
+                             @"index" : ind};
+    NSData *data = [NSJSONSerialization dataWithJSONObject:msgpkt options:0 error:Nil];
+    [_session sendData:data toPeers:_peers withMode:MCSessionSendDataReliable error:Nil];
+}
+
+- (void)broadcastStopSlideshow
+{
+    NSDictionary *msgpkt = @{@"type" : [NSNumber numberWithInt:2]};
+    NSData *data = [NSJSONSerialization dataWithJSONObject:msgpkt options:0 error:nil];
+    [_session sendData:data toPeers:_peers withMode:MCSessionSendDataReliable error:Nil];
+}
+
 #pragma mark UIActionSheetDelegate
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (rearMenu.selectedDevice == nil) {
@@ -437,4 +459,61 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 }
 
 /*############# END OF CHROMECAST CODE #################*/
+
+#pragma mark - MCSession Delegate
+-(void)session:(MCSession *)session
+didFinishReceivingResourceWithName:(NSString *)resourceName
+      fromPeer:(MCPeerID *)peerID
+         atURL:(NSURL *)localURL
+     withError:(NSError *)error
+{
+    
+    NSLog(@"Session::didFinishReceivingResourceWithName");
+}
+
+-(void)session:(MCSession *)session
+didReceiveData:(NSData *)data
+      fromPeer:(MCPeerID *)peerID
+{
+    NSLog(@"Session::didReceiveData");
+    
+}
+
+-(void)session:(MCSession *)session
+didReceiveStream:(NSInputStream *)stream
+      withName:(NSString *)streamName
+      fromPeer:(MCPeerID *)peerID
+{
+    NSLog(@"Session::didReceiveStream");
+}
+
+-(void)session:(MCSession *)session
+didStartReceivingResourceWithName:(NSString *)resourceName
+      fromPeer:(MCPeerID *)peerID
+  withProgress:(NSProgress *)progress
+{
+    NSLog(@"Session::didStartReceivingResourceWithName");
+}
+
+-(void)session:(MCSession *)session
+          peer:(MCPeerID *)peerID
+didChangeState:(MCSessionState)state
+{
+    switch (state) {
+        case MCSessionStateConnected:
+            NSLog(@"Session::didChangeState: MCSessionStateConnected");
+            break;
+            
+        case MCSessionStateConnecting:
+            NSLog(@"Session::didChangeState: MCSessionStateConnecting");
+            break;
+            
+        case MCSessionStateNotConnected:
+            NSLog(@"Session::didChangeState: MCSessionStateNotConnect");
+            break;
+            
+        default:
+            break;
+    }
+}
 @end

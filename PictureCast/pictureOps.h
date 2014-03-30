@@ -15,10 +15,14 @@
 - (UIImage *) saveImage:(NSDictionary *)info
             highQuality:(CGFloat)imageQuality;
 
+- (UIImage *) saveOriginalImage:(NSDictionary *) info
+                    highQuality:(CGFloat)imageQuality;
+
 - (UIImage *)fixOrientation:(UIImageOrientation)orientation
                   imageFile:(UIImage *)image;
 
 - (BOOL)saveImageChange:(UIImage *)image;
+
 
 - (NSString *)returnFileName;
 - (NSString *)returnFileURL;

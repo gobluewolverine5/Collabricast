@@ -14,6 +14,7 @@
 #import "CBAlertView.h"
 #import "RearMenu.h"
 #import "SWRevealViewController.h"
+#import "SlideshowReorder.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonHMAC.h>
 
@@ -31,8 +32,8 @@
     pictureOps *picture_ops;
     NSMutableArray *images;
     NSMutableArray *image_files;
+    NSMutableArray *peers;
     int currentIndex;
-    RearMenu *rearMenu;
 }
 
 @synthesize duration;
@@ -67,7 +68,6 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
-    rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     
     //_menuButton.tintColor = [UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1];
     _menuButton.tintColor = [UIColor whiteColor];
@@ -87,8 +87,8 @@
     picture_ops = [[pictureOps alloc] init];
     [picture_ops clearCache];
     
-    images = [[NSMutableArray alloc]init];
-    image_files = [[NSMutableArray alloc]init];
+    images       = [[NSMutableArray alloc]init];
+    image_files  = [[NSMutableArray alloc]init];
     currentIndex = 0;
     
     leftImage.contentMode = UIViewContentModeScaleAspectFit;
@@ -125,20 +125,30 @@
                           encryptionPreference:MCEncryptionNone];
     _session.delegate = self;
     _peerHostLookup = [[NSMutableDictionary alloc] init];
+    peers = [[NSMutableArray alloc] init];
     
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
+    _session.delegate = self;
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     rearMenu.deviceManagerObject.delegate = self;
     rearMenu.mediaControlChannel.delegate = self;
     [rearMenu.deviceScannerObject addListener:self];
+    [advertiser startAdvertisingPeer];
+    if ([images count] > 0) [self refreshSlideshowQueuePreview];
 }
 
 -(void)viewWillDisappear:(BOOL)animated
 {
     [advertiser stopAdvertisingPeer];
-    if ([picture_ops clearCache]) NSLog(@"Cleared Cache");
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
+    [rearMenu.deviceScannerObject removeListener:self];
+    
+    //if ([picture_ops clearCache]) NSLog(@"Cleared Cache");
+    //image_files = Nil;
+    //images      = Nil;
 }
 
 -(void)dealloc
@@ -160,12 +170,21 @@
         play_slideshow.mediaControlChannel = mediaControlChannel;
         play_slideshow.selectedDevice = selectedDevice;
         play_slideshow.session_id = session_id;
+        
+        play_slideshow.session      = _session;
+        play_slideshow.peers        = peers;
+        play_slideshow.localPeerID  = localPeerID;
     }
     else if ([segue.identifier isEqualToString:@"toSettingsTableVC"]) {
         SettingsTableVC *settings_table = (SettingsTableVC *) segue.destinationViewController;
         settings_table.delegate = self;
         settings_table.imageQuality = imageQuality;
         settings_table.duration = duration;
+    }
+    else if ([segue.identifier isEqualToString:@"toSlideshowReorder"]) {
+        SlideshowReorder *slideshow_reorder = (SlideshowReorder *) segue.destinationViewController;
+        slideshow_reorder.images      = images;
+        slideshow_reorder.image_files = image_files;
     }
 }
 
@@ -228,6 +247,7 @@
         [alert show];
         
     }
+    [self broadCastSlideshow];
 }
 - (IBAction)deleteImage:(id)sender
 {
@@ -281,8 +301,16 @@
     }
 }
 
+- (IBAction)toSlideshowReorder:(id)sender
+{
+    [self performSegueWithIdentifier:@"toSlideshowReorder" sender:Nil];
+}
+
 - (void) refreshSlideshowQueuePreview
 {
+    if (currentIndex >= image_files.count) {
+        currentIndex = image_files.count - 1;
+    }
     [UIView beginAnimations:@"animate" context:nil];
     [UIView setAnimationDuration:0.2];
     if ((currentIndex - 1) >= 0 && (currentIndex - 1) <= [images count]-1) {
@@ -405,6 +433,7 @@
     NSLog(@"connected!!");
     
     [self updateButtonStates];
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     [rearMenu.deviceManagerObject launchApplication:@"549D1581"];
 }
 
@@ -413,6 +442,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
             sessionID:(NSString *)sessionID
   launchedApplication:(BOOL)launchedApp {
     
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     rearMenu.mediaControlChannel = [[GCKMediaControlChannel alloc] init];
     rearMenu.mediaControlChannel.delegate = self;
     rearMenu.session_id = sessionID;
@@ -450,8 +480,16 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     [alert show];
 }
 
+- (void) broadCastSlideshow
+{
+    NSDictionary *msgpkt = @{@"type": [NSNumber numberWithInt:0]};
+    NSData *data = [NSJSONSerialization dataWithJSONObject:msgpkt options:0 error:Nil];
+    [_session sendData:data toPeers:peers withMode:MCSessionSendDataReliable error:Nil];
+}
+
 #pragma mark UIActionSheetDelegate
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     if (rearMenu.selectedDevice == nil) {
         if (buttonIndex < rearMenu.deviceScannerObject.devices.count) {
             rearMenu.selectedDevice = rearMenu.deviceScannerObject.devices[buttonIndex];
@@ -480,6 +518,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 #pragma mark - GCK Custom Functions
 - (void)connectToDevice {
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     if (rearMenu.selectedDevice == nil)
         return;
     
@@ -494,12 +533,14 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 }
 
 - (void)deviceDisconnected {
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
   rearMenu.deviceManagerObject  = nil;
   rearMenu.selectedDevice       = nil;
   NSLog(@"Device disconnected");
 }
 
 - (void)updateButtonStates {
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
   if (rearMenu.deviceScannerObject.devices.count == 0) {
     //Hide the cast button
     [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
@@ -522,6 +563,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 - (void)chooseDevice:(id)sender {
     //Choose device
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     if (rearMenu.selectedDevice == nil) {
         //Device Selection List
         UIActionSheet *sheet =
@@ -570,32 +612,6 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
         withContext:(NSData *)context
   invitationHandler:(void (^)(BOOL, MCSession *))invitationHandler
 {
-    /*
-    if ([self.mutableBlockedPeers containsObject:peerID]) {
-        invitationHandler(NO, nil);
-        return;
-    }
-   
-    [[UIActionSheet actionSheetWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Received Invitation from %@", @"Received Invitation from {Peer}"), peerID.displayName]
-                       cancelButtonTitle:NSLocalizedString(@"Reject", nil)
-                  destructiveButtonTitle:NSLocalizedString(@"Block", nil)
-                       otherButtonTitles:@[NSLocalizedString(@"Accept", nil)]
-                                   block:^(UIActionSheet *actionSheet, NSInteger buttonIndex)
-      {
-          BOOL acceptedInvitation = (buttonIndex == [actionSheet firstOtherButtonIndex]);
-          
-          if (buttonIndex == [actionSheet destructiveButtonIndex]) {
-              [self.mutableBlockedPeers addObject:peerID];
-          }*
-          
-          MCSession *session = [[MCSession alloc] initWithPeer:localPeerID
-                                              securityIdentity:nil
-                                          encryptionPreference:MCEncryptionNone];
-          session.delegate = self;
-          
-          invitationHandler(acceptedInvitation, (acceptedInvitation ? session : nil));
-      }] showInView:self.view];
-     */
     NSString *msg = [NSString stringWithFormat:@"%@ would like to join your slideshow", peerID.displayName];
     CBAlertView *alert = [[CBAlertView alloc] initWithTitle:@"Invitation Request"
                                                     message:msg
@@ -668,6 +684,8 @@ didFinishReceivingResourceWithName:(NSString *)resourceName
             
             dispatch_async(backgroundQueue, ^{
                 NSLog(@"Session::didChangeState: MCSessionStateNotConnect");
+                
+                /* REMOVING ALL IMAGES BELONGING TO PEERID */
                 NSString *hostString = _peerHostLookup[peerID.displayName];
                 for (int i = images.count-1; i >= 0; i--) {
                     NSURL *tempUrl = [NSURL URLWithString:[images objectAtIndex:i]];
@@ -675,6 +693,12 @@ didFinishReceivingResourceWithName:(NSString *)resourceName
                         [images removeObjectAtIndex:i];
                         [image_files removeObjectAtIndex:i];
                     }
+                }
+                
+                /* REMOVING PEER FROM PEER ARRAY */
+                for (int i = 0; i < peers.count; i++) {
+                    [peers removeObjectAtIndex:i];
+                    break;
                 }
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -694,6 +718,8 @@ didFinishReceivingResourceWithName:(NSString *)resourceName
             break;
         case MCSessionStateConnected:
             NSLog(@"Session::didChangeState: MCSessionStateConnected");
+            /* ADDING TO PEER ARRAY */
+            [peers addObject:peerID];
             break;
             
         default:
