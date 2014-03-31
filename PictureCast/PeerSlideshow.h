@@ -11,6 +11,7 @@
 #import "ELCImagePickerController.h"
 #import "ELCAlbumPickerController.h"
 #import "PeerController.h"
+#import "PhotoPickerViewController.h"
 
 @interface PeerSlideshow : UIViewController <
     MCSessionDelegate,
@@ -19,12 +20,14 @@
     UITableViewDelegate,
     MCNearbyServiceBrowserDelegate,
     MCBrowserViewControllerDelegate,
-    PeerControllerDelegate
+    PeerControllerDelegate,
+    PhotoPickerViewControllerDelegate
 >
 
 @property (strong, nonatomic) IBOutlet UILabel *peerDeviceLabel;
 @property (strong, nonatomic) IBOutlet UITableView *imageTable;
 @property (strong, nonatomic) IBOutlet UIImageView *statusImg;
+@property (strong, nonatomic) IBOutlet UIButton *connectButton;
 
 
 @property (nonatomic, retain) MCNearbyServiceBrowser *browser;
@@ -35,5 +38,6 @@
 
 - (IBAction)selectImage:(id)sender;
 - (IBAction)endSession:(id)sender;
+- (IBAction)connect:(id)sender;
 
 @end

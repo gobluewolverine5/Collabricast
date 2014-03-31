@@ -51,6 +51,7 @@
     
     _imageTable.delegate    = self;
     _imageTable.dataSource  = self;
+    _connectButton.titleLabel.adjustsFontSizeToFitWidth = YES;
     
     _localPeerID = [[MCPeerID alloc] initWithDisplayName:[[UIDevice currentDevice] name]];
     _session     = [[MCSession alloc] initWithPeer:_localPeerID];
@@ -98,12 +99,12 @@
 #pragma mark - IBAction
 - (IBAction)selectImage:(id)sender {
     
-    if (_peerDeviceLabel) {
-        ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
-        imagePicker.maximumImagesCount      = 5;
-        imagePicker.returnsOriginalImage    = NO;
-        imagePicker.imagePickerDelegate     = self;
-        [self presentViewController:imagePicker animated:YES completion:Nil];
+    if (![_peerDeviceLabel.text isEqualToString:@"NOT CONNECTED"]) {
+        PhotoPickerViewController *picker = [PhotoPickerViewController new];
+        [picker setDelegate:self];
+        [picker setIsMultipleSelectionEnabled:YES];
+        
+        [self presentViewController:picker animated:YES completion:Nil];
     } else {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error"
                                                         message:@"Please Connect to a device"
@@ -115,14 +116,26 @@
 }
 
 - (IBAction)endSession:(id)sender {
-    [_session disconnect];
-    [_peerDeviceLabel setText:@"NOT CONNECTED"];
-    [_statusImg setImage:[UIImage imageNamed:@"OffIcon.png"]];
-    image_files = Nil;
-    images      = Nil;
-    _peerDeviceLabel = Nil;
-    [_imageTable reloadData];
     
+}
+
+- (IBAction)connect:(id)sender {
+    
+    if ([_connectButton.titleLabel.text isEqualToString:@"DISCONNECT"]) {
+        
+        [_session disconnect];
+    }
+    else {
+        MCBrowserViewController *mcb = [[MCBrowserViewController alloc]
+                                        initWithBrowser:_browser
+                                                session:_session];
+        mcb.delegate = self;
+        [self presentViewController:mcb
+                           animated:YES
+                         completion:^{
+                             [_browser startBrowsingForPeers];
+                         }];
+    }
 }
 
 #pragma mark - MCNearbyBrowser Delegate
@@ -191,6 +204,57 @@
     [picker dismissViewControllerAnimated:YES completion:NULL];
 }
 
+#pragma mark - imagePickerController Delegate
+-(void)imagePickerControllerDidCancel:(PhotoPickerViewController *)picker
+{
+    [self dismissViewControllerAnimated:YES completion:Nil];
+}
+
+-(void)imagePickerController:(PhotoPickerViewController *)picker didFinishPickingArrayOfMediaWithInfo:(NSArray *)info
+{
+    NSLog(@"info: %@", info);
+    [picker dismissViewControllerAnimated:YES completion:NULL];
+    if (info.count > 0) {
+        for (int i = 0; i < [info count]; i++) {
+            NSDictionary *infoDict = [info objectAtIndex:i];
+            
+            [image_files addObject:[UIImage imageWithData:UIImageJPEGRepresentation([pic_ops
+                                                                                     saveOriginalImage:infoDict
+                                                                                     highQuality:0.7], 0.1)]];
+            [images addObject:[pic_ops returnFileName]];
+            NSString *message   = [pic_ops returnFileURL];
+            NSData *data        = [message dataUsingEncoding:NSUTF8StringEncoding];
+            NSError *error      = nil;
+            if (![self.session sendData:data
+                toPeers:@[_remotePeerID]
+                withMode:MCSessionSendDataReliable error:&error]) {
+                NSLog(@"error: %@", error);
+            }
+        }
+        [_imageTable reloadData];
+    }
+}
+
+-(void)imagePickerController:(PhotoPickerViewController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    [self dismissViewControllerAnimated:YES completion:NULL];
+    if (info) {
+        
+        [image_files addObject:[UIImage imageWithData:UIImageJPEGRepresentation([pic_ops
+                                                                                 saveOriginalImage:info
+                                                                                 highQuality:0.7], 0.1)]];
+        [images addObject:[pic_ops returnFileName]];
+        NSString *message   = [pic_ops returnFileURL];
+        NSData *data        = [message dataUsingEncoding:NSUTF8StringEncoding];
+        NSError *error      = nil;
+        if (![self.session sendData:data
+            toPeers:@[_remotePeerID]
+            withMode:MCSessionSendDataReliable error:&error]) {
+            NSLog(@"error: %@", error);
+        }
+        [_imageTable reloadData];
+    }
+}
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -252,10 +316,11 @@
             PeerController *pc = [storyboard instantiateViewControllerWithIdentifier:@"peerController"];
             [pc initWithSession:_session localPeer:_localPeerID remotePeer:_remotePeerID];
             pc.delegate = self;
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.navigationController pushViewController:pc animated:YES];
-                    
-                });
+            [_browser stopBrowsingForPeers];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.navigationController pushViewController:pc animated:YES];
+                
+            });
         });
         
     }
@@ -281,15 +346,15 @@
     switch (state) {
         case MCSessionStateNotConnected: {
             dispatch_queue_t backgroundQueue = dispatch_queue_create("peerslideshow.queue", 0);
-            image_files = Nil;
-            images      = Nil;
-            _peerDeviceLabel = Nil;
+            [image_files removeAllObjects];
+            [images removeAllObjects];
             
             dispatch_async(backgroundQueue, ^{
                 NSLog(@"Session::didChangeState: MCSessionStateNotConnect");
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [_peerDeviceLabel setText:@"NOT CONNECTED"];
                     [_statusImg setImage:[UIImage imageNamed:@"OffIcon.png"]];
+                    [_connectButton.titleLabel setText:@"CONNECT"];
                     [_imageTable reloadData];
                     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Session Ended"
                                                                     message:[NSString stringWithFormat:@"%@ has disconnected", peerID.displayName]
@@ -311,10 +376,12 @@
             dispatch_async(backgroundQueue, ^{
                 NSLog(@"Session::didChangeState: MCSessionStateConnected");
                 _remotePeerID = peerID;
+                NSLog(@"Connected: peerID.displayname: %@", _remotePeerID.displayName);
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [_peerDeviceLabel setText:peerID.displayName];
+                    [_peerDeviceLabel setText:_remotePeerID.displayName];
                     [_statusImg setImage:[UIImage imageNamed:@"OnIcon.png"]];
+                    [_connectButton.titleLabel setText:@"DISCONNECT"];
                 });
             });
             break;

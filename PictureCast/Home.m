@@ -207,17 +207,23 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     //Hide the cast button
     [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
     _chromecastButton.hidden = YES;
+    _chromecast_status.text = @"NOT CONNECTED";
+    [_chromecast_light setImage:[UIImage imageNamed:@"OffIcon.png"]];
   } else {
     if (rearMenu.deviceManagerObject && rearMenu.deviceManagerObject.isConnected) {
       //Enabled state for cast button
         [_chromecastButton setImage:_connected_cast_btn forState:UIControlStateNormal];
         [_chromecastButton setTintColor:[UIColor colorWithRed:199.0/255.0 green:244.0/255.0 blue:100.0/255.0 alpha:1]];
         _chromecastButton.hidden = NO;
+        _chromecast_status.text = @"CONNECTED";
+        [_chromecast_light setImage:[UIImage imageNamed:@"OnIcon.png"]];
     } else {
       //Disabled state for cast button
         [_chromecastButton setImage:_cast_btn forState:UIControlStateNormal];
         [_chromecastButton setTintColor:[UIColor grayColor]];
         _chromecastButton.hidden = NO;
+        _chromecast_status.text = @"NOT CONNECTED";
+        [_chromecast_light setImage:[UIImage imageNamed:@"OffIcon.png"]];
     }
   }
 

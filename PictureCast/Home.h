@@ -18,6 +18,8 @@
 >
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *menuButton;
+@property (strong, nonatomic) IBOutlet UIImageView *chromecast_light;
+@property (strong, nonatomic) IBOutlet UILabel *chromecast_status;
 /*
 @property (nonatomic, retain) GCKDeviceScanner *deviceScannerObject;
 @property (nonatomic, retain) GCKDeviceManager *deviceManagerObject;

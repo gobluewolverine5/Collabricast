@@ -189,15 +189,6 @@
 
 - (IBAction)selectImage:(id)sender
 {
-    /*
-    ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
-    imagePicker.maximumImagesCount = 1;
-    imagePicker.returnsOriginalImage = NO;
-    imagePicker.imagePickerDelegate = self;
-    
-    [self presentViewController:imagePicker animated:YES completion:NULL];
-     */
-    
     PhotoPickerViewController *picker = [PhotoPickerViewController new];
     [picker setDelegate:self];
     [picker setIsMultipleSelectionEnabled:NO];
@@ -416,34 +407,6 @@
     imageDrawingProgress.bounds = rect;
     imageDrawingProgress.center = CGPointMake((imageLeftBound + imageRightBound) / 2, (imageTopBound + imageBottomBound)/2);
     
-}
-#pragma mark - Image Picker delegate
-
-- (void) elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info
-{
-    NSLog(@"info: %@", info);
-    [self dismissViewControllerAnimated:YES completion:NULL];
-    if ([picture_ops clearCache]) {
-        NSLog(@"Cached Succesfully cleared");
-    } else {
-        NSLog(@"Error clearing cached");
-    }
-    imageDrawing.image = nil;
-    imagePreview.image = nil;
-    if ([info count] > 0) {
-        imagePreview.image = [UIImage imageWithCGImage:[picture_ops saveImage:[info objectAtIndex:0]
-                                                                  highQuality:YES].CGImage
-                                                 scale:1.0f
-                                           orientation:UIImageOrientationUp];
-        [self applyToImage];
-        [picture_ops saveImageChange:imagePreview.image];
-        [self castCurrentImage:[picture_ops returnFileName]];
-    }
-}
-
-- (void) elcImagePickerControllerDidCancel:(ELCImagePickerController *)picker
-{
-    [self dismissViewControllerAnimated:YES completion:NULL];
 }
 
 #pragma mark - imagePickerController Delegate
@@ -794,7 +757,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     if (rearMenu.deviceManagerObject && rearMenu.deviceManagerObject.isConnected) {
       //Enabled state for cast button
       [_chromecastButton setImage:_connected_cast_btn forState:UIControlStateNormal];
-      [_chromecastButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1]];
+      [_chromecastButton setTintColor:[UIColor colorWithRed:199.0/255.0 green:244.0/255.0 blue:100.0/255.0 alpha:1]];
       _chromecastButton.hidden = NO;
     } else {
       //Disabled state for cast button

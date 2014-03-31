@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import <GoogleCast/GoogleCast.h>
-#import "ELCImagePickerController.h"
 #import "BrushSettings.h"
 #import "PhotoPickerViewController.h"
 
@@ -21,7 +20,6 @@
     UIImagePickerControllerDelegate,
     UIActionSheetDelegate,
     UIGestureRecognizerDelegate,
-    ELCImagePickerControllerDelegate,
     BrushSettingsDelegate,
     PhotoPickerViewControllerDelegate
 >

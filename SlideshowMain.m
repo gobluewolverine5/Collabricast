@@ -74,12 +74,10 @@
     _menuButton.target = self.revealViewController;
     _menuButton.action = @selector(revealToggle:);
     
-    ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
-    imagePicker.maximumImagesCount = 20;
-    imagePicker.returnsOriginalImage = NO;
-    imagePicker.imagePickerDelegate = self;
-
-    [self presentViewController:imagePicker animated:YES completion:Nil];
+    PhotoPickerViewController *picker = [PhotoPickerViewController new];
+    [picker setDelegate:self];
+    [picker setIsMultipleSelectionEnabled:YES];
+    [self presentViewController:picker animated:YES completion:Nil];
     
     duration = 10;
     imageQuality = 0.7;
@@ -212,12 +210,15 @@
 - (IBAction)addImages:(id)sender
 {
     if ([images count] < 20) {
-        ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initImagePicker];
-        imagePicker.maximumImagesCount = 20 - [images count];
-        imagePicker.returnsOriginalImage = NO;
-        imagePicker.imagePickerDelegate = self;
-        [self presentViewController:imagePicker animated:YES completion:Nil];
+        
+        PhotoPickerViewController *picker = [PhotoPickerViewController new];
+        [picker setDelegate:self];
+        [picker setIsMultipleSelectionEnabled:YES];
+    
+        [self presentViewController:picker animated:YES completion:Nil];
+        
     } else {
+        
         UIAlertView *alert = [[UIAlertView alloc]
                               initWithTitle     :@"Error"
                               message           :@"You've reached the maximum of 20 pictures"
@@ -384,35 +385,41 @@
     return newImage;
 }
 
-#pragma mark - ELCImagePickerControllerDelegate
-
-- (void) elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info
+#pragma mark - imagePickerController Delegate
+-(void)imagePickerControllerDidCancel:(PhotoPickerViewController *)picker
 {
+    [self dismissViewControllerAnimated:YES completion:Nil];
+}
+
+-(void)imagePickerController:(PhotoPickerViewController *)picker didFinishPickingArrayOfMediaWithInfo:(NSArray *)info
+{
+    
     [self dismissViewControllerAnimated:YES completion:NULL];
     NSLog(@"info: %@",info);
     for (int i = 0; i < [info count]; i++) {
         NSDictionary *infoDict = [info objectAtIndex:i];
         
-        /*
-        [image_files addObject:[self resizeImage:[UIImage imageWithData:UIImageJPEGRepresentation([picture_ops saveImage:infoDict highQuality:imageQuality], 0.1)]
-                                         newSize:size]];
-         */
         [image_files addObject:[UIImage imageWithData:UIImageJPEGRepresentation([picture_ops
-                                                                                 saveImage:infoDict
+                                                                                 saveOriginalImage:infoDict
                                                                                  highQuality:imageQuality], 0.1)]];
-        //[image_files addObject:[picture_ops saveImage:infoDict]];
         [images addObject:[picture_ops returnFileURL]];
     }
     [self refreshSlideshowQueuePreview];
 }
 
-- (void) elcImagePickerControllerDidCancel:(ELCImagePickerController *)picker
+-(void)imagePickerController:(PhotoPickerViewController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     [self dismissViewControllerAnimated:YES completion:NULL];
-    NSLog(@"Canceled Image Picker");
+    NSLog(@"info: %@",info);
+    if (info) {
+        
+        [image_files addObject:[UIImage imageWithData:UIImageJPEGRepresentation([picture_ops
+                                                                                 saveOriginalImage:info
+                                                                                 highQuality:imageQuality], 0.1)]];
+        [images addObject:[picture_ops returnFileURL]];
+    }
+    [self refreshSlideshowQueuePreview];
 }
-
-
 /*################## CHOMECAST CODE ######################*/
 
 #pragma mark - GCKDeviceScannerListner
@@ -549,7 +556,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     if (rearMenu.deviceManagerObject && rearMenu.deviceManagerObject.isConnected) {
       //Enabled state for cast button
       [_chromecastButton setImage:_connected_cast_btn forState:UIControlStateNormal];
-      [_chromecastButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1]];
+      [_chromecastButton setTintColor:[UIColor colorWithRed:199.0/255.0 green:244.0/255.0 blue:100.0/255.0 alpha:1]];
       _chromecastButton.hidden = NO;
     } else {
       //Disabled state for cast button

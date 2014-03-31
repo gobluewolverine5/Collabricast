@@ -11,8 +11,7 @@
 #import <MessageUI/MessageUI.h>
 #import <MessageUI/MFMailComposeViewController.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
-#import "ELCImagePickerController.h"
-#import "ELCAlbumPickerController.h"
+#import "PhotoPickerViewController.h"
 
 @interface SlideshowMain : UIViewController
 <
@@ -21,13 +20,13 @@
     GCKMediaControlChannelDelegate,
     UINavigationControllerDelegate,
     UIActionSheetDelegate,
-    ELCImagePickerControllerDelegate,
     UINavigationControllerDelegate,
     UIScrollViewDelegate,
     MFMailComposeViewControllerDelegate,
     MCNearbyServiceAdvertiserDelegate,
     MCSessionDelegate,
-    UIAlertViewDelegate
+    UIAlertViewDelegate,
+    PhotoPickerViewControllerDelegate
 >
 
 @property (nonatomic) int duration;

@@ -83,7 +83,7 @@
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_chromecastButton];
     
-    timer = [NSTimer scheduledTimerWithTimeInterval:duration
+    timer = [NSTimer scheduledTimerWithTimeInterval:duration - 1.0
                                              target:self
                                            selector:@selector(advancePicture:)
                                            userInfo:Nil
@@ -165,9 +165,6 @@
     NSString *saveDirectory = [NSString stringWithFormat:@"%@/%@", [app_delegate cacheURL], [images objectAtIndex:index]];
     NSData *data = [[NSFileManager defaultManager] contentsAtPath:saveDirectory];
      */
-    imagePreview.image  = [UIImage imageWithCGImage:((UIImage*)[_image_files objectAtIndex:index]).CGImage
-                                              scale:1.0f
-                                        orientation:UIImageOrientationUp];
     GCKMediaMetadata *metadata = [[GCKMediaMetadata alloc]init];
   
     NSURL *url = [[NSURL alloc]initWithString:[images objectAtIndex:index]];
@@ -190,6 +187,13 @@
     }
     [self broadcastPictureUrl:[images objectAtIndex:index]
                         index:[NSNumber numberWithInt:index]];
+    double delayInSeconds = 1.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        imagePreview.image  = [UIImage imageWithCGImage:((UIImage*)[_image_files objectAtIndex:index]).CGImage
+                                                  scale:1.0f
+                                            orientation:UIImageOrientationUp];
+    });
 
 }
 
@@ -258,7 +262,7 @@
 
 - (void) startTimer
 {
-    timer = [NSTimer scheduledTimerWithTimeInterval:2
+    timer = [NSTimer scheduledTimerWithTimeInterval:duration - 1.0
                                              target:self
                                            selector:@selector(advancePicture:)
                                            userInfo:Nil
@@ -404,7 +408,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
     if (rearMenu.deviceManagerObject && rearMenu.deviceManagerObject.isConnected) {
       //Enabled state for cast button
       [_chromecastButton setImage:_connected_cast_btn forState:UIControlStateNormal];
-      [_chromecastButton setTintColor:[UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1]];
+      [_chromecastButton setTintColor:[UIColor colorWithRed:199.0/255.0 green:244.0/255.0 blue:100.0/255.0 alpha:1]];
       _chromecastButton.hidden = NO;
     } else {
       //Disabled state for cast button

@@ -161,7 +161,8 @@ static NSSet *_sGCLocalFeatures;
 + (NSSet *)sGCLocalFeatures
 {
     if (!_sGCLocalFeatures) {
-        _sGCLocalFeatures = [NSSet setWithArray:@[@"take_photo", @"last_taken_photo", @"camera_photos"]];
+        //_sGCLocalFeatures = [NSSet setWithArray:@[@"take_photo", @"last_taken_photo", @"camera_photos"]];
+        _sGCLocalFeatures = [NSSet setWithArray:@[@"take_photo", @"camera_photos"]];
     }
     return _sGCLocalFeatures;
 }
@@ -170,6 +171,7 @@ static NSDictionary *_sGCServices;
 + (NSDictionary *)sGCServices
 {
     if (!_sGCServices) {
+        /*
         _sGCServices = @{@"facebook":@"facebook",
                          @"google": @"google",
                          @"googledrive": @"google",
@@ -182,6 +184,8 @@ static NSDictionary *_sGCServices;
                          @"chute":@"chute",
                          @"foursquare":@"foursquare"
                          };
+        */
+        _sGCServices = @{@"facebook":@"facebook"};
     }
     return _sGCServices;
 }
