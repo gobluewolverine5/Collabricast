@@ -431,8 +431,9 @@
     } else {
         NSLog(@"Error clearing cached");
     }
-    imageDrawing.image = nil;
-    imagePreview.image = nil;
+    imageDrawing.image          = nil;
+    imagePreview.image          = nil;
+    imageDrawingProgress.image  = nil;
     if (info) {
         imagePreview.image = [UIImage imageWithCGImage:[picture_ops saveOriginalImage:info
                                                                           highQuality:YES].CGImage

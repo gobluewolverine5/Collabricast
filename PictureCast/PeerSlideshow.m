@@ -174,36 +174,6 @@
 }
 
 
-#pragma mark - ELCImage Picker Delegate
-- (void)elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info
-{
-    [picker dismissViewControllerAnimated:YES completion:NULL];
-    if (info.count > 0) {
-        for (int i = 0; i < [info count]; i++) {
-            NSDictionary *infoDict = [info objectAtIndex:i];
-            
-            [image_files addObject:[UIImage imageWithData:UIImageJPEGRepresentation([pic_ops
-                                                                                     saveImage:infoDict
-                                                                                     highQuality:0.7], 0.1)]];
-            [images addObject:[pic_ops returnFileName]];
-            NSString *message   = [pic_ops returnFileURL];
-            NSData *data        = [message dataUsingEncoding:NSUTF8StringEncoding];
-            NSError *error      = nil;
-            if (![self.session sendData:data
-                toPeers:@[_remotePeerID]
-                withMode:MCSessionSendDataReliable error:&error]) {
-                NSLog(@"error: %@", error);
-            }
-        }
-        [_imageTable reloadData];
-    }
-}
-
--(void)elcImagePickerControllerDidCancel:(ELCImagePickerController *)picker
-{
-    [picker dismissViewControllerAnimated:YES completion:NULL];
-}
-
 #pragma mark - imagePickerController Delegate
 -(void)imagePickerControllerDidCancel:(PhotoPickerViewController *)picker
 {
@@ -222,14 +192,11 @@
                                                                                      saveOriginalImage:infoDict
                                                                                      highQuality:0.7], 0.1)]];
             [images addObject:[pic_ops returnFileName]];
-            NSString *message   = [pic_ops returnFileURL];
-            NSData *data        = [message dataUsingEncoding:NSUTF8StringEncoding];
-            NSError *error      = nil;
-            if (![self.session sendData:data
-                toPeers:@[_remotePeerID]
-                withMode:MCSessionSendDataReliable error:&error]) {
-                NSLog(@"error: %@", error);
-            }
+            NSString *message    = [pic_ops returnFileURL];
+            NSDictionary *msgpkt = @{@"type"  : [NSNumber numberWithInt:PEER_PICTURE],
+                                     @"url"   : message};
+            NSData *data         = [NSJSONSerialization dataWithJSONObject:msgpkt options:0 error:Nil];
+            [_session sendData:data toPeers:_session.connectedPeers withMode:MCSessionSendDataReliable error:Nil];
         }
         [_imageTable reloadData];
     }
@@ -245,13 +212,10 @@
                                                                                  highQuality:0.7], 0.1)]];
         [images addObject:[pic_ops returnFileName]];
         NSString *message   = [pic_ops returnFileURL];
-        NSData *data        = [message dataUsingEncoding:NSUTF8StringEncoding];
-        NSError *error      = nil;
-        if (![self.session sendData:data
-            toPeers:@[_remotePeerID]
-            withMode:MCSessionSendDataReliable error:&error]) {
-            NSLog(@"error: %@", error);
-        }
+        NSDictionary *msgpkt = @{@"type"  : [NSNumber numberWithInt:PEER_PICTURE],
+                                 @"url"   : message};
+        NSData *data = [NSJSONSerialization dataWithJSONObject:msgpkt options:0 error:Nil];
+        [_session sendData:data toPeers:_session.connectedPeers withMode:MCSessionSendDataReliable error:Nil];
         [_imageTable reloadData];
     }
 }
@@ -346,22 +310,32 @@
     switch (state) {
         case MCSessionStateNotConnected: {
             dispatch_queue_t backgroundQueue = dispatch_queue_create("peerslideshow.queue", 0);
-            [image_files removeAllObjects];
-            [images removeAllObjects];
-            
+            if ([peerID.displayName isEqualToString:_peerDeviceLabel.text]) {
+                [image_files removeAllObjects];
+                [images removeAllObjects];
+            }
             dispatch_async(backgroundQueue, ^{
                 NSLog(@"Session::didChangeState: MCSessionStateNotConnect");
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [_peerDeviceLabel setText:@"NOT CONNECTED"];
-                    [_statusImg setImage:[UIImage imageNamed:@"OffIcon.png"]];
-                    [_connectButton.titleLabel setText:@"CONNECT"];
-                    [_imageTable reloadData];
-                    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Session Ended"
-                                                                    message:[NSString stringWithFormat:@"%@ has disconnected", peerID.displayName]
-                                                                   delegate:self
-                                                          cancelButtonTitle:@"Ok"
-                                                          otherButtonTitles:nil];
-                    [alert show];
+                    if ([peerID.displayName isEqualToString:_peerDeviceLabel.text]) {
+                        [_peerDeviceLabel setText:@"NOT CONNECTED"];
+                        [_statusImg setImage:[UIImage imageNamed:@"OffIcon.png"]];
+                        [_connectButton.titleLabel setText:@"CONNECT"];
+                        [_imageTable reloadData];
+                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Session Ended"
+                                                                        message:[NSString stringWithFormat:@"%@ has disconnected", peerID.displayName]
+                                                                       delegate:self
+                                                              cancelButtonTitle:@"Ok"
+                                                              otherButtonTitles:nil];
+                        [alert show];
+                    } else {
+                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Peer Left"
+                                                                        message:[NSString stringWithFormat:@"%@ has disconnected", peerID.displayName]
+                                                                       delegate:self
+                                                              cancelButtonTitle:@"Ok"
+                                                              otherButtonTitles:nil];
+                        [alert show];
+                    }
                 });
             });
             break;
@@ -379,7 +353,8 @@
                 NSLog(@"Connected: peerID.displayname: %@", _remotePeerID.displayName);
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [_peerDeviceLabel setText:_remotePeerID.displayName];
+                    _peerDeviceLabel.text = ([_peerDeviceLabel.text isEqualToString:@"NOT CONNECTED"])
+                                            ? _remotePeerID.displayName : _peerDeviceLabel.text;
                     [_statusImg setImage:[UIImage imageNamed:@"OnIcon.png"]];
                     [_connectButton.titleLabel setText:@"DISCONNECT"];
                 });

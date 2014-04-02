@@ -20,7 +20,7 @@
         // Initialization code
         self.imageView = [[UIImageView alloc] initWithFrame:[self.contentView frame]];
         self.overlayView = [[UIImageView alloc] initWithFrame:[self.contentView frame]];
-        [self.overlayView setImage:[UIImage imageNamed:@"overlay.png"]];
+        [self.overlayView setImage:[UIImage imageNamed:@"Overlay.png"]];
         [self.contentView insertSubview:self.imageView atIndex:1];
         [self.contentView insertSubview:self.overlayView atIndex:2];
         [self.overlayView setHidden:YES];
@@ -32,6 +32,7 @@
 {
     [super setSelected:selected];
     [self.overlayView setHidden:!selected];
+    NSLog(@"Selected");
 }
 
 /*

@@ -634,6 +634,7 @@
 		998DEDAA18DF69B800CD1719 /* CBAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CBAlertView.m; sourceTree = "<group>"; };
 		998DEDAC18DFC50000CD1719 /* PeerSlideshow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PeerSlideshow.h; sourceTree = "<group>"; };
 		998DEDAD18DFC50000CD1719 /* PeerSlideshow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PeerSlideshow.m; sourceTree = "<group>"; };
+		99C9E60018EB0AFC00B94E28 /* MultipeerRules.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MultipeerRules.h; sourceTree = "<group>"; };
 		99F864D018A9D01100952004 /* DDData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDData.h; sourceTree = "<group>"; };
 		99F864D118A9D01100952004 /* DDData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDData.m; sourceTree = "<group>"; };
 		99F864D218A9D01100952004 /* DDNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDNumber.h; sourceTree = "<group>"; };
@@ -804,6 +805,7 @@
 				9932D8A418E12C990061A90E /* RearMenu.m */,
 				9932D8A618E12F730061A90E /* Home.h */,
 				9932D8A718E12F730061A90E /* Home.m */,
+				99C9E60018EB0AFC00B94E28 /* MultipeerRules.h */,
 			);
 			path = PictureCast;
 			sourceTree = "<group>";

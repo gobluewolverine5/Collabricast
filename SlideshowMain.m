@@ -15,6 +15,7 @@
 #import "RearMenu.h"
 #import "SWRevealViewController.h"
 #import "SlideshowReorder.h"
+#import "MultipeerRules.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonHMAC.h>
 
@@ -154,6 +155,7 @@
     while ([image_files count] > 0) {
         [image_files removeLastObject];
     }
+    [_session disconnect];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -489,7 +491,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 - (void) broadCastSlideshow
 {
-    NSDictionary *msgpkt = @{@"type": [NSNumber numberWithInt:0]};
+    NSDictionary *msgpkt = @{@"type": [NSNumber numberWithInt:BROADCAST_SLIDESHOW]};
     NSData *data = [NSJSONSerialization dataWithJSONObject:msgpkt options:0 error:Nil];
     [_session sendData:data toPeers:peers withMode:MCSessionSendDataReliable error:Nil];
 }
@@ -597,15 +599,8 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
         UIActionSheet *sheet = [[UIActionSheet alloc] init];
         sheet.title = str;
         sheet.delegate = self;
-        /*
-        if (mediaTitle != nil) {
-            [sheet addButtonWithTitle:mediaTitle];
-        }
-         */
         [sheet addButtonWithTitle:@"Disconnect"];
         [sheet addButtonWithTitle:@"Cancel"];
-        //sheet.destructiveButtonIndex = (mediaTitle != nil ? 1 : 0);
-        //sheet.cancelButtonIndex = (mediaTitle != nil ? 2 : 1);
         
         [sheet showInView:_chromecastButton];
     }
@@ -647,19 +642,22 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 -(void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
 {
     NSLog(@"Session::didReceiveData");
-    NSString *message   = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSURL *url          = [NSURL URLWithString:message];
-    _peerHostLookup[peerID.displayName] = [url host];
-    dispatch_async(dispatch_get_global_queue(0, 0), ^ {
-        NSData * imageData  = [[NSData alloc] initWithContentsOfURL:url];
-        if (imageData) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [image_files addObject:[UIImage imageWithData:UIImageJPEGRepresentation([UIImage imageWithData:imageData],0.1)]];
-                [images addObject:[url absoluteString]];
-                [self refreshSlideshowQueuePreview];
-            });
-        }
-    });
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:Nil];
+    
+    if ([json[@"type"] isEqualToNumber:[NSNumber numberWithInt:PEER_PICTURE]]) {
+        NSURL *url = [NSURL URLWithString:json[@"url"]];
+        _peerHostLookup[peerID.displayName] = [url host];
+        dispatch_async(dispatch_get_global_queue(0, 0), ^ {
+            NSData * imageData  = [[NSData alloc] initWithContentsOfURL:url];
+            if (imageData) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [image_files addObject:[UIImage imageWithData:UIImageJPEGRepresentation([UIImage imageWithData:imageData],0.1)]];
+                    [images addObject:[url absoluteString]];
+                    [self refreshSlideshowQueuePreview];
+                });
+            }
+        });
+    }
     
 }
 
@@ -694,7 +692,7 @@ didFinishReceivingResourceWithName:(NSString *)resourceName
                 
                 /* REMOVING ALL IMAGES BELONGING TO PEERID */
                 NSString *hostString = _peerHostLookup[peerID.displayName];
-                for (int i = images.count-1; i >= 0; i--) {
+                for (int i = (int) images.count-1; i >= 0; i--) {
                     NSURL *tempUrl = [NSURL URLWithString:[images objectAtIndex:i]];
                     if ([[tempUrl host] isEqualToString:hostString]) {
                         [images removeObjectAtIndex:i];

@@ -79,7 +79,7 @@
 }
 -(void)dealloc
 {
-    NSLog(@"goodbyte");
+    NSLog(@"goodbye");
 }
 
 /*################## CHOMECAST CODE ######################*/

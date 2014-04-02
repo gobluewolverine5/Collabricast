@@ -7,6 +7,7 @@
 //
 
 #import "PeerController.h"
+#import "MultipeerRules.h"
 
 @interface PeerController ()
 
@@ -43,6 +44,10 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    _imagePreview.contentMode = UIViewContentModeScaleAspectFit;
+    [self.navigationController.navigationBar setTranslucent:NO];
+    [self.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
+    [self.navigationItem setHidesBackButton:YES];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -76,6 +81,39 @@
 
 - (IBAction)keepPhoto:(id)sender
 {
+    NSURL *downloadURL = [NSURL URLWithString:url];
+    dispatch_queue_t backgroundQueue = dispatch_queue_create("peercontroller.queue", 0);
+    dispatch_async(backgroundQueue, ^{
+        NSData * imageData  = [[NSData alloc] initWithContentsOfURL:downloadURL];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UIImage *downloadedImage = [UIImage imageWithData:imageData];
+            UIImageWriteToSavedPhotosAlbum(downloadedImage,
+                                           self,
+                                           @selector(thisImage:hasBeenSavedInPhotoAlbumWithError:usingContextInfo:),
+                                           NULL);
+        });
+    });
+}
+
+- (void)thisImage:(UIImage *)image hasBeenSavedInPhotoAlbumWithError:(NSError *)error usingContextInfo:(void*)ctxInfo {
+    if (error) {
+        // Do anything needed to handle the error or display it to the user
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                        message:@"Image failed to download"
+                                                       delegate:self
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+    } else {
+        // .... do anything you want here to handle
+        // .... when the image has been saved in the photo album
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Success"
+                                                        message:@"The image has been saved to your image library"
+                                                       delegate:self
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+    }
 }
 
 #pragma mark - MCSession Delegate
@@ -96,7 +134,7 @@ didReceiveData:(NSData *)data
     NSLog(@"Session::didReceiveData");
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:Nil];
     NSLog(@"Received json: %@", json);
-    if ([json[@"type"] isEqualToNumber:[NSNumber numberWithInt:1]]) {
+    if ([json[@"type"] isEqualToNumber:[NSNumber numberWithInt:BROADCAST_PICTURE]]) {
         
         dispatch_queue_t backgroundQueue = dispatch_queue_create("peercontroller.queue", 0);
         dispatch_async(backgroundQueue, ^{
@@ -111,7 +149,7 @@ didReceiveData:(NSData *)data
             });
         });
     }
-    else if ([json[@"type"] isEqualToNumber:[NSNumber numberWithInt:2]]) {
+    else if ([json[@"type"] isEqualToNumber:[NSNumber numberWithInt:STOP_SLIDESHOW]]) {
         
         dispatch_queue_t backgroundQueue = dispatch_queue_create("peercontroller.queue", 0);
         dispatch_async(backgroundQueue, ^{

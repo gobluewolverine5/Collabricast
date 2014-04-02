@@ -8,14 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
-#import "ELCImagePickerController.h"
-#import "ELCAlbumPickerController.h"
 #import "PeerController.h"
 #import "PhotoPickerViewController.h"
+#import "MultipeerRules.h"
 
 @interface PeerSlideshow : UIViewController <
     MCSessionDelegate,
-    ELCImagePickerControllerDelegate,
     UITableViewDataSource,
     UITableViewDelegate,
     MCNearbyServiceBrowserDelegate,

@@ -10,6 +10,7 @@
 #import "AppDelegate.h"
 #import "RearMenu.h"
 #import "SWRevealViewController.h"
+#import "MultipeerRules.h"
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 
@@ -89,7 +90,7 @@
                                            userInfo:Nil
                                             repeats:YES];
     
-    index = [images count] - 1;
+    index = (int) [images count] - 1;
     [self advancePicture:YES];
     [self.navigationController.navigationBar setTranslucent:NO];
     [self.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
@@ -190,9 +191,12 @@
     double delayInSeconds = 1.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        /*
         imagePreview.image  = [UIImage imageWithCGImage:((UIImage*)[_image_files objectAtIndex:index]).CGImage
                                                   scale:1.0f
                                             orientation:UIImageOrientationUp];
+         */
+        imagePreview.image = [_image_files objectAtIndex:index];
     });
 
 }
@@ -336,7 +340,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 - (void)broadcastPictureUrl:(NSString*)url index:(NSNumber *)ind
 {
-    NSDictionary *msgpkt = @{@"type"  : [NSNumber numberWithInt:1],
+    NSDictionary *msgpkt = @{@"type"  : [NSNumber numberWithInt:BROADCAST_PICTURE],
                              @"url"   : url,
                              @"index" : ind};
     NSData *data = [NSJSONSerialization dataWithJSONObject:msgpkt options:0 error:Nil];
@@ -345,7 +349,7 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 - (void)broadcastStopSlideshow
 {
-    NSDictionary *msgpkt = @{@"type" : [NSNumber numberWithInt:2]};
+    NSDictionary *msgpkt = @{@"type" : [NSNumber numberWithInt:STOP_SLIDESHOW]};
     NSData *data = [NSJSONSerialization dataWithJSONObject:msgpkt options:0 error:nil];
     [_session sendData:data toPeers:_peers withMode:MCSessionSendDataReliable error:Nil];
 }
