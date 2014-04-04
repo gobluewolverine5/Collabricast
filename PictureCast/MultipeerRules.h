@@ -18,4 +18,8 @@
 #define PEER_PICTURE        4
 #define PEER_UPVOTE         5
 #define PEER_DOWNVOTE       6
+
+#define NO_VOTE     0
+#define UP_VOTE     1
+#define DOWN_VOTE   2
 #endif

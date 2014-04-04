@@ -52,6 +52,7 @@
     _imageTable.delegate    = self;
     _imageTable.dataSource  = self;
     _connectButton.titleLabel.adjustsFontSizeToFitWidth = YES;
+    [_connectButton setTitle:@"CONNECT" forState:UIControlStateNormal];
     
     _localPeerID = [[MCPeerID alloc] initWithDisplayName:[[UIDevice currentDevice] name]];
     _session     = [[MCSession alloc] initWithPeer:_localPeerID];
@@ -272,13 +273,17 @@
     NSLog(@"Received json: %@", json);
     
     /* HOST IS PLAYING SLIDESHOW */
-    if ([json[@"type"] isEqualToNumber:[NSNumber numberWithInt:0]]) {
-        
+    if ([json[@"type"] isEqualToNumber:[NSNumber numberWithInt:BROADCAST_SLIDESHOW]]) {
+       
+        NSNumber *imgCount = json[@"num"];
         dispatch_queue_t backgroundQueue = dispatch_queue_create("peerslideshow.queue", 0);
         dispatch_async(backgroundQueue, ^{
             UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Storyboard" bundle:nil];
             PeerController *pc = [storyboard instantiateViewControllerWithIdentifier:@"peerController"];
-            [pc initWithSession:_session localPeer:_localPeerID remotePeer:_remotePeerID];
+            [pc initWithSession:_session
+                      localPeer:_localPeerID
+                     remotePeer:_remotePeerID
+                     imageCount:(int)[imgCount integerValue]];
             pc.delegate = self;
             [_browser stopBrowsingForPeers];
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -320,7 +325,7 @@
                     if ([peerID.displayName isEqualToString:_peerDeviceLabel.text]) {
                         [_peerDeviceLabel setText:@"NOT CONNECTED"];
                         [_statusImg setImage:[UIImage imageNamed:@"OffIcon.png"]];
-                        [_connectButton.titleLabel setText:@"CONNECT"];
+                        [_connectButton setTitle:@"CONNECT" forState:UIControlStateNormal];
                         [_imageTable reloadData];
                         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Session Ended"
                                                                         message:[NSString stringWithFormat:@"%@ has disconnected", peerID.displayName]
@@ -328,6 +333,7 @@
                                                               cancelButtonTitle:@"Ok"
                                                               otherButtonTitles:nil];
                         [alert show];
+                        NSLog(@"ROOT DEVICE DISCONNECTED");
                     } else {
                         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Peer Left"
                                                                         message:[NSString stringWithFormat:@"%@ has disconnected", peerID.displayName]

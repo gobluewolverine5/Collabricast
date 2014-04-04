@@ -27,6 +27,8 @@
     int index;
     BOOL playing;
     RearMenu *rearMenu;
+    NSMutableArray *upvote_tally;
+    NSMutableArray *dwnvote_tally;
 }
 
 @synthesize deviceManagerObject;
@@ -66,6 +68,15 @@
     previousButton.tintColor = [UIColor whiteColor];
     nextButton.tintColor = [UIColor whiteColor];
     imagePreview.contentMode = UIViewContentModeScaleAspectFit;
+    
+    upvote_tally = [[NSMutableArray alloc]init];
+    dwnvote_tally = [[NSMutableArray alloc]init];
+    for (int i = 0; i < [images count]; i++) {
+        [upvote_tally addObject:[NSNumber numberWithInt:0]];
+        [dwnvote_tally addObject:[NSNumber numberWithInt:0]];
+    }
+    [_dislikeIndicator setText:@"0"];
+    [_likeIndicator setText:@"0"];
     
     /* CONFIGURE CAST BUTTON */
     
@@ -197,6 +208,8 @@
                                             orientation:UIImageOrientationUp];
          */
         imagePreview.image = [_image_files objectAtIndex:index];
+        [_likeIndicator setText:[NSString stringWithFormat:@"%@", [upvote_tally objectAtIndex:index]]];
+        [_dislikeIndicator setText:[NSString stringWithFormat:@"%@", [dwnvote_tally objectAtIndex:index]]];
     });
 
 }
@@ -484,7 +497,36 @@ didReceiveData:(NSData *)data
       fromPeer:(MCPeerID *)peerID
 {
     NSLog(@"Session::didReceiveData");
-    
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:Nil];
+   
+    NSLog(@"json: %@", json);
+    if ([json[@"type"] isEqualToNumber:[NSNumber numberWithInt:PEER_UPVOTE]]) {
+        dispatch_async(dispatch_get_global_queue(0, 0), ^ {
+            NSNumber *imageIndex = (NSNumber *) json[@"index"];
+            [upvote_tally replaceObjectAtIndex:[imageIndex integerValue]
+                                    withObject:[NSNumber numberWithInt:[[upvote_tally objectAtIndex:[imageIndex integerValue]]intValue] + 1]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //update display
+                [_likeIndicator setText:[NSString stringWithFormat:@"%@", [upvote_tally objectAtIndex:[imageIndex integerValue]]]];
+                NSLog(@"upvote_tally: %@", upvote_tally);
+                NSLog(@"dwnvote_tally: %@", dwnvote_tally);
+            });
+        });
+    }
+    else if ([json[@"type"] isEqualToNumber:[NSNumber numberWithInt:PEER_DOWNVOTE]]) {
+        dispatch_async(dispatch_get_global_queue(0, 0), ^ {
+            
+            NSNumber *imageIndex = (NSNumber *) json[@"index"];
+            [dwnvote_tally replaceObjectAtIndex:[imageIndex integerValue]
+                                    withObject:[NSNumber numberWithInt:[[dwnvote_tally objectAtIndex:[imageIndex integerValue]]intValue] + 1]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //update display
+                [_dislikeIndicator setText:[NSString stringWithFormat:@"%@", [dwnvote_tally objectAtIndex:[imageIndex integerValue]]]];
+                NSLog(@"upvote_tally: %@", upvote_tally);
+                NSLog(@"dwnvote_tally: %@", dwnvote_tally);
+            });
+        });
+    }
 }
 
 -(void)session:(MCSession *)session

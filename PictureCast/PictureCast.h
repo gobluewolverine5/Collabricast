@@ -40,19 +40,17 @@
 @property (nonatomic, retain) GCKDevice *selectedDevice;
 @property (nonatomic, retain) NSString *session_id;
 @property (nonatomic, retain) UIButton *chromecastButton;
+@property (nonatomic, retain) UIButton *paintButton;
 @property (strong, nonatomic) IBOutlet UIView *containerView;
 @property (strong, nonatomic) IBOutlet UIImageView *imagePreview;
 @property (strong, nonatomic) IBOutlet UIImageView *imageDrawingProgress;
 @property (strong, nonatomic) IBOutlet UIImageView *imageDrawing;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *drawModeButton;
-@property (strong, nonatomic) IBOutlet UIBarButtonItem *sidebarButton;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *menuButton;
 
 - (IBAction)castImage:(id)sender;
 - (IBAction)selectImage:(id)sender;
 - (IBAction)drawMode:(id)sender;
-- (IBAction)toBrushSettings:(id)sender;
-- (IBAction)showFacebook:(id)sender;
 
 - (void) castCurrentImage:(NSString *)filename;
 - (NSString *)getIPAddress;

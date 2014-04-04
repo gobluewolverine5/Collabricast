@@ -19,6 +19,8 @@
     MCPeerID *remote_peerID;
     NSNumber *index;
     NSString *url;
+    int img_count;
+    NSMutableArray *vote_response;
 }
 
 @synthesize delegate;
@@ -32,11 +34,20 @@
     return self;
 }
 
-- (void)initWithSession:(MCSession *)ses localPeer:(MCPeerID *)lPeer remotePeer:(MCPeerID *)rPeer
+- (void)initWithSession:(MCSession *)ses
+              localPeer:(MCPeerID *)lPeer
+             remotePeer:(MCPeerID *)rPeer
+             imageCount:(int)count
 {
     session         = ses;
     local_peerID    = lPeer;
     remote_peerID   = rPeer;
+    img_count       = count;
+   
+    vote_response   = [[NSMutableArray alloc] init];
+    for (int i=0; i < img_count; i++) {
+        [vote_response addObject:[NSNumber numberWithInt:NO_VOTE]];
+    }
     
     session.delegate = self;
 }
@@ -73,10 +84,24 @@
 
 - (IBAction)upVote:(id)sender
 {
+    [vote_response setObject:[NSNumber numberWithInt:UP_VOTE]
+          atIndexedSubscript:[index integerValue]];
+    [self handleVoteAt:index];
+    NSDictionary *msgpkt = @{@"type"  : [NSNumber numberWithInt:PEER_UPVOTE],
+                             @"index" : index};
+    NSData *data = [NSJSONSerialization dataWithJSONObject:msgpkt options:0 error:Nil];
+    [session sendData:data toPeers:session.connectedPeers withMode:MCSessionSendDataReliable error:Nil];
 }
 
 - (IBAction)downVote:(id)sender
 {
+    [vote_response setObject:[NSNumber numberWithInt:DOWN_VOTE]
+          atIndexedSubscript:[index integerValue]];
+    [self handleVoteAt:index];
+    NSDictionary *msgpkt = @{@"type"  : [NSNumber numberWithInt:PEER_DOWNVOTE],
+                             @"index" : index};
+    NSData *data = [NSJSONSerialization dataWithJSONObject:msgpkt options:0 error:Nil];
+    [session sendData:data toPeers:session.connectedPeers withMode:MCSessionSendDataReliable error:Nil];
 }
 
 - (IBAction)keepPhoto:(id)sender
@@ -116,6 +141,47 @@
     }
 }
 
+- (void)handleVoteAt:(NSNumber *)voteIndex
+{
+    UIColor *highlight = [UIColor colorWithRed:78.0/255.0
+                                         green:205.0/255.0
+                                          blue:196.0/255.0
+                                         alpha:1];
+    UIImage *up = [UIImage imageNamed:@"thumbs-up.png"];
+    UIImage *down = [UIImage imageNamed:@"thumbs-dn.png"];
+    NSNumber *value = (NSNumber *)[vote_response objectAtIndex:[voteIndex integerValue]];
+    NSLog(@"vote value: %@", value);
+    switch ([value integerValue]) {
+        case NO_VOTE:
+            _likeButton.imageView.image     = [self maskWithColor:[UIColor whiteColor]
+                                                            image:up];
+            _dislikeButton.imageView.image  = [self maskWithColor:[UIColor whiteColor]
+                                                            image:down];
+            _likeButton.userInteractionEnabled      = YES;
+            _dislikeButton.userInteractionEnabled   = YES;
+            break;
+        case UP_VOTE:
+            _likeButton.imageView.image     = [self maskWithColor:highlight
+                                                            image:up];
+            _dislikeButton.imageView.image  = [self maskWithColor:[UIColor whiteColor]
+                                                            image:down];
+            _likeButton.userInteractionEnabled      = NO;
+            _dislikeButton.userInteractionEnabled   = NO;
+            break;
+        case DOWN_VOTE:
+            _likeButton.imageView.image     = [self maskWithColor:[UIColor whiteColor]
+                                                            image:up];
+            _dislikeButton.imageView.image  = [self maskWithColor:highlight
+                                                            image:down];
+            _likeButton.userInteractionEnabled      = NO;
+            _dislikeButton.userInteractionEnabled   = NO;
+            break;
+            
+        default:
+            break;
+    }
+}
+
 #pragma mark - MCSession Delegate
 -(void)session:(MCSession *)session
 didFinishReceivingResourceWithName:(NSString *)resourceName
@@ -145,6 +211,7 @@ didReceiveData:(NSData *)data
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                 _imagePreview.image = [UIImage imageWithData:UIImageJPEGRepresentation([UIImage imageWithData:imageData], 0.1)];
+                [self handleVoteAt:index];
                 
             });
         });
@@ -191,12 +258,42 @@ didChangeState:(MCSessionState)state
             NSLog(@"Session::didChangeState: MCSessionStateConnecting");
             break;
             
-        case MCSessionStateNotConnected:
+        case MCSessionStateNotConnected: {
             NSLog(@"Session::didChangeState: MCSessionStateNotConnect");
+            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Error"
+                                                           message:@"Connection Lost"
+                                                          delegate:self
+                                                 cancelButtonTitle:@"OK"
+                                                 otherButtonTitles:nil];
+            [alert show];
+            [delegate peerControllerDidDismiss];
             break;
-            
+        }
         default:
             break;
     }
+}
+
+-(UIImage *) maskWithColor:(UIColor *)color image:(UIImage *)image
+{
+    CGImageRef maskImage = image.CGImage;
+    CGFloat width = image.size.width;
+    CGFloat height = image.size.height;
+    CGRect bounds = CGRectMake(0,0,width,height);
+    
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGContextRef bitmapContext = CGBitmapContextCreate(NULL, width, height, 8, 0, colorSpace, kCGImageAlphaPremultipliedLast);
+    CGContextClipToMask(bitmapContext, bounds, maskImage);
+    CGContextSetFillColorWithColor(bitmapContext, color.CGColor);
+    CGContextFillRect(bitmapContext, bounds);
+    
+    CGImageRef cImage = CGBitmapContextCreateImage(bitmapContext);
+    UIImage *coloredImage = [UIImage imageWithCGImage:cImage];
+    
+    CGContextRelease(bitmapContext);
+    CGColorSpaceRelease(colorSpace);
+    CGImageRelease(cImage);
+    
+    return coloredImage;
 }
 @end

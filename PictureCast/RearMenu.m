@@ -9,6 +9,8 @@
 #import "RearMenu.h"
 #import "SWRevealViewController.h"
 #import "BrushSettings.h"
+#import "SlideshowMain.h"
+#import "PeerSlideshow.h"
 #import "PictureCast.h"
 
 @implementation customCell
@@ -76,7 +78,30 @@
 {
     
     // configure the destination view controller:
-
+    if ([self.revealViewController.frontViewController isKindOfClass:[UINavigationController class]]) {
+        UINavigationController *navController = (UINavigationController *) self.revealViewController.frontViewController;
+        if ([navController.topViewController isKindOfClass:[SlideshowMain class]]) {
+            SlideshowMain *temp = (SlideshowMain *)navController.topViewController;
+            [temp.session disconnect];
+            [temp.advertiser stopAdvertisingPeer];
+            [_deviceScannerObject removeListener:temp];
+            NSLog(@"Slideshow host disconnecting");
+        }
+        else if ([self.revealViewController.frontViewController isKindOfClass:[PeerSlideshow class]]) {
+            PeerSlideshow *temp = (PeerSlideshow *)navController.topViewController;
+            [temp.session disconnect];
+            [temp.browser stopBrowsingForPeers];
+        }
+        else if ([self.revealViewController.frontViewController isKindOfClass:[PictureCast class]]) {
+            PictureCast *temp = (PictureCast *)self.revealViewController.frontViewController;
+            [_deviceScannerObject removeListener:temp];
+        }
+    }
+    /* Restoring GCK Delegates to menu */
+    _deviceManagerObject.delegate = self;
+    _mediaControlChannel.delegate = self;
+    
+    
     // configure the segue.
     if ( [segue isKindOfClass: [SWRevealViewControllerSegue class]] )
     {
@@ -90,18 +115,16 @@
         rvcs.performBlock = ^(SWRevealViewControllerSegue* rvc_segue, UIViewController* svc, UIViewController* dvc)
         {
             
-            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Storyboard" bundle:nil];
-            UINavigationController *sbnc = [storyboard instantiateViewControllerWithIdentifier:@"mainNav"];
-            svc = nil;
-            [sbnc popToRootViewControllerAnimated:NO];
-            UIViewController *temp = sbnc.topViewController;
-            [sbnc setViewControllers:@[dvc] animated:YES];
-            _deviceManagerObject.delegate =self;
-            _mediaControlChannel.delegate =self;
-            temp = nil;
-            //UINavigationController* nc = [[UINavigationController alloc] initWithRootViewController:dvc];
-            //nc.navigationBar.barTintColor   = [UIColor colorWithRed:35.0/255.0 green:54.0/255.0 blue:69.0/255.0 alpha:1];
-            [sbnc.navigationBar setTintColor:[UIColor colorWithRed:0.0/255.0 green:222.0/255.0 blue:242.0/255.0 alpha:1]];
+            UINavigationController* nc = [[UINavigationController alloc] initWithRootViewController:dvc];
+            nc.navigationBar.translucent = NO;
+            nc.navigationBar.barTintColor = [UIColor colorWithRed:78.0/255.0
+                                                             green:205.0/255.0
+                                                              blue:196.0/255.0
+                                                             alpha:1];
+            [nc.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor whiteColor]}];
+            [nc.navigationBar setTintColor:[UIColor whiteColor]];
+            
+            /* Initializing rightViewController ONLY IF PICTURECAST */
             if ([segue.destinationViewController isKindOfClass:[PictureCast class]]) {
                 UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Storyboard" bundle:nil];
                 BrushSettings *brushSettings = [storyboard instantiateViewControllerWithIdentifier:@"brushSettings"];
@@ -109,7 +132,7 @@
             } else {
                 [rvc setRightViewController:nil];
             }
-            [rvc pushFrontViewController:sbnc animated:YES];
+            [rvc pushFrontViewController:nc animated:YES];
             
         };
     }

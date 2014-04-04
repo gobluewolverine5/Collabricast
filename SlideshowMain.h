@@ -54,7 +54,6 @@
 - (IBAction)addImages:(id)sender;
 - (IBAction)toSettings:(id)sender;
 - (IBAction)playSlideshow:(id)sender;
-- (IBAction)deleteImage:(id)sender;
 - (IBAction)shiftRight:(id)sender;
 - (IBAction)shiftLeft:(id)sender;
 - (IBAction)shareSlides:(id)sender;

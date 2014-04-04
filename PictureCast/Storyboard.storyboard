@@ -156,7 +156,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="eta-DC-mWp">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="372"/>
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="300"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             </imageView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translucent="NO" id="dlr-Ui-Wva">
@@ -193,12 +193,36 @@
                                 </items>
                                 <color key="barTintColor" red="0.0" green="0.87058823529999996" blue="0.94901960780000005" alpha="1" colorSpace="calibratedRGB"/>
                             </toolbar>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="100" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="cyv-Sv-ogM">
+                                <rect key="frame" x="244" y="316" width="43" height="41"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="23"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="100" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ef2-c8-el2">
+                                <rect key="frame" x="80" y="311" width="43" height="41"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="23"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" image="thumbs-dn.png" id="k9g-Ms-X4H">
+                                <rect key="frame" x="40" y="320" width="32" height="32"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                            </imageView>
+                            <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" image="thumbs-up.png" id="fw2-PR-KZr">
+                                <rect key="frame" x="204" y="320" width="32" height="32"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" red="0.33333333329999998" green="0.38431372549999998" blue="0.43921568630000002" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
                     <navigationItem key="navigationItem" id="wsb-6P-Pcu"/>
                     <connections>
+                        <outlet property="dislikeIndicator" destination="ef2-c8-el2" id="oF8-zI-emM"/>
                         <outlet property="imagePreview" destination="eta-DC-mWp" id="Kl7-Z5-Z46"/>
+                        <outlet property="likeIndicator" destination="cyv-Sv-ogM" id="dwU-QB-34M"/>
                         <outlet property="nextButton" destination="zKr-v2-FPb" id="sVe-Sl-26K"/>
                         <outlet property="pauseButton" destination="DVU-1U-IvO" id="0jF-PF-Ge3"/>
                         <outlet property="playButton" destination="EGL-yP-AoH" id="kjd-Rm-iOg"/>
@@ -553,7 +577,7 @@
                                 <rect key="frame" x="192" y="303" width="117" height="62"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="16"/>
-                                <state key="normal" title="CONNECT">
+                                <state key="normal" title="N/A">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
@@ -615,11 +639,10 @@
                                 <rect key="frame" x="91" y="40" width="138" height="112"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="r5K-go-SZL">
-                                <rect key="frame" x="197" y="189" width="74" height="37"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="r5K-go-SZL">
+                                <rect key="frame" x="180" y="191" width="108" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="17"/>
-                                <state key="normal" title="UP VOTE">
+                                <state key="normal" image="thumbs-up.png">
                                     <color key="titleColor" red="0.78039215689999997" green="0.95686274510000002" blue="0.3921568627" alpha="1" colorSpace="calibratedRGB"/>
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -639,11 +662,10 @@
                                     <action selector="keepPhoto:" destination="WBu-TG-O2I" eventType="touchUpInside" id="U9X-S5-g3B"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="HWS-kq-0tq">
-                                <rect key="frame" x="46" y="189" width="102" height="37"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="HWS-kq-0tq">
+                                <rect key="frame" x="27" y="191" width="140" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="17"/>
-                                <state key="normal" title="DOWN VOTE">
+                                <state key="normal" image="thumbs-dn.png">
                                     <color key="titleColor" red="0.78039215689999997" green="0.95686274510000002" blue="0.3921568627" alpha="1" colorSpace="calibratedRGB"/>
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -666,7 +688,9 @@
                     </view>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
                     <connections>
+                        <outlet property="dislikeButton" destination="HWS-kq-0tq" id="NT3-3i-LL9"/>
                         <outlet property="imagePreview" destination="bbT-tX-zS5" id="Gfq-0R-vhK"/>
+                        <outlet property="likeButton" destination="r5K-go-SZL" id="ttM-KG-nYc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2c2-wX-1gs" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -754,7 +778,7 @@
             </objects>
             <point key="canvasLocation" x="967" y="1114"/>
         </scene>
-        <!--Picture Cast - PICTURE CAST-->
+        <!--Picture Cast - PICTURE-->
         <scene sceneID="Mvq-Tg-f8O">
             <objects>
                 <viewController id="p2K-UB-vtp" customClass="PictureCast" sceneMemberID="viewController">
@@ -812,7 +836,7 @@
                         </subviews>
                         <color key="backgroundColor" red="0.33333333329999998" green="0.38431372549999998" blue="0.43921568630000002" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
-                    <navigationItem key="navigationItem" title="PICTURE CAST" id="2dG-Ae-rdf">
+                    <navigationItem key="navigationItem" title="PICTURE" id="2dG-Ae-rdf">
                         <barButtonItem key="leftBarButtonItem" image="reveal-icon.png" id="sRJ-e6-568"/>
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
@@ -936,6 +960,8 @@
         <image name="SettingsButton.png" width="39" height="34"/>
         <image name="SlideshowCastButton.png" width="39" height="34"/>
         <image name="reveal-icon.png" width="22" height="17"/>
+        <image name="thumbs-dn.png" width="32" height="32"/>
+        <image name="thumbs-up.png" width="32" height="32"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

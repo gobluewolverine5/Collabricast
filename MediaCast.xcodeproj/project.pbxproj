@@ -221,6 +221,10 @@
 		998DEDA618DF4C9D00CD1719 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 998DEDA518DF4C9D00CD1719 /* User.m */; };
 		998DEDAB18DF69B800CD1719 /* CBAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 998DEDAA18DF69B800CD1719 /* CBAlertView.m */; };
 		998DEDAE18DFC50000CD1719 /* PeerSlideshow.m in Sources */ = {isa = PBXBuildFile; fileRef = 998DEDAD18DFC50000CD1719 /* PeerSlideshow.m */; };
+		99BBD90218ED159500E9E0D1 /* thumbs-dn.png in Resources */ = {isa = PBXBuildFile; fileRef = 99BBD8FE18ED159500E9E0D1 /* thumbs-dn.png */; };
+		99BBD90318ED159500E9E0D1 /* thumbs-dn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 99BBD8FF18ED159500E9E0D1 /* thumbs-dn@2x.png */; };
+		99BBD90418ED159500E9E0D1 /* thumbs-up.png in Resources */ = {isa = PBXBuildFile; fileRef = 99BBD90018ED159500E9E0D1 /* thumbs-up.png */; };
+		99BBD90518ED159500E9E0D1 /* thumbs-up@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 99BBD90118ED159500E9E0D1 /* thumbs-up@2x.png */; };
 		99F864F618A9D01100952004 /* DDData.m in Sources */ = {isa = PBXBuildFile; fileRef = 99F864D118A9D01100952004 /* DDData.m */; };
 		99F864F718A9D01100952004 /* DDNumber.m in Sources */ = {isa = PBXBuildFile; fileRef = 99F864D318A9D01100952004 /* DDNumber.m */; };
 		99F864F818A9D01100952004 /* DDRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 99F864D518A9D01100952004 /* DDRange.m */; };
@@ -634,6 +638,10 @@
 		998DEDAA18DF69B800CD1719 /* CBAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CBAlertView.m; sourceTree = "<group>"; };
 		998DEDAC18DFC50000CD1719 /* PeerSlideshow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PeerSlideshow.h; sourceTree = "<group>"; };
 		998DEDAD18DFC50000CD1719 /* PeerSlideshow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PeerSlideshow.m; sourceTree = "<group>"; };
+		99BBD8FE18ED159500E9E0D1 /* thumbs-dn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "thumbs-dn.png"; sourceTree = "<group>"; };
+		99BBD8FF18ED159500E9E0D1 /* thumbs-dn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "thumbs-dn@2x.png"; sourceTree = "<group>"; };
+		99BBD90018ED159500E9E0D1 /* thumbs-up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "thumbs-up.png"; sourceTree = "<group>"; };
+		99BBD90118ED159500E9E0D1 /* thumbs-up@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "thumbs-up@2x.png"; sourceTree = "<group>"; };
 		99C9E60018EB0AFC00B94E28 /* MultipeerRules.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MultipeerRules.h; sourceTree = "<group>"; };
 		99F864D018A9D01100952004 /* DDData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDData.h; sourceTree = "<group>"; };
 		99F864D118A9D01100952004 /* DDData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDData.m; sourceTree = "<group>"; };
@@ -838,9 +846,13 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		991A18EB18E86D6E00C2851A /* Buttons 2 */ = {
+		991A18EB18E86D6E00C2851A /* Buttons */ = {
 			isa = PBXGroup;
 			children = (
+				99BBD8FE18ED159500E9E0D1 /* thumbs-dn.png */,
+				99BBD8FF18ED159500E9E0D1 /* thumbs-dn@2x.png */,
+				99BBD90018ED159500E9E0D1 /* thumbs-up.png */,
+				99BBD90118ED159500E9E0D1 /* thumbs-up@2x.png */,
 				991A18EC18E86D6E00C2851A /* AddImageButton.png */,
 				991A18ED18E86D6E00C2851A /* AddImageButton@2x.png */,
 				991A18EE18E86D6E00C2851A /* CastButton.png */,
@@ -872,7 +884,7 @@
 				991A190818E86D6E00C2851A /* TrashButton.png */,
 				991A190918E86D6E00C2851A /* TrashButton@2x.png */,
 			);
-			name = "Buttons 2";
+			name = Buttons;
 			path = "../PictureCast/Buttons 2";
 			sourceTree = "<group>";
 		};
@@ -1422,7 +1434,7 @@
 		9987E57318D25FE9001E4601 /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				991A18EB18E86D6E00C2851A /* Buttons 2 */,
+				991A18EB18E86D6E00C2851A /* Buttons */,
 				994FF13A18E511BD009140C7 /* Icon */,
 				9932D8AC18E156D40061A90E /* reveal-icon.png */,
 				9932D8AD18E156D40061A90E /* reveal-icon@2x.png */,
@@ -1640,7 +1652,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99BBD90418ED159500E9E0D1 /* thumbs-up.png in Resources */,
 				9974481618E8998100AB765E /* GCConfiguration.plist in Resources */,
+				99BBD90518ED159500E9E0D1 /* thumbs-up@2x.png in Resources */,
 				991A198D18E88DDF00C2851A /* flickr.png in Resources */,
 				992044A618B69310005748DA /* ELCAssetPicker.xib in Resources */,
 				991A191118E86D6E00C2851A /* EraseButton@2x.png in Resources */,
@@ -1648,6 +1662,7 @@
 				991A199018E88DDF00C2851A /* google@2x.png in Resources */,
 				991A199D18E88DDF00C2851A /* popover_border.png in Resources */,
 				991A199318E88DDF00C2851A /* gradient_blue.png in Resources */,
+				99BBD90218ED159500E9E0D1 /* thumbs-dn.png in Resources */,
 				991A198A18E88DDF00C2851A /* dropbox@2x.png in Resources */,
 				991A199C18E88DDF00C2851A /* popover_arrow.png in Resources */,
 				991A191318E86D6E00C2851A /* HomeButton@2x.png in Resources */,
@@ -1680,6 +1695,7 @@
 				991A198B18E88DDF00C2851A /* facebook.png in Resources */,
 				9902003918A93E080039AFCC /* icon-cast-identified.png in Resources */,
 				991A199218E88DDF00C2851A /* googledrive@2x.png in Resources */,
+				99BBD90318ED159500E9E0D1 /* thumbs-dn@2x.png in Resources */,
 				991A191518E86D6E00C2851A /* ImageCastButton@2x.png in Resources */,
 				991A191B18E86D6E00C2851A /* OffIcon@2x.png in Resources */,
 				994FF14618E511BD009140C7 /* Icon-76@2x.png in Resources */,

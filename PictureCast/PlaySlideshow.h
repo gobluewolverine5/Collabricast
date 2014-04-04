@@ -40,6 +40,8 @@
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *playButton;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *pauseButton;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *nextButton;
+@property (strong, nonatomic) IBOutlet UILabel *dislikeIndicator;
+@property (strong, nonatomic) IBOutlet UILabel *likeIndicator;
 
 - (IBAction)goToPrevious:(id)sender;
 - (IBAction)goToNext:(id)sender;

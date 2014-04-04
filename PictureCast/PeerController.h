@@ -23,9 +23,13 @@
 - (IBAction)downVote:(id)sender;
 - (IBAction)keepPhoto:(id)sender;
 
+@property (strong, nonatomic) IBOutlet UIButton *likeButton;
+@property (strong, nonatomic) IBOutlet UIButton *dislikeButton;
+
 - (void)initWithSession:(MCSession*)ses
               localPeer:(MCPeerID*)lPeer
-             remotePeer:(MCPeerID*)rPeer;
+             remotePeer:(MCPeerID*)rPeer
+             imageCount:(int)count;
 
 @end
 

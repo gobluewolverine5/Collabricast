@@ -105,6 +105,8 @@
     _chromecastButton.frame = CGRectMake(0, 0, _cast_btn.size.width, _cast_btn.size.height);
     [_chromecastButton setImage:nil forState:UIControlStateNormal];
     _chromecastButton.hidden = YES;
+    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
+    [rearMenu.deviceScannerObject addListener:self];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_chromecastButton];
     [self updateButtonStates];
@@ -134,7 +136,6 @@
     RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     rearMenu.deviceManagerObject.delegate = self;
     rearMenu.mediaControlChannel.delegate = self;
-    [rearMenu.deviceScannerObject addListener:self];
     [advertiser startAdvertisingPeer];
     if ([images count] > 0) [self refreshSlideshowQueuePreview];
 }
@@ -142,8 +143,6 @@
 -(void)viewWillDisappear:(BOOL)animated
 {
     [advertiser stopAdvertisingPeer];
-    RearMenu *rearMenu = (RearMenu *) self.revealViewController.rearViewController;
-    [rearMenu.deviceScannerObject removeListener:self];
     
     //if ([picture_ops clearCache]) NSLog(@"Cleared Cache");
     //image_files = Nil;
@@ -252,10 +251,6 @@
     }
     [self broadCastSlideshow];
 }
-- (IBAction)deleteImage:(id)sender
-{
-
-}
 
 - (IBAction)shiftRight:(id)sender
 {
@@ -311,7 +306,12 @@
 
 - (void) refreshSlideshowQueuePreview
 {
-    if (currentIndex >= image_files.count) {
+    if (image_files.count == 0) {
+        leftImage.image     = Nil;
+        middleImage.image   = Nil;
+        rightImage.image    = Nil;
+        return;
+    } else if (currentIndex >= image_files.count) {
         currentIndex = image_files.count - 1;
     }
     [UIView beginAnimations:@"animate" context:nil];
@@ -491,7 +491,8 @@ didConnectToCastApplication:(GCKApplicationMetadata *)applicationMetadata
 
 - (void) broadCastSlideshow
 {
-    NSDictionary *msgpkt = @{@"type": [NSNumber numberWithInt:BROADCAST_SLIDESHOW]};
+    NSDictionary *msgpkt = @{@"type": [NSNumber numberWithInt:BROADCAST_SLIDESHOW],
+                             @"num" : [NSNumber numberWithInt:(int)[images count]]};
     NSData *data = [NSJSONSerialization dataWithJSONObject:msgpkt options:0 error:Nil];
     [_session sendData:data toPeers:peers withMode:MCSessionSendDataReliable error:Nil];
 }
@@ -692,21 +693,21 @@ didFinishReceivingResourceWithName:(NSString *)resourceName
                 
                 /* REMOVING ALL IMAGES BELONGING TO PEERID */
                 NSString *hostString = _peerHostLookup[peerID.displayName];
-                for (int i = (int) images.count-1; i >= 0; i--) {
-                    NSURL *tempUrl = [NSURL URLWithString:[images objectAtIndex:i]];
-                    if ([[tempUrl host] isEqualToString:hostString]) {
-                        [images removeObjectAtIndex:i];
-                        [image_files removeObjectAtIndex:i];
-                    }
-                }
-                
-                /* REMOVING PEER FROM PEER ARRAY */
-                for (int i = 0; i < peers.count; i++) {
-                    [peers removeObjectAtIndex:i];
-                    break;
-                }
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    for (int i = (int) images.count-1; i >= 0; i--) {
+                        NSURL *tempUrl = [NSURL URLWithString:[images objectAtIndex:i]];
+                        if ([[tempUrl host] isEqualToString:hostString]) {
+                            [images removeObjectAtIndex:i];
+                            [image_files removeObjectAtIndex:i];
+                        }
+                    }
+                    
+                    /* REMOVING PEER FROM PEER ARRAY */
+                    for (int i = 0; i < peers.count; i++) {
+                        [peers removeObjectAtIndex:i];
+                        break;
+                    }
                     [self refreshSlideshowQueuePreview];
                     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Peer"
                                                                     message:[NSString stringWithFormat:@"%@ has left the session",peerID.displayName]
