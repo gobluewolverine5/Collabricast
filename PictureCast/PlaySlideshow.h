@@ -42,6 +42,7 @@
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *nextButton;
 @property (strong, nonatomic) IBOutlet UILabel *dislikeIndicator;
 @property (strong, nonatomic) IBOutlet UILabel *likeIndicator;
+@property (strong, nonatomic) IBOutlet UIActivityIndicatorView *loadingWheel;
 
 - (IBAction)goToPrevious:(id)sender;
 - (IBAction)goToNext:(id)sender;

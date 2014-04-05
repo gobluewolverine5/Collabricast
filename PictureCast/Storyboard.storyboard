@@ -215,6 +215,10 @@
                                 <rect key="frame" x="204" y="320" width="32" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                             </imageView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" id="FQP-ao-Mb3">
+                                <rect key="frame" x="142" y="316" width="37" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="0.33333333329999998" green="0.38431372549999998" blue="0.43921568630000002" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
@@ -223,6 +227,7 @@
                         <outlet property="dislikeIndicator" destination="ef2-c8-el2" id="oF8-zI-emM"/>
                         <outlet property="imagePreview" destination="eta-DC-mWp" id="Kl7-Z5-Z46"/>
                         <outlet property="likeIndicator" destination="cyv-Sv-ogM" id="dwU-QB-34M"/>
+                        <outlet property="loadingWheel" destination="FQP-ao-Mb3" id="cVk-ja-nB3"/>
                         <outlet property="nextButton" destination="zKr-v2-FPb" id="sVe-Sl-26K"/>
                         <outlet property="pauseButton" destination="DVU-1U-IvO" id="0jF-PF-Ge3"/>
                         <outlet property="playButton" destination="EGL-yP-AoH" id="kjd-Rm-iOg"/>
@@ -823,6 +828,13 @@
                                             <action selector="drawMode:" destination="p2K-UB-vtp" id="UU9-fM-QZN"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="9QA-gQ-z64"/>
+                                    <barButtonItem image="TrashButton.png" id="CpQ-Dp-UEW">
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <connections>
+                                            <action selector="clearDrawing:" destination="p2K-UB-vtp" id="8g6-bG-xcR"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="Ja0-L5-Mu2"/>
                                     <barButtonItem image="CastButton.png" id="0pi-tA-trR">
                                         <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -959,6 +971,7 @@
         <image name="RightArrow.png" width="39" height="34"/>
         <image name="SettingsButton.png" width="39" height="34"/>
         <image name="SlideshowCastButton.png" width="39" height="34"/>
+        <image name="TrashButton.png" width="39" height="34"/>
         <image name="reveal-icon.png" width="22" height="17"/>
         <image name="thumbs-dn.png" width="32" height="32"/>
         <image name="thumbs-up.png" width="32" height="32"/>

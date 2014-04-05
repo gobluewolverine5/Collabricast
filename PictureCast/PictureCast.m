@@ -221,6 +221,12 @@
     }
 }
 
+- (IBAction)clearDrawing:(id)sender
+{
+    imageDrawing.image          = Nil;
+    imageDrawingProgress.image  = Nil;
+}
+
 - (void) castCurrentImage:(NSString*)filename
 {
     GCKMediaMetadata *metadata = [[GCKMediaMetadata alloc]init];

@@ -59,6 +59,7 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    [_loadingWheel removeFromSuperview];
     rearMenu = (RearMenu *) self.revealViewController.rearViewController;
     
     playing = TRUE;
@@ -166,17 +167,17 @@
 
 - (void) advancePicture:(BOOL)forward
 {
+    /* ACTIVATING LOADING WHEEL */
+    [_loadingWheel startAnimating];
+    [self.view addSubview:_loadingWheel];
+    self.view.userInteractionEnabled = NO;
+    
     if (forward) {
         index = (index + 1) % [images count];
     } else {
         index = (index - 1) % [images count];
     }
     NSLog(@"index: %i", index);
-    /*
-    AppDelegate *app_delegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
-    NSString *saveDirectory = [NSString stringWithFormat:@"%@/%@", [app_delegate cacheURL], [images objectAtIndex:index]];
-    NSData *data = [[NSFileManager defaultManager] contentsAtPath:saveDirectory];
-     */
     GCKMediaMetadata *metadata = [[GCKMediaMetadata alloc]init];
   
     NSURL *url = [[NSURL alloc]initWithString:[images objectAtIndex:index]];
@@ -199,17 +200,19 @@
     }
     [self broadcastPictureUrl:[images objectAtIndex:index]
                         index:[NSNumber numberWithInt:index]];
+    
     double delayInSeconds = 1.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        /*
-        imagePreview.image  = [UIImage imageWithCGImage:((UIImage*)[_image_files objectAtIndex:index]).CGImage
-                                                  scale:1.0f
-                                            orientation:UIImageOrientationUp];
-         */
         imagePreview.image = [_image_files objectAtIndex:index];
         [_likeIndicator setText:[NSString stringWithFormat:@"%@", [upvote_tally objectAtIndex:index]]];
         [_dislikeIndicator setText:[NSString stringWithFormat:@"%@", [dwnvote_tally objectAtIndex:index]]];
+       
+        /* STOPPING LOADING ANIMATION */
+        [_loadingWheel stopAnimating];
+        [_loadingWheel removeFromSuperview];
+        self.view.userInteractionEnabled = YES;
+        
     });
 
 }

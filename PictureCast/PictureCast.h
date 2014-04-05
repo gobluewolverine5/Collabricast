@@ -51,6 +51,7 @@
 - (IBAction)castImage:(id)sender;
 - (IBAction)selectImage:(id)sender;
 - (IBAction)drawMode:(id)sender;
+- (IBAction)clearDrawing:(id)sender;
 
 - (void) castCurrentImage:(NSString *)filename;
 - (NSString *)getIPAddress;

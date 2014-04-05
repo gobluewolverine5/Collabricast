@@ -59,10 +59,24 @@
     [self.navigationController.navigationBar setTranslucent:NO];
     [self.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
     [self.navigationItem setHidesBackButton:YES];
+    index = [NSNumber numberWithInt:0];
+    
+    /* INITIALIZING VOTE BUTTONS */
+    UIImage *up   = [UIImage imageNamed:@"thumbs-up.png"];
+    UIImage *down = [UIImage imageNamed:@"thumbs-dn.png"];
+    [_likeButton setImage:[self maskWithColor:[UIColor whiteColor] image:up]
+                 forState:UIControlStateNormal];
+    [_dislikeButton setImage:[self maskWithColor:[UIColor whiteColor] image:down]
+                    forState:UIControlStateNormal];
+    
+    /* DISABLING DEVICE SLEEP */
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    /* RE-ENABLING DEVICE SLEEP */
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
 }
 
 - (void)didReceiveMemoryWarning
@@ -82,6 +96,7 @@
 }
 */
 
+#pragma mark - IBAction
 - (IBAction)upVote:(id)sender
 {
     [vote_response setObject:[NSNumber numberWithInt:UP_VOTE]
@@ -143,36 +158,37 @@
 
 - (void)handleVoteAt:(NSNumber *)voteIndex
 {
-    UIColor *highlight = [UIColor colorWithRed:78.0/255.0
+    UIImage *up         = [UIImage imageNamed:@"thumbs-up.png"];
+    UIImage *down       = [UIImage imageNamed:@"thumbs-dn.png"];
+    NSNumber *value     = (NSNumber *)[vote_response objectAtIndex:[voteIndex integerValue]];
+    UIColor *highlight  = [UIColor colorWithRed:78.0/255.0
                                          green:205.0/255.0
                                           blue:196.0/255.0
                                          alpha:1];
-    UIImage *up = [UIImage imageNamed:@"thumbs-up.png"];
-    UIImage *down = [UIImage imageNamed:@"thumbs-dn.png"];
-    NSNumber *value = (NSNumber *)[vote_response objectAtIndex:[voteIndex integerValue]];
     NSLog(@"vote value: %@", value);
     switch ([value integerValue]) {
         case NO_VOTE:
-            _likeButton.imageView.image     = [self maskWithColor:[UIColor whiteColor]
-                                                            image:up];
-            _dislikeButton.imageView.image  = [self maskWithColor:[UIColor whiteColor]
-                                                            image:down];
+            [_likeButton setImage:[self maskWithColor:[UIColor whiteColor] image:up]
+                         forState:UIControlStateNormal];
+            [_dislikeButton setImage:[self maskWithColor:[UIColor whiteColor] image:down]
+                            forState:UIControlStateNormal];
             _likeButton.userInteractionEnabled      = YES;
             _dislikeButton.userInteractionEnabled   = YES;
             break;
         case UP_VOTE:
-            _likeButton.imageView.image     = [self maskWithColor:highlight
-                                                            image:up];
-            _dislikeButton.imageView.image  = [self maskWithColor:[UIColor whiteColor]
-                                                            image:down];
+            
+            [_likeButton setImage:[self maskWithColor:highlight image:up]
+                         forState:UIControlStateNormal];
+            [_dislikeButton setImage:[self maskWithColor:[UIColor whiteColor] image:down]
+                            forState:UIControlStateNormal];
             _likeButton.userInteractionEnabled      = NO;
             _dislikeButton.userInteractionEnabled   = NO;
             break;
         case DOWN_VOTE:
-            _likeButton.imageView.image     = [self maskWithColor:[UIColor whiteColor]
-                                                            image:up];
-            _dislikeButton.imageView.image  = [self maskWithColor:highlight
-                                                            image:down];
+            [_likeButton setImage:[self maskWithColor:[UIColor whiteColor] image:up]
+                         forState:UIControlStateNormal];
+            [_dislikeButton setImage:[self maskWithColor:highlight image:down]
+                            forState:UIControlStateNormal];
             _likeButton.userInteractionEnabled      = NO;
             _dislikeButton.userInteractionEnabled   = NO;
             break;
@@ -262,7 +278,7 @@ didChangeState:(MCSessionState)state
             NSLog(@"Session::didChangeState: MCSessionStateNotConnect");
             UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Error"
                                                            message:@"Connection Lost"
-                                                          delegate:self
+                                                          delegate:self.presentingViewController
                                                  cancelButtonTitle:@"OK"
                                                  otherButtonTitles:nil];
             [alert show];
