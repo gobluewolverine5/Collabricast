@@ -62,8 +62,8 @@
     index = [NSNumber numberWithInt:0];
     
     /* INITIALIZING VOTE BUTTONS */
-    UIImage *up   = [UIImage imageNamed:@"thumbs-up.png"];
-    UIImage *down = [UIImage imageNamed:@"thumbs-dn.png"];
+    UIImage *up   = [UIImage imageNamed:@"ThumbsUp.png"];
+    UIImage *down = [UIImage imageNamed:@"ThumbsDown.png"];
     [_likeButton setImage:[self maskWithColor:[UIColor whiteColor] image:up]
                  forState:UIControlStateNormal];
     [_dislikeButton setImage:[self maskWithColor:[UIColor whiteColor] image:down]
@@ -76,7 +76,7 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     /* RE-ENABLING DEVICE SLEEP */
-    [UIApplication sharedApplication].idleTimerDisabled = YES;
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
 }
 
 - (void)didReceiveMemoryWarning
@@ -158,8 +158,8 @@
 
 - (void)handleVoteAt:(NSNumber *)voteIndex
 {
-    UIImage *up         = [UIImage imageNamed:@"thumbs-up.png"];
-    UIImage *down       = [UIImage imageNamed:@"thumbs-dn.png"];
+    UIImage *up         = [UIImage imageNamed:@"ThumbsUp.png"];
+    UIImage *down       = [UIImage imageNamed:@"ThumbsDown.png"];
     NSNumber *value     = (NSNumber *)[vote_response objectAtIndex:[voteIndex integerValue]];
     UIColor *highlight  = [UIColor colorWithRed:78.0/255.0
                                          green:205.0/255.0

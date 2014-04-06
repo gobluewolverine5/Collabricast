@@ -110,6 +110,9 @@
     /* MC SESSION */
     _session.delegate = self;
     
+    /* DISABLING DEVICE SLEEP */
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
+    
 }
 
 -(void)viewDidAppear:(BOOL)animated
@@ -123,6 +126,9 @@
 {
     [self stopTimer];
     [self broadcastStopSlideshow];
+    
+    /* RE-ENABLING DEVICE SLEEP */
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
 }
 
 - (void)didReceiveMemoryWarning

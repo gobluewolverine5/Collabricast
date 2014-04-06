@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "991382C518A74638009862EA"
                BuildableName = "MediaCast.app"
-               BlueprintName = "MediaCast"
-               ReferencedContainer = "container:MediaCast.xcodeproj">
+               BlueprintName = "Collabricast"
+               ReferencedContainer = "container:Collabricast.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -34,8 +34,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "991382E018A74639009862EA"
                BuildableName = "MediaCastTests.xctest"
-               BlueprintName = "MediaCastTests"
-               ReferencedContainer = "container:MediaCast.xcodeproj">
+               BlueprintName = "CollabricastTests"
+               ReferencedContainer = "container:Collabricast.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -44,8 +44,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "991382C518A74638009862EA"
             BuildableName = "MediaCast.app"
-            BlueprintName = "MediaCast"
-            ReferencedContainer = "container:MediaCast.xcodeproj">
+            BlueprintName = "Collabricast"
+            ReferencedContainer = "container:Collabricast.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -63,8 +63,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "991382C518A74638009862EA"
             BuildableName = "MediaCast.app"
-            BlueprintName = "MediaCast"
-            ReferencedContainer = "container:MediaCast.xcodeproj">
+            BlueprintName = "Collabricast"
+            ReferencedContainer = "container:Collabricast.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -81,8 +81,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "991382C518A74638009862EA"
             BuildableName = "MediaCast.app"
-            BlueprintName = "MediaCast"
-            ReferencedContainer = "container:MediaCast.xcodeproj">
+            BlueprintName = "Collabricast"
+            ReferencedContainer = "container:Collabricast.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
