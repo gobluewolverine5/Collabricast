@@ -20,7 +20,7 @@
 		991382E418A74639009862EA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 991382C918A74639009862EA /* Foundation.framework */; };
 		991382E518A74639009862EA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 991382CD18A74639009862EA /* UIKit.framework */; };
 		991382ED18A74639009862EA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 991382EB18A74639009862EA /* InfoPlist.strings */; };
-		991382EF18A74639009862EA /* PictureCastTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 991382EE18A74639009862EA /* PictureCastTests.m */; };
+		991382EF18A74639009862EA /* CollabricastTests in Sources */ = {isa = PBXBuildFile; fileRef = 991382EE18A74639009862EA /* CollabricastTests */; };
 		991382F918A7464E009862EA /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 991382F818A7464E009862EA /* Storyboard.storyboard */; };
 		991382FC18A746BC009862EA /* PictureCast.m in Sources */ = {isa = PBXBuildFile; fileRef = 991382FB18A746BC009862EA /* PictureCast.m */; };
 		991382FE18A7473B009862EA /* GoogleCast.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 991382FD18A7473B009862EA /* GoogleCast.framework */; };
@@ -270,6 +270,7 @@
 		99F8651F18A9D16C00952004 /* DispatchQueueLogFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 99F8651718A9D16C00952004 /* DispatchQueueLogFormatter.m */; };
 		99F8652418A9D17100952004 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 99F8652318A9D17100952004 /* GCDAsyncSocket.m */; };
 		99FC209518D67285006ADEB2 /* SettingsTableVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 99FC209418D67285006ADEB2 /* SettingsTableVC.m */; };
+		99FFA1C1191D82EF00C0A642 /* GCConfiguration-Sample.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FFA1C0191D82EF00C0A642 /* GCConfiguration-Sample.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -293,14 +294,13 @@
 		991382D318A74639009862EA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		991382D518A74639009862EA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		991382D718A74639009862EA /* Collabricast-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Collabricast-Prefix.pch"; sourceTree = "<group>"; };
-		991382D818A74639009862EA /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		991382D918A74639009862EA /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		991382DB18A74639009862EA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		991382E118A74639009862EA /* CollabricastTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CollabricastTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		991382E218A74639009862EA /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		991382EA18A74639009862EA /* CollabricastTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CollabricastTests-Info.plist"; sourceTree = "<group>"; };
 		991382EC18A74639009862EA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		991382EE18A74639009862EA /* PictureCastTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PictureCastTests.m; path = PictureCastTests/PictureCastTests.m; sourceTree = "<group>"; };
+		991382EE18A74639009862EA /* CollabricastTests */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CollabricastTests; sourceTree = "<group>"; };
 		991382F818A7464E009862EA /* Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard.storyboard; sourceTree = "<group>"; };
 		991382FA18A746BC009862EA /* PictureCast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PictureCast.h; sourceTree = "<group>"; };
 		991382FB18A746BC009862EA /* PictureCast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PictureCast.m; sourceTree = "<group>"; };
@@ -606,8 +606,8 @@
 		9920449D18B69310005748DA /* ELCAssetTablePicker.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ELCAssetTablePicker.xib; sourceTree = "<group>"; };
 		9920449E18B69310005748DA /* Overlay.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Overlay.png; sourceTree = "<group>"; };
 		9920449F18B69310005748DA /* Overlay@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Overlay@2x.png"; sourceTree = "<group>"; };
-		992044AA18B696C5005748DA /* SlideshowMain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SlideshowMain.h; path = ../SlideshowMain.h; sourceTree = "<group>"; };
-		992044AB18B696C5005748DA /* SlideshowMain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SlideshowMain.m; path = ../SlideshowMain.m; sourceTree = "<group>"; };
+		992044AA18B696C5005748DA /* SlideshowMain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SlideshowMain.h; sourceTree = "<group>"; };
+		992044AB18B696C5005748DA /* SlideshowMain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SlideshowMain.m; sourceTree = "<group>"; };
 		992712D618F1C500007EBAD6 /* Black.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Black.png; sourceTree = "<group>"; };
 		992712D718F1C500007EBAD6 /* Black@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Black@2x.png"; sourceTree = "<group>"; };
 		992712D818F1C500007EBAD6 /* Blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Blue.png; sourceTree = "<group>"; };
@@ -736,6 +736,8 @@
 		99F8652318A9D17100952004 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		99FC209318D67285006ADEB2 /* SettingsTableVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsTableVC.h; sourceTree = "<group>"; };
 		99FC209418D67285006ADEB2 /* SettingsTableVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsTableVC.m; sourceTree = "<group>"; };
+		99FFA1C0191D82EF00C0A642 /* GCConfiguration-Sample.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GCConfiguration-Sample.plist"; sourceTree = "<group>"; };
+		99FFA1C2191D86C200C0A642 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -774,7 +776,8 @@
 				9902003518A93E080039AFCC /* icon-cast-identified.png */,
 				9902003618A93E080039AFCC /* icon-cast-identified@2x.png */,
 			);
-			path = Cast_Icons;
+			name = Cast_Icons;
+			path = Images/Cast_Icons;
 			sourceTree = SOURCE_ROOT;
 		};
 		9902F80F18D380DD00C4DE07 /* Slideshow Cast */ = {
@@ -789,15 +792,15 @@
 				997BE43E18E67C07002D1247 /* SlideshowReorder.h */,
 				997BE43F18E67C07002D1247 /* SlideshowReorder.m */,
 			);
-			name = "Slideshow Cast";
+			path = "Slideshow Cast";
 			sourceTree = "<group>";
 		};
 		991382BD18A74638009862EA = {
 			isa = PBXGroup;
 			children = (
-				991382CF18A74639009862EA /* PictureCast */,
+				991382CF18A74639009862EA /* Collabricast */,
 				991382E818A74639009862EA /* PictureCastTests */,
-				991382EE18A74639009862EA /* PictureCastTests.m */,
+				991382EE18A74639009862EA /* CollabricastTests */,
 				991382C818A74639009862EA /* Frameworks */,
 				991382C718A74639009862EA /* Products */,
 				991382FD18A7473B009862EA /* GoogleCast.framework */,
@@ -829,13 +832,12 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		991382CF18A74639009862EA /* PictureCast */ = {
+		991382CF18A74639009862EA /* Collabricast */ = {
 			isa = PBXGroup;
 			children = (
 				9932D89E18E11D330061A90E /* Library */,
 				9987E57318D25FE9001E4601 /* Images */,
-				9902003218A93E080039AFCC /* Cast_Icons */,
-				991382D818A74639009862EA /* AppDelegate.h */,
+				99FFA1C2191D86C200C0A642 /* AppDelegate.h */,
 				991382D918A74639009862EA /* AppDelegate.m */,
 				991382DB18A74639009862EA /* Images.xcassets */,
 				991382D018A74639009862EA /* Supporting Files */,
@@ -853,7 +855,7 @@
 				9932D8A718E12F730061A90E /* Home.m */,
 				99C9E60018EB0AFC00B94E28 /* MultipeerRules.h */,
 			);
-			path = PictureCast;
+			path = Collabricast;
 			sourceTree = "<group>";
 		};
 		991382D018A74639009862EA /* Supporting Files */ = {
@@ -882,6 +884,7 @@
 				991382EB18A74639009862EA /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			path = CollabricastTests;
 			sourceTree = "<group>";
 		};
 		991A18EB18E86D6E00C2851A /* Buttons */ = {
@@ -926,8 +929,7 @@
 				991A190818E86D6E00C2851A /* TrashButton.png */,
 				991A190918E86D6E00C2851A /* TrashButton@2x.png */,
 			);
-			name = Buttons;
-			path = "../PictureCast/Buttons 2";
+			path = Buttons;
 			sourceTree = "<group>";
 		};
 		991A192818E88DDF00C2851A /* PhotoPickerPlus */ = {
@@ -983,6 +985,7 @@
 		991A193A18E88DDF00C2851A /* Configuration */ = {
 			isa = PBXGroup;
 			children = (
+				99FFA1C0191D82EF00C0A642 /* GCConfiguration-Sample.plist */,
 				991A193B18E88DDF00C2851A /* GCConfiguration.plist */,
 				991A193C18E88DDF00C2851A /* GCMacros.h */,
 				991A193D18E88DDF00C2851A /* GCPhotoPickerConfiguration.h */,
@@ -1450,6 +1453,7 @@
 				9920448D18B69310005748DA /* ELCImagePicker */,
 			);
 			name = Library;
+			path = "External Libraries";
 			sourceTree = "<group>";
 		};
 		9932D89F18E11D4E0061A90E /* SWRevealViewController */ = {
@@ -1458,7 +1462,7 @@
 				9932D8A018E11D7D0061A90E /* SWRevealViewController.h */,
 				9932D8A118E11D7D0061A90E /* SWRevealViewController.m */,
 			);
-			name = SWRevealViewController;
+			path = SWRevealViewController;
 			sourceTree = "<group>";
 		};
 		994FF13A18E511BD009140C7 /* Icon */ = {
@@ -1496,12 +1500,13 @@
 				9987E56C18D25D4E001E4601 /* BrushSettings.h */,
 				9987E56D18D25D4E001E4601 /* BrushSettings.m */,
 			);
-			name = "Picture Cast";
+			path = "Picture Cast";
 			sourceTree = "<group>";
 		};
 		9987E57318D25FE9001E4601 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				9902003218A93E080039AFCC /* Cast_Icons */,
 				991A18EB18E86D6E00C2851A /* Buttons */,
 				994FF13A18E511BD009140C7 /* Icon */,
 				9932D8AC18E156D40061A90E /* reveal-icon.png */,
@@ -1523,7 +1528,7 @@
 				994FF14D18E52D30009140C7 /* PeerController.h */,
 				994FF14E18E52D30009140C7 /* PeerController.m */,
 			);
-			name = "Join Slideshow";
+			path = "Join Slideshow";
 			sourceTree = "<group>";
 		};
 		99F864CE18A9D01100952004 /* CocoaHTTPServerCore */ = {
@@ -1689,6 +1694,9 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "EECS 441";
 				TargetAttributes = {
+					991382C518A74638009862EA = {
+						DevelopmentTeam = 6WFA3ZK634;
+					};
 					991382E018A74639009862EA = {
 						TestTargetID = 991382C518A74638009862EA;
 					};
@@ -1796,6 +1804,7 @@
 				991A198518E88DDF00C2851A /* album_default.png in Resources */,
 				991A191F18E86D6E00C2851A /* PencilButton@2x.png in Resources */,
 				992712EB18F1C500007EBAD6 /* Blue.png in Resources */,
+				99FFA1C1191D82EF00C0A642 /* GCConfiguration-Sample.plist in Resources */,
 				991A199118E88DDF00C2851A /* googledrive.png in Resources */,
 				992712FF18F1D633007EBAD6 /* ThumbsUp@2x.png in Resources */,
 				994FF14818E511BD009140C7 /* Icon-Small-40@2x.png in Resources */,
@@ -1993,7 +2002,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				991382EF18A74639009862EA /* PictureCastTests.m in Sources */,
+				991382EF18A74639009862EA /* CollabricastTests in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2047,6 +2056,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -2079,7 +2089,7 @@
 				MACH_O_TYPE = mh_execute;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
-				VALID_ARCHS = "arm64 armv7s armv7";
+				VALID_ARCHS = "armv7s armv7";
 			};
 			name = Debug;
 		};
@@ -2087,6 +2097,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -2112,29 +2123,32 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
-				VALID_ARCHS = "armv7s armv7 arm64";
+				VALID_ARCHS = "armv7s armv7";
 			};
 			name = Release;
 		};
 		991382F318A74639009862EA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/evanhsu3/Documents/eecs441/PictureCast,
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "PictureCast/Collabricast-Prefix.pch";
-				INFOPLIST_FILE = "PictureCast/Collabricast-Info.plist";
+				GCC_PREFIX_HEADER = "Collabricast/Collabricast-Prefix.pch";
+				INFOPLIST_FILE = "Collabricast/Collabricast-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib/system",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = Collabricast;
+				VALID_ARCHS = "armv7s armv7";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -2142,22 +2156,25 @@
 		991382F418A74639009862EA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/evanhsu3/Documents/eecs441/PictureCast,
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "PictureCast/Collabricast-Prefix.pch";
-				INFOPLIST_FILE = "PictureCast/Collabricast-Info.plist";
+				GCC_PREFIX_HEADER = "Collabricast/Collabricast-Prefix.pch";
+				INFOPLIST_FILE = "Collabricast/Collabricast-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib/system",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = Collabricast;
+				VALID_ARCHS = "armv7s armv7";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

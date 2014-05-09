@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "991382C518A74638009862EA"
-               BuildableName = "MediaCast.app"
+               BuildableName = "Collabricast.app"
                BlueprintName = "Collabricast"
                ReferencedContainer = "container:Collabricast.xcodeproj">
             </BuildableReference>
@@ -33,7 +33,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "991382E018A74639009862EA"
-               BuildableName = "MediaCastTests.xctest"
+               BuildableName = "CollabricastTests.xctest"
                BlueprintName = "CollabricastTests"
                ReferencedContainer = "container:Collabricast.xcodeproj">
             </BuildableReference>
@@ -43,7 +43,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "991382C518A74638009862EA"
-            BuildableName = "MediaCast.app"
+            BuildableName = "Collabricast.app"
             BlueprintName = "Collabricast"
             ReferencedContainer = "container:Collabricast.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "991382C518A74638009862EA"
-            BuildableName = "MediaCast.app"
+            BuildableName = "Collabricast.app"
             BlueprintName = "Collabricast"
             ReferencedContainer = "container:Collabricast.xcodeproj">
          </BuildableReference>
@@ -80,7 +80,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "991382C518A74638009862EA"
-            BuildableName = "MediaCast.app"
+            BuildableName = "Collabricast.app"
             BlueprintName = "Collabricast"
             ReferencedContainer = "container:Collabricast.xcodeproj">
          </BuildableReference>

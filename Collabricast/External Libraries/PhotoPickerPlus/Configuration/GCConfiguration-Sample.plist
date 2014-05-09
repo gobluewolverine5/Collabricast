@@ -5,9 +5,9 @@
 	<key>chute-sdk</key>
 	<dict>
 		<key>app_id</key>
-		<string>533845bbd652e65c03000001</string>
+		<string>YOUR_CLIENT_ID</string>
 		<key>app_secret</key>
-		<string>7cba1cfdb5934f8e7d3f024956a3d5d4fea3cea95511d5bbacdf0e283209095e</string>
+		<string>YOUR_CLIENT_SECRET</string>
 	</dict>
 	<key>photopicker</key>
 	<dict>
